@@ -374,9 +374,21 @@
     position:absolute; right:4px; top:50%; transform:translateY(-50%);
     width:38px; height:38px; border:0; background:transparent; cursor:pointer;
     display:flex; align-items:center; justify-content:center; border-radius:10px;
+    z-index:5; -webkit-tap-highlight-color:transparent;
   }
-  .password-toggle-btn svg{ width:19px; height:19px; stroke:var(--text-faint); }
-  .password-toggle-btn:hover svg{ stroke:var(--text-lo); }
+  .password-toggle-btn:hover{ background:rgba(255,255,255,0.06); }
+  .password-toggle-btn:active{ background:rgba(255,255,255,0.1); }
+  .password-eye{ width:19px; height:19px; position:relative; }
+  .password-eye svg{
+    position:absolute; inset:0; width:19px; height:19px;
+    stroke:var(--text-faint); fill:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .password-toggle-btn:hover .password-eye svg{ stroke:var(--text-lo); }
+  .password-eye .icon-open{ opacity:1; transform:scale(1); }
+  .password-eye .icon-closed{ opacity:0; transform:scale(0.7); }
+  .password-toggle-btn.is-visible .password-eye .icon-open{ opacity:0; transform:scale(0.7); }
+  .password-toggle-btn.is-visible .password-eye .icon-closed{ opacity:1; transform:scale(1); stroke:var(--gold-300); }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805;
@@ -526,9 +538,11 @@
           <label>Нууц үг</label>
           <div class="password-wrap">
             <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
-            <button type="button" class="password-toggle-btn" id="loginPasswordToggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="loginPasswordToggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -556,9 +570,11 @@
           <label>Нууц үг</label>
           <div class="password-wrap">
             <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх">
-            <button type="button" class="password-toggle-btn" id="registerPasswordToggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="registerPasswordToggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -566,9 +582,11 @@
           <label>Нууц үг давтах</label>
           <div class="password-wrap">
             <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
-            <button type="button" class="password-toggle-btn" id="registerPassword2Toggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="registerPassword2Toggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -976,29 +994,34 @@
   var loginCloseBtn = document.getElementById('loginCloseBtn');
   var loginOpenedFrom = null;
 
-  // ---- Нууц үг харуулах/нуух товч (keyboard хаагдахгүй байхаар хийсэн) ----
-  function setupPasswordToggle(inputId, btnId){
-    var input = document.getElementById(inputId);
-    var btn = document.getElementById(btnId);
-    if(!input || !btn) return;
-    var eyeOpen = btn.querySelector('.eye-open');
-    var eyeClosed = btn.querySelector('.eye-closed');
-    // mousedown/touchstart дээр preventDefault хийснээр товч дарахад input-ээс
-    // focus салахгүй тул утасны keyboard хаагдахгүй.
-    function preventBlur(e){ e.preventDefault(); }
-    btn.addEventListener('mousedown', preventBlur);
-    btn.addEventListener('touchstart', preventBlur, { passive:false });
-    btn.addEventListener('click', function(){
-      var isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      eyeOpen.style.display = isHidden ? 'none' : 'block';
-      eyeClosed.style.display = isHidden ? 'block' : 'none';
-      input.focus();
-    });
+  // ---- Нууц үг харуулах/нуух товч ----
+  function togglePasswordVisibility(btn){
+    var wrap = btn.closest('.password-wrap');
+    var input = wrap ? wrap.querySelector('input') : null;
+    if(!input) return;
+    var willShow = input.type === 'password';
+    input.type = willShow ? 'text' : 'password';
+    btn.classList.toggle('is-visible', willShow);
+    // input.type солиход зарим хөтчид focus салж, гар (keyboard) хаагдаж болно
+    // тул шууд буцааж focus өгнө.
+    input.focus();
+    var pos = input.value.length;
+    try{ input.setSelectionRange(pos, pos); }catch(e){}
   }
-  setupPasswordToggle('loginPassword', 'loginPasswordToggle');
-  setupPasswordToggle('registerPassword', 'registerPasswordToggle');
-  setupPasswordToggle('registerPassword2', 'registerPassword2Toggle');
+  // Бие даасан event listener бүр дээр биш, бүх .password-toggle-btn товчийг
+  // нэг дор барьдаг delegated listener ашигласнаар илүү найдвартай ажиллана.
+  // mousedown/touchstart дээр preventDefault хийснээр товч дарах мөчид input-ээс
+  // focus огт салдаггүй тул утасны гар (keyboard) огт хаагдахгүй.
+  function preventFocusLoss(e){
+    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
+    if(btn) e.preventDefault();
+  }
+  document.addEventListener('mousedown', preventFocusLoss);
+  document.addEventListener('touchstart', preventFocusLoss, { passive:false });
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
+    if(btn) togglePasswordVisibility(btn);
+  });
 
   function showAllPagesHidden(){
     document.getElementById('mainView').style.display = 'none';
