@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reward Hub — Дашбоард</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#050505;
+    --bg-panel:#121214;
+    --bg-panel-2:#18181b;
+    --bg-elevated:#202024;
+    --line:rgba(255,255,255,0.08);
+    --line-strong:rgba(255,255,255,0.14);
+    --gold-100:#ffcabb;
+    --gold-300:#ff6b4a;
+    --gold-500:#ff4e2a;
+    --gold-700:#cc3a1a;
+    --gold-900:#5e1c0c;
+    --text-hi:#f5f5f7;
+    --text-lo:#9a9aa2;
+    --text-faint:#65656b;
+    --red:#ff5d5d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ scroll-behavior:auto; }
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--text-hi);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 20px;
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(255,78,42,0.10), transparent 70%),
+      var(--bg-void);
+    overflow-x:hidden;
+    position:relative;
+  }
+  .blinds{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(255,78,42,0.16) 0px,
+        rgba(255,78,42,0.16) 26px,
+        transparent 26px,
+        transparent 96px
+      );
+    -webkit-mask-image: radial-gradient(80% 70% at 50% 35%, black 0%, transparent 75%);
+            mask-image: radial-gradient(80% 70% at 50% 35%, black 0%, transparent 75%);
+    filter: blur(18px);
+    opacity:0.8;
+  }
+
+  .app{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:412px;
+    background:var(--bg-panel);
+    border:1px solid var(--line-strong);
+    border-radius:36px;
+    padding:22px 18px 30px;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .who{ display:flex; align-items:center; gap:10px; }
+  .avatar{
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#1a0805;
+    flex-shrink:0;
+  }
+  .who-text .hi{ font-size:12.5px; color:var(--text-lo); }
+  .who-text .name{ font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; margin-top:1px; }
+  .bell{
+    width:40px; height:40px; border-radius:14px; background:var(--bg-elevated);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .bell svg{ width:18px; height:18px; stroke:var(--text-hi); }
+  .bell .dot{
+    position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%;
+    background:var(--red); border:1.5px solid var(--bg-elevated);
+  }
+
+  .search-row{ display:flex; gap:10px; margin-bottom:18px; }
+  .search-box{
+    flex:1; display:flex; align-items:center; gap:8px;
+    background:var(--bg-elevated); border:1px solid var(--line);
+    border-radius:14px; padding:0 14px; height:44px;
+  }
+  .search-box svg{ width:16px; height:16px; stroke:var(--text-faint); flex-shrink:0; }
+  .search-box input{
+    border:0; outline:0; background:transparent; color:var(--text-hi);
+    font-size:16px; width:100%; font-family:'Inter',sans-serif;
+  }
+  .search-box input::placeholder{ color:var(--text-faint); }
+  .filter-btn{
+    width:44px; height:44px; border-radius:14px; background:var(--bg-elevated);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; cursor:pointer;
+  }
+  .filter-btn svg{ width:17px; height:17px; stroke:var(--gold-300); }
+
+  .balance-card{
+    background:linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel-2) 100%);
+    border:1px solid var(--line); border-radius:22px; padding:20px 20px 18px;
+    margin-bottom:18px; position:relative; overflow:hidden;
+  }
+  .balance-label{ font-size:12.5px; color:var(--text-lo); margin-bottom:6px; }
+  .balance-row{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .balance-amount{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:28px; letter-spacing:-0.5px;
+  }
+  .coin-stack{ width:64px; height:64px; flex-shrink:0; margin-top:-6px; }
+  .balance-pills{ display:flex; gap:10px; margin-top:16px; }
+  .pill{
+    flex:1; display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:rgba(0,0,0,0.22); border:1px solid var(--line);
+    border-radius:14px; padding:9px 12px; cursor:pointer;
+  }
+  .pill-left{ display:flex; align-items:center; gap:9px; }
+  .pill-icon{
+    width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(150deg, var(--gold-300), var(--gold-700));
+    flex-shrink:0;
+  }
+  .pill-icon svg{ width:15px; height:15px; stroke:#1a0805; fill:none; }
+  .pill-text .k{ font-size:10.5px; color:var(--text-lo); line-height:1.3; }
+  .pill-text .v{ font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; }
+  .pill svg.chev{ width:14px; height:14px; stroke:var(--text-faint); flex-shrink:0; }
+
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+  .section-head h2{ font-family:'Poppins',sans-serif; font-size:15.5px; font-weight:600; }
+  .section-head a{ font-size:12.5px; color:var(--gold-300); text-decoration:none; cursor:pointer; }
+
+  .offers-grid{
+    display:flex; gap:10px; margin-bottom:18px; overflow-x:auto;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
+  }
+  .offers-grid::-webkit-scrollbar{ display:none; }
+  .offers-grid .offer-card{ flex:0 0 116px; width:116px; }
+  .offer-card{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:18px;
+    overflow:hidden; cursor:pointer; transition:transform .15s ease;
+  }
+  .offer-card:hover{ transform:translateY(-2px); }
+  .offer-cover{
+    aspect-ratio:1/1; position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .offer-cover img{ width:58%; height:58%; object-fit:contain; border-radius:14px; }
+  .offer-cover svg{ width:60%; height:60%; }
+  .offers-grid .offer-cover{ margin:6px 6px 0; border-radius:14px; }
+  .continue-btn{
+    position:absolute; bottom:6px; right:6px; width:24px; height:24px; border-radius:50%;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 8px rgba(0,0,0,0.4), 0 0 0 2px rgba(0,0,0,0.15);
+  }
+  .continue-btn svg{ width:11px; height:11px; margin-left:1px; }
+  .offer-cover.a{ background:linear-gradient(160deg,#b7c47a,#5d6b3c 60%,#3e4826); }
+  .offer-cover.b{ background:linear-gradient(160deg,#8fd9ff,#4a8fe0 55%,#3a5fc9); }
+  .offer-cover.c{ background:linear-gradient(160deg,#7a5cff,#4b2fb8 60%,#2c1c78); }
+  .offer-cover.d{ background:linear-gradient(160deg,#3a3a3a,#1c1c1c 60%,#0f0f0f); }
+  .offer-cover.e{ background:linear-gradient(160deg,#2c2c2c,#181818 60%,#0d0d0d); }
+  .offer-cover.f{ background:linear-gradient(160deg,#ff8a3d,#e2401f 60%,#8a1a0a); }
+  .offer-cover.g{ background:linear-gradient(160deg,#3a4a2e,#1c2416 60%,#0d100a); }
+  .offer-body{ padding:6px 7px 7px; }
+  .offer-body .title{ font-family:'Poppins',sans-serif; font-size:11px; font-weight:600; margin-bottom:1px; }
+  .offer-body .sub{ font-size:9px; color:var(--text-lo); margin-bottom:6px; }
+  .offer-price{
+    display:inline-block; background:var(--bg-elevated); border:1px solid var(--line);
+    color:var(--gold-300); font-family:'Poppins',sans-serif; font-size:10px; font-weight:600;
+    padding:4px 10px; border-radius:20px;
+  }
+  .offers-grid .offer-body{ padding:6px 8px 8px; }
+  .offers-grid .offer-body .title{ font-size:10px; margin-bottom:0; }
+  .offers-grid .offer-body .sub{ display:none; }
+
+  .daily-bonus{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:linear-gradient(115deg, var(--gold-500), var(--gold-700));
+    border-radius:20px; padding:16px 16px 16px 18px; position:relative; overflow:hidden;
+  }
+  .daily-bonus .txt .t1{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15.5px; color:#1a0805; }
+  .daily-bonus .txt .t2{ font-size:11.5px; color:#5c2818; margin:3px 0 12px; }
+  .claim-btn{
+    background:#161616; color:var(--gold-100); border:0; font-family:'Poppins',sans-serif;
+    font-weight:600; font-size:12.5px; padding:9px 18px; border-radius:20px; cursor:pointer;
+  }
+  .claim-btn.done{ background:#2a2a2a; color:var(--text-lo); cursor:default; }
+  .badge-icon{ width:54px; height:54px; flex-shrink:0; }
+
+  .games-page-head{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+  .back-btn{
+    width:38px; height:38px; border-radius:12px; background:var(--bg-elevated);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex-shrink:0;
+  }
+  .back-btn svg{ width:17px; height:17px; stroke:var(--text-hi); }
+  .games-page-head h2{ font-family:'Poppins',sans-serif; font-size:16.5px; font-weight:600; }
+
+  .footer-contact{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:20px; padding-top:16px; border-top:1px solid var(--line);
+  }
+  .footer-contact .label{ font-size:11.5px; color:var(--text-lo); }
+  .footer-social{ display:flex; gap:10px; }
+  .footer-social a{
+    width:36px; height:36px; border-radius:12px; background:var(--bg-elevated);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    text-decoration:none;
+  }
+  .footer-social a svg{ width:17px; height:17px; stroke:var(--gold-300); fill:none; }
+
+  .recharge-id-box{
+    background:var(--bg-elevated); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:18px;
+  }
+  .recharge-id-box .k{ font-size:11.5px; color:var(--text-lo); margin-bottom:6px; }
+  .recharge-id-box input{
+    width:100%; border:0; outline:0; background:transparent; color:var(--text-hi);
+    font-size:16px; font-family:'Inter',sans-serif;
+  }
+  .recharge-id-box input::placeholder{ color:var(--text-faint); }
+  .package-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+
+  /* Mobile Legends style recharge screen (applies to all games) */
+  :root{ --ml-purple:#7C4DFF; --ml-purple-dim:rgba(124,77,255,0.15); }
+  .recharge-banner{
+    border-radius:18px; overflow:hidden; margin-bottom:22px; height:100px;
+    display:flex; align-items:center; gap:14px; padding:0 18px; position:relative;
+    background:linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple));
+  }
+  .recharge-banner-icon{
+    width:60px; height:60px; border-radius:14px; flex-shrink:0;
+    background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.4);
+  }
+  .recharge-banner-icon svg{ width:60%; height:60%; }
+  .recharge-banner-icon img{ width:70%; height:70%; object-fit:contain; border-radius:10px; }
+  .rb-name{ font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:#fff; }
+  .rb-sub{ font-size:12px; color:rgba(255,255,255,0.85); margin-top:2px; }
+
+  .step-label{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .step-num{
+    width:24px; height:24px; border-radius:50%; background:var(--ml-purple-dim);
+    border:1px solid var(--ml-purple); color:var(--ml-purple); font-size:12px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-family:'Poppins',sans-serif; flex-shrink:0;
+  }
+  .step-label span{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14.5px; }
+
+  .id-fields{ display:flex; gap:10px; margin-bottom:24px; }
+  .id-field{ flex:1; min-width:0; }
+  .id-field label{ display:block; font-size:11.5px; color:var(--text-lo); margin-bottom:6px; }
+  .id-field input{
+    width:100%; background:var(--bg-elevated); border:1px solid var(--line);
+    border-radius:12px; padding:12px 14px; color:var(--text-hi); font-size:16px;
+    outline:0; font-family:'Inter',sans-serif; box-sizing:border-box;
+  }
+  .id-field input::placeholder{ color:var(--text-faint); }
+
+  .package-card{
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:16px;
+    padding:14px 12px; text-align:center; cursor:pointer; transition:border-color .15s ease;
+    position:relative;
+  }
+  .package-card.selected, .package-card.best.selected, .package-card.popular.selected{
+    background:var(--ml-purple-dim); border:1.5px solid var(--ml-purple);
+  }
+  .package-card .amt{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; margin-bottom:5px; }
+  .package-card .amt em{ font-style:normal; color:var(--gold-300); font-size:10px; font-weight:700; margin-left:3px; }
+  .package-card .price{ font-size:11.5px; color:var(--text-lo); }
+  .package-card .badge{
+    position:absolute; top:-9px; right:10px; font-size:8.5px; font-weight:800;
+    padding:3px 8px; border-radius:8px; letter-spacing:0.3px; color:#fff;
+  }
+  .package-card .best-badge{ background:linear-gradient(90deg,var(--gold-300),var(--gold-700)); color:#1a0805; }
+  .package-card .popular-badge{ background:var(--ml-purple); }
+
+  .recharge-checkout-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--bg-elevated); border:1px solid var(--line); border-radius:16px;
+    padding:12px 14px; margin-top:20px;
+  }
+  .cb-label{ font-size:11px; color:var(--text-lo); }
+  .cb-amount{ font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:var(--ml-purple); }
+  .recharge-buy-btn{
+    background:var(--ml-purple); color:#fff; border:0; font-family:'Poppins',sans-serif;
+    font-weight:600; font-size:13px; padding:11px 22px; border-radius:20px; cursor:pointer;
+  }
+  .all-games-grid{
+    display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
+  }
+  .all-games-grid::-webkit-scrollbar{ display:none; }
+  .all-games-grid .offer-card{ flex:0 0 92px; width:92px; }
+  .all-games-grid .offer-cover{ border-radius:0; }
+  .all-games-grid .offer-body{ padding:5px 6px 7px; text-align:left; }
+  .all-games-grid .offer-body .title{ font-size:9.5px; }
+  #allGamesView .all-games-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); overflow-x:visible;
+  }
+  #allGamesView .all-games-grid .offer-card{ flex:none; width:auto; }
+
+  @media (max-width:460px){
+    body{ padding:0; align-items:stretch; }
+    .app{ max-width:100%; min-height:100vh; border-radius:0; border:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blinds"></div>
+
+<div class="app">
+  <div id="mainView">
+  <div class="topbar">
+    <div class="who">
+      <div class="avatar">АА</div>
+      <div class="who-text">
+        <div class="hi">Тавтай морил,</div>
+        <div class="name">Асиб Ахмед 👋</div>
+      </div>
+    </div>
+    <div class="bell">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="search-row">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Тоглоомоо хайх">
+    </div>
+    <div class="filter-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    </div>
+  </div>
+
+  <div class="balance-card">
+    <div class="balance-label">Нийт үлдэгдэл</div>
+    <div class="balance-row">
+      <div class="balance-amount">$12,487.45</div>
+      <svg class="coin-stack" viewBox="0 0 64 64">
+        <circle cx="40" cy="20" r="13" fill="#ff4e2a"/>
+        <circle cx="40" cy="20" r="9" fill="none" stroke="#cc3a1a" stroke-width="2"/>
+        <circle cx="24" cy="30" r="14" fill="#ff6b4a"/>
+        <circle cx="24" cy="30" r="9.5" fill="none" stroke="#cc3a1a" stroke-width="2"/>
+        <circle cx="36" cy="42" r="12" fill="#ff4e2a"/>
+        <circle cx="36" cy="42" r="8" fill="none" stroke="#cc3a1a" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="balance-pills">
+      <div class="pill">
+        <div class="pill-left">
+          <div class="pill-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 12h6"/></svg></div>
+          <div class="pill-text"><div class="k">Зоос</div><div class="v">12,560</div></div>
+        </div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+      <div class="pill">
+        <div class="pill-left">
+          <div class="pill-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 4-1 5-1 8a4 4 0 0 0 8 0c0-1-1-2-1-2 1 4-1 7-5 7a6 6 0 0 1-6-6c0-4 3-5 5-9Z"/></svg></div>
+          <div class="pill-text"><div class="k">Дараалал</div><div class="v">7 хоног</div></div>
+        </div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h2>Тоглоомууд</h2>
+    <a id="seeAllBtn">Бүгдийг харах</a>
+  </div>
+  <div class="all-games-grid">
+    <div class="offer-card" data-game="PUBG Mobile">
+      <div class="offer-cover a">
+        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
+      </div>
+      <div class="offer-body">
+        <div class="title">PUBG Mobile</div>
+      </div>
+    </div>
+    <div class="offer-card" data-game="MLBB">
+      <div class="offer-cover c">
+        <svg viewBox="0 0 140 96" width="100%" height="100%">
+          <path d="M70 20 90 70" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M70 20 50 70" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M56 66l-10 10M84 66l10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="70" cy="20" r="5" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="offer-body">
+        <div class="title">MLBB</div>
+      </div>
+    </div>
+    <div class="offer-card" data-game="Standoff 2">
+      <div class="offer-cover d">
+        <svg viewBox="0 0 140 96" width="100%" height="100%">
+          <rect x="30" y="50" width="70" height="8" rx="2" fill="#fff"/>
+          <rect x="94" y="42" width="10" height="24" rx="2" fill="#fff"/>
+          <rect x="40" y="58" width="8" height="18" rx="2" fill="#fff"/>
+          <rect x="60" y="44" width="18" height="6" fill="#fff"/>
+          <circle cx="108" cy="54" r="4" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="offer-body">
+        <div class="title">Standoff 2</div>
+      </div>
+    </div>
+    <div class="offer-card" data-game="Roblox">
+      <div class="offer-cover e">
+        <svg viewBox="0 0 140 96" width="100%" height="100%">
+          <rect x="52" y="26" width="16" height="16" rx="2" fill="#ff5a5f"/>
+          <rect x="72" y="26" width="16" height="16" rx="2" fill="#ffffff"/>
+          <rect x="52" y="46" width="16" height="16" rx="2" fill="#ffffff"/>
+          <rect x="72" y="46" width="16" height="16" rx="2" fill="#ff5a5f"/>
+        </svg>
+      </div>
+      <div class="offer-body">
+        <div class="title">Roblox</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="daily-bonus">
+    <div class="txt">
+      <div class="t1">Өдрийн бонус</div>
+      <div class="t2">Өнөөдрийн шагналаа аваарай!</div>
+      <button class="claim-btn" id="claimBtn">Одоо авах</button>
+    </div>
+    <svg class="badge-icon" viewBox="0 0 64 64">
+      <rect x="8" y="26" width="48" height="30" rx="4" fill="#161616"/>
+      <rect x="8" y="18" width="48" height="12" rx="4" fill="#2a2a2a"/>
+      <rect x="27" y="18" width="10" height="38" fill="#ff4e2a"/>
+      <path d="M32 18c-8-2-14-14-4-14 6 0 6 8 4 14Z" fill="#ff4e2a"/>
+      <path d="M32 18c8-2 14-14 4-14-6 0-6 8-4 14Z" fill="#ff6b4a"/>
+    </svg>
+  </div>
+
+  <div class="footer-contact">
+    <div class="label">Холбоо барих</div>
+    <div class="footer-social">
+      <a href="https://www.facebook.com/share/1JWK6iy6EN/?mibextid=wwXIfr" aria-label="Facebook" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/lootboxmn?igsi=MTU5ODdldzNpOGMxYQ==" aria-label="Instagram" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="var(--gold-300)" stroke="none"/></svg>
+      </a>
+    </div>
+  </div>
+  </div>
+
+  <div id="allGamesView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <h2>Бүх тоглоомууд</h2>
+    </div>
+    <div class="all-games-grid">
+      <div class="offer-card" data-game="PUBG Mobile">
+        <div class="offer-cover a">
+          <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
+        </div>
+        <div class="offer-body">
+          <div class="title">PUBG Mobile</div>
+        </div>
+      </div>
+      <div class="offer-card" data-game="MLBB">
+        <div class="offer-cover c">
+          <svg viewBox="0 0 140 96" width="100%" height="100%">
+          <path d="M70 20 90 70" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M70 20 50 70" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <path d="M56 66l-10 10M84 66l10 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="70" cy="20" r="5" fill="#fff"/>
+        </svg>
+        </div>
+        <div class="offer-body">
+          <div class="title">MLBB</div>
+        </div>
+      </div>
+      <div class="offer-card" data-game="Standoff 2">
+        <div class="offer-cover d">
+          <svg viewBox="0 0 140 96" width="100%" height="100%">
+          <rect x="30" y="50" width="70" height="8" rx="2" fill="#fff"/>
+          <rect x="94" y="42" width="10" height="24" rx="2" fill="#fff"/>
+          <rect x="40" y="58" width="8" height="18" rx="2" fill="#fff"/>
+          <rect x="60" y="44" width="18" height="6" fill="#fff"/>
+          <circle cx="108" cy="54" r="4" fill="#fff"/>
+        </svg>
+        </div>
+        <div class="offer-body">
+          <div class="title">Standoff 2</div>
+        </div>
+      </div>
+      <div class="offer-card" data-game="Roblox">
+        <div class="offer-cover e">
+          <svg viewBox="0 0 140 96" width="100%" height="100%">
+            <rect x="52" y="26" width="16" height="16" rx="2" fill="#ff5a5f"/>
+            <rect x="72" y="26" width="16" height="16" rx="2" fill="#ffffff"/>
+            <rect x="52" y="46" width="16" height="16" rx="2" fill="#ffffff"/>
+            <rect x="72" y="46" width="16" height="16" rx="2" fill="#ff5a5f"/>
+          </svg>
+        </div>
+        <div class="offer-body">
+          <div class="title">Roblox</div>
+        </div>
+      </div>
+      <div class="offer-card" data-game="Free Fire">
+        <div class="offer-cover f">
+          <svg viewBox="0 0 140 96" width="100%" height="100%">
+            <path d="M70 20c10 12 4 16 10 24 4-6 10-4 10 4 0 12-10 20-20 20s-22-8-22-20c0-10 8-14 10-22 2 6 6 6 8 2 2-4 0-6 4-8z" fill="#ffd166"/>
+            <path d="M70 40c4 4 2 8 6 10 2-3 5-1 5 3 0 6-5 10-11 10s-11-4-11-10c0-5 4-7 5-11 1 3 3 3 4 1 1-2 0-3 2-3z" fill="#e2401f"/>
+          </svg>
+        </div>
+        <div class="offer-body">
+          <div class="title">Free Fire</div>
+        </div>
+      </div>
+      <div class="offer-card" data-game="Call of Duty Mobile">
+        <div class="offer-cover g">
+          <svg viewBox="0 0 140 96" width="100%" height="100%">
+            <circle cx="70" cy="46" r="22" fill="none" stroke="#c7d4b8" stroke-width="2"/>
+            <path d="M70 24v10M70 58v10M48 46h10M92 46h10" stroke="#c7d4b8" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="70" cy="46" r="4" fill="#c7d4b8"/>
+          </svg>
+        </div>
+        <div class="offer-body">
+          <div class="title">Call of Duty Mobile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rechargeView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="rechargeBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <h2>Цэнэглэх</h2>
+    </div>
+
+    <div class="recharge-banner">
+      <div class="recharge-banner-icon" id="rechargeBannerIcon"></div>
+      <div>
+        <div class="rb-name" id="rechargeTitle">Mobile Legends</div>
+        <div class="rb-sub" id="rechargeSub">Diamond шууд цэнэглэлт</div>
+      </div>
+    </div>
+
+    <div class="step-label"><div class="step-num">1</div><span>Тоглогчийн ID оруулах</span></div>
+    <div class="id-fields">
+      <div class="id-field">
+        <label>ID оруулах</label>
+        <input type="text" placeholder="Жишээ: 123456789">
+      </div>
+      <div class="id-field">
+        <label>Zone ID оруулах</label>
+        <input type="text" placeholder="Жишээ: 2001">
+      </div>
+    </div>
+
+    <div class="step-label"><div class="step-num">2</div><span>Diamond багц сонгох</span></div>
+    <div class="package-grid">
+      <div class="package-card"><div class="amt">💎 60</div><div class="price">5,000₮</div></div>
+      <div class="package-card best"><span class="badge best-badge">ХЯМД</span><div class="amt">💎 325 <em>+25</em></div><div class="price">25,000₮</div></div>
+      <div class="package-card"><div class="amt">💎 660 <em>+60</em></div><div class="price">50,000₮</div></div>
+      <div class="package-card popular"><span class="badge popular-badge">ТҮГЭЭМЭЛ</span><div class="amt">💎 1800 <em>+200</em></div><div class="price">130,000₮</div></div>
+      <div class="package-card"><div class="amt">💎 3850 <em>+480</em></div><div class="price">270,000₮</div></div>
+      <div class="package-card"><div class="amt">💎 8100 <em>+1100</em></div><div class="price">550,000₮</div></div>
+    </div>
+
+    <div class="recharge-checkout-bar">
+      <div>
+        <div class="cb-label">Нийт төлөх</div>
+        <div class="cb-amount" id="rechargeTotal">—</div>
+      </div>
+      <button class="recharge-buy-btn" id="rechargeBuyBtn">Худалдан авах</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  var seeAllBtn = document.getElementById('seeAllBtn');
+  var backBtn = document.getElementById('backBtn');
+  var mainView = document.getElementById('mainView');
+  var allGamesView = document.getElementById('allGamesView');
+  var rechargeView = document.getElementById('rechargeView');
+  var rechargeBackBtn = document.getElementById('rechargeBackBtn');
+  var rechargeTitle = document.getElementById('rechargeTitle');
+  var rechargeSub = document.getElementById('rechargeSub');
+  var rechargeBannerIcon = document.getElementById('rechargeBannerIcon');
+  var rechargeTotal = document.getElementById('rechargeTotal');
+  var lastListView = mainView;
+
+  seeAllBtn.addEventListener('click', function(){
+    mainView.style.display = 'none';
+    allGamesView.style.display = 'block';
+  });
+  backBtn.addEventListener('click', function(){
+    allGamesView.style.display = 'none';
+    mainView.style.display = 'block';
+  });
+
+  document.querySelectorAll('.offer-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      var game = card.getAttribute('data-game');
+      lastListView = (allGamesView.style.display === 'none') ? mainView : allGamesView;
+      lastListView.style.display = 'none';
+
+      rechargeTitle.textContent = game;
+      rechargeSub.textContent = 'Шууд цэнэглэлт';
+      var cover = card.querySelector('.offer-cover');
+      rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
+
+      document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
+      rechargeTotal.textContent = '—';
+
+      rechargeView.style.display = 'block';
+    });
+  });
+
+  rechargeBackBtn.addEventListener('click', function(){
+    rechargeView.style.display = 'none';
+    lastListView.style.display = 'block';
+  });
+
+  document.querySelectorAll('.package-card').forEach(function(pkg){
+    pkg.addEventListener('click', function(){
+      document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
+      pkg.classList.add('selected');
+      var priceEl = pkg.querySelector('.price');
+      rechargeTotal.textContent = priceEl ? priceEl.textContent : '—';
+    });
+  });
+
+  var rechargeBuyBtn = document.getElementById('rechargeBuyBtn');
+  rechargeBuyBtn.addEventListener('click', function(){
+    var selected = document.querySelector('.package-card.selected');
+    if (!selected) return;
+    rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
+  });
+
+  var claimBtn = document.getElementById('claimBtn');
+  claimBtn.addEventListener('click', function(){
+    claimBtn.textContent = 'Авсан ✓';
+    claimBtn.classList.add('done');
+    claimBtn.disabled = true;
+  });
+</script>
+
+</body>
+</html>
