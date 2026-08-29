@@ -77,8 +77,9 @@
     background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
     display:flex; align-items:center; justify-content:center;
     font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#1a0805;
-    flex-shrink:0;
+    flex-shrink:0; overflow:hidden;
   }
+  .avatar svg{ width:20px; height:20px; stroke:#1a0805; }
   .who-text .hi{ font-size:12.5px; color:var(--text-lo); }
   .who-text .name{ font-family:'Poppins',sans-serif; font-weight:600; font-size:15px; margin-top:1px; }
   .bell{
@@ -317,6 +318,96 @@
     body{ padding:0; align-items:stretch; }
     .app{ max-width:100%; min-height:100vh; border-radius:0; border:0; }
   }
+
+  /* Login screen */
+  .login-wrap{ padding:26px 4px 10px; }
+  .login-logo{
+    width:64px; height:64px; border-radius:20px; margin:0 auto 18px;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .login-logo svg{ width:30px; height:30px; stroke:#1a0805; }
+  .login-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:21px; text-align:center; margin-bottom:6px; }
+  .login-sub{ font-size:13px; color:var(--text-lo); text-align:center; margin-bottom:28px; }
+  .login-field{ margin-bottom:14px; }
+  .login-field label{ display:block; font-size:11.5px; color:var(--text-lo); margin-bottom:6px; }
+  .login-field input{
+    width:100%; background:var(--bg-elevated); border:1px solid var(--line);
+    border-radius:14px; padding:13px 14px; color:var(--text-hi); font-size:16px;
+    outline:0; font-family:'Inter',sans-serif; box-sizing:border-box;
+  }
+  .login-field input:focus{ border-color:var(--gold-300); }
+  .login-field input::placeholder{ color:var(--text-faint); }
+  .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
+  .login-btn{
+    width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805;
+    border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
+    padding:14px; border-radius:16px; cursor:pointer; margin-top:6px;
+  }
+  .login-hint{ font-size:11.5px; color:var(--text-faint); text-align:center; margin-top:16px; }
+  .auth-tabs{
+    display:flex; background:var(--bg-elevated); border:1px solid var(--line);
+    border-radius:14px; padding:4px; margin-bottom:22px; gap:4px;
+  }
+  .auth-tab{
+    flex:1; text-align:center; padding:9px 0; border-radius:11px; cursor:pointer;
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:13px; color:var(--text-lo);
+  }
+  .auth-tab.active{ background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805; }
+  .forgot-link{
+    display:block; text-align:right; font-size:12px; color:var(--gold-300);
+    text-decoration:none; cursor:pointer; margin:-6px 0 14px;
+  }
+  #forgotPanel .forgot-link{ text-align:center; margin:16px 0 0; }
+  .forgot-sent{
+    display:none; font-size:12.5px; color:var(--gold-300); background:rgba(255,78,42,0.08);
+    border:1px solid rgba(255,78,42,0.25); border-radius:14px; padding:11px 14px;
+    margin-bottom:14px; text-align:center; line-height:1.5;
+  }
+
+  /* Profile screen */
+  .who{ cursor:pointer; }
+  .avatar-lg-wrap{ position:relative; width:88px; height:88px; margin:6px auto 22px; }
+  .avatar-lg{
+    width:88px; height:88px; border-radius:50%; overflow:hidden;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:26px; color:#1a0805;
+  }
+  .avatar-lg img{ width:100%; height:100%; object-fit:cover; }
+  .avatar-edit-btn{
+    position:absolute; bottom:0; right:0; width:30px; height:30px; border-radius:50%;
+    background:var(--bg-elevated); border:2px solid var(--bg-panel);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .avatar-edit-btn svg{ width:14px; height:14px; stroke:var(--gold-300); }
+  .profile-field{ margin-bottom:16px; }
+  .profile-field label{ display:block; font-size:11.5px; color:var(--text-lo); margin-bottom:6px; }
+  .profile-field input{
+    width:100%; background:var(--bg-elevated); border:1px solid var(--line);
+    border-radius:14px; padding:13px 14px; color:var(--text-hi); font-size:16px;
+    outline:0; font-family:'Inter',sans-serif; box-sizing:border-box;
+  }
+  .profile-field input:focus{ border-color:var(--gold-300); }
+  .profile-save-btn{
+    width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805;
+    border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
+    padding:14px; border-radius:16px; cursor:pointer; margin-top:8px;
+  }
+  .profile-save-btn.saved{ background:#2a2a2a; color:var(--text-lo); }
+  .profile-logout-btn{
+    width:100%; background:transparent; color:var(--red); border:1px solid rgba(255,93,93,0.3);
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+    padding:12px; border-radius:16px; cursor:pointer; margin-top:12px;
+  }
+  .profile-locked-msg{
+    display:none; font-size:12.5px; color:var(--gold-300); background:rgba(255,78,42,0.08);
+    border:1px solid rgba(255,78,42,0.25); border-radius:14px; padding:11px 14px;
+    margin-bottom:16px; text-align:center; line-height:1.5;
+  }
+  .profile-field input:disabled{ opacity:0.5; cursor:not-allowed; }
+  .avatar-edit-btn.disabled{ opacity:0.4; cursor:not-allowed; pointer-events:none; }
+  .profile-save-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -324,13 +415,78 @@
 <div class="blinds"></div>
 
 <div class="app">
-  <div id="mainView">
+  <div id="loginView" style="display:none;">
+    <div class="login-wrap">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="login-title">Reward Hub</div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin">Нэвтрэх</div>
+        <div class="auth-tab" id="tabRegister">Бүртгүүлэх</div>
+      </div>
+
+      <!-- Нэвтрэх хэсэг -->
+      <div id="loginPanel">
+        <div class="login-sub">Бүртгэлээрээ нэвтэрч профайлаа хадгална уу</div>
+        <div class="login-field">
+          <label>Хэрэглэгчийн нэр</label>
+          <input type="text" id="loginUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
+        </div>
+        <div class="login-field">
+          <label>Нууц үг</label>
+          <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
+        </div>
+        <a class="forgot-link" id="forgotLink">Нууц үгээ мартсан уу?</a>
+        <div class="login-error" id="loginError">Хэрэглэгчийн нэр эсвэл нууц үгээ оруулна уу</div>
+        <button class="login-btn" id="loginBtn">Нэвтрэх</button>
+        <div class="login-hint">Демо горим: дурын нэр, нууц үг ашиглан нэвтэрч болно</div>
+      </div>
+
+      <!-- Бүртгүүлэх хэсэг -->
+      <div id="registerPanel" style="display:none;">
+        <div class="login-sub">Шинэ бүртгэл үүсгэж эхлээрэй</div>
+        <div class="login-field">
+          <label>Хэрэглэгчийн нэр</label>
+          <input type="text" id="registerUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
+        </div>
+        <div class="login-field">
+          <label>Нууц үг</label>
+          <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх">
+        </div>
+        <div class="login-field">
+          <label>Нууц үг давтах</label>
+          <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
+        </div>
+        <div class="login-error" id="registerError">Талбаруудыг зөв бөглөнө үү</div>
+        <button class="login-btn" id="registerBtn">Бүртгүүлэх</button>
+      </div>
+
+      <!-- Нууц үг мартсан хэсэг -->
+      <div id="forgotPanel" style="display:none;">
+        <div class="login-sub">Бүртгэлтэй имэйл эсвэл хэрэглэгчийн нэрээ оруулна уу</div>
+        <div class="login-field">
+          <label>Имэйл / Хэрэглэгчийн нэр</label>
+          <input type="text" id="forgotInput" placeholder="Жишээ: name@mail.com">
+        </div>
+        <div class="login-error" id="forgotError">Талбарыг бөглөнө үү</div>
+        <div class="forgot-sent" id="forgotSent">Сэргээх линк илгээгдлээ ✓ Имэйлээ шалгана уу.</div>
+        <button class="login-btn" id="forgotBtn">Сэргээх линк илгээх</button>
+        <a class="forgot-link" id="backToLoginLink">← Нэвтрэх хэсэг рүү буцах</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainView" style="display:block;">
   <div class="topbar">
-    <div class="who">
-      <div class="avatar">АА</div>
+    <div class="who" id="openProfileBtn">
+      <div class="avatar" id="topbarAvatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      </div>
       <div class="who-text">
         <div class="hi">Тавтай морил,</div>
-        <div class="name">Асиб Ахмед 👋</div>
+        <div class="name" id="topbarName">Асиб Ахмед 👋</div>
       </div>
     </div>
     <div class="bell">
@@ -591,10 +747,325 @@
       <button class="recharge-buy-btn" id="rechargeBuyBtn">Худалдан авах</button>
     </div>
   </div>
+
+  <div id="profileView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="profileBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <h2>Профайл</h2>
+    </div>
+
+    <div class="avatar-lg-wrap">
+      <div class="avatar-lg" id="profileAvatarPreview">АА</div>
+      <div class="avatar-edit-btn" id="avatarEditBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </div>
+      <input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
+    </div>
+
+    <div class="profile-locked-msg" id="profileLockedMsg">Профайлаа засахын тулд эхлээд нэвтэрч бүртгүүлнэ үү.</div>
+
+    <div class="profile-field" id="profileUsernameField">
+      <label>Хэрэглэгчийн нэр</label>
+      <input type="text" id="profileUsernameInput" placeholder="Хэрэглэгчийн нэрээ оруулах">
+    </div>
+
+    <button class="profile-save-btn" id="profileSaveBtn">Хадгалах</button>
+    <button class="profile-logout-btn" id="profileAuthBtn">Гарах</button>
+  </div>
 </div>
 
 
 <script>
+  // ---- Хэрэглэгчийн төлөв (сессийн турш санах, дахин ачаалахад анхны утга руу буцна) ----
+  // Бүртгүүлээгүй, нэвтрээгүй байсан ч сайтад "Зочин"-оор шууд орж болно.
+  var currentUser = {
+    username: 'Зочин',
+    avatarText: 'ЗЧ',
+    avatarImg: null,
+    loggedIn: false
+  };
+
+  function getInitials(name){
+    var parts = name.trim().split(/\s+/).filter(Boolean);
+    if(parts.length === 0) return '??';
+    if(parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  function renderTopbar(){
+    var nameEl = document.getElementById('topbarName');
+    var avatarEl = document.getElementById('topbarAvatar');
+    if(currentUser.loggedIn){
+      nameEl.textContent = currentUser.username + ' 👋';
+    } else {
+      nameEl.textContent = 'Зочин';
+    }
+    if(currentUser.avatarImg){
+      avatarEl.innerHTML = '<img src="' + currentUser.avatarImg + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    } else if(currentUser.loggedIn){
+      avatarEl.innerHTML = '';
+      avatarEl.textContent = currentUser.avatarText;
+    } else {
+      avatarEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>';
+    }
+  }
+  renderTopbar();
+
+  // ---- Нэвтрэх / Бүртгүүлэх / Нууц үг мартах ----
+  var loginView = document.getElementById('loginView');
+  var loginUsername = document.getElementById('loginUsername');
+  var loginPassword = document.getElementById('loginPassword');
+  var loginError = document.getElementById('loginError');
+  var loginBtn = document.getElementById('loginBtn');
+  var loginReturnTo = 'main'; // 'main' эсвэл 'profile' - нэвтэрсний дараа хаашаа буцахыг заана
+
+  var tabLogin = document.getElementById('tabLogin');
+  var tabRegister = document.getElementById('tabRegister');
+  var loginPanel = document.getElementById('loginPanel');
+  var registerPanel = document.getElementById('registerPanel');
+  var forgotPanel = document.getElementById('forgotPanel');
+  var forgotLink = document.getElementById('forgotLink');
+  var backToLoginLink = document.getElementById('backToLoginLink');
+  var registerUsername = document.getElementById('registerUsername');
+  var registerPassword = document.getElementById('registerPassword');
+  var registerPassword2 = document.getElementById('registerPassword2');
+  var registerError = document.getElementById('registerError');
+  var registerBtn = document.getElementById('registerBtn');
+  var forgotInput = document.getElementById('forgotInput');
+  var forgotError = document.getElementById('forgotError');
+  var forgotSent = document.getElementById('forgotSent');
+  var forgotBtn = document.getElementById('forgotBtn');
+
+  function showAllPagesHidden(){
+    document.getElementById('mainView').style.display = 'none';
+    document.getElementById('allGamesView').style.display = 'none';
+    document.getElementById('profileView').style.display = 'none';
+    document.getElementById('rechargeView').style.display = 'none';
+  }
+
+  function showAuthPanel(which){
+    loginPanel.style.display = which === 'login' ? 'block' : 'none';
+    registerPanel.style.display = which === 'register' ? 'block' : 'none';
+    forgotPanel.style.display = which === 'forgot' ? 'block' : 'none';
+    tabLogin.classList.toggle('active', which === 'login');
+    tabRegister.classList.toggle('active', which === 'register');
+    var tabsRow = tabLogin.parentElement;
+    tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
+  }
+
+  function openLogin(returnTo){
+    loginReturnTo = returnTo || 'main';
+    showAllPagesHidden();
+    loginUsername.value = '';
+    loginPassword.value = '';
+    loginError.style.display = 'none';
+    registerUsername.value = '';
+    registerPassword.value = '';
+    registerPassword2.value = '';
+    registerError.style.display = 'none';
+    forgotInput.value = '';
+    forgotError.style.display = 'none';
+    forgotSent.style.display = 'none';
+    showAuthPanel('login');
+    loginView.style.display = 'block';
+  }
+
+  function completeAuth(username){
+    currentUser.username = username;
+    currentUser.avatarText = getInitials(username);
+    currentUser.loggedIn = true;
+    renderTopbar();
+    loginView.style.display = 'none';
+    if(loginReturnTo === 'profile'){
+      openProfile();
+    } else {
+      document.getElementById('mainView').style.display = 'block';
+    }
+  }
+
+  function doLogin(){
+    var u = loginUsername.value.trim();
+    var p = loginPassword.value;
+    if(!u || !p){
+      loginError.style.display = 'block';
+      return;
+    }
+    loginError.style.display = 'none';
+    completeAuth(u);
+  }
+
+  function doRegister(){
+    var u = registerUsername.value.trim();
+    var p = registerPassword.value;
+    var p2 = registerPassword2.value;
+    if(!u || !p || !p2 || p !== p2){
+      registerError.style.display = 'block';
+      return;
+    }
+    registerError.style.display = 'none';
+    completeAuth(u);
+  }
+
+  function doForgot(){
+    var v = forgotInput.value.trim();
+    if(!v){
+      forgotError.style.display = 'block';
+      forgotSent.style.display = 'none';
+      return;
+    }
+    forgotError.style.display = 'none';
+    forgotSent.style.display = 'block';
+  }
+
+  loginBtn.addEventListener('click', doLogin);
+  loginPassword.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doLogin();
+  });
+
+  registerBtn.addEventListener('click', doRegister);
+  registerPassword2.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doRegister();
+  });
+
+  forgotBtn.addEventListener('click', doForgot);
+  forgotInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doForgot();
+  });
+
+  tabLogin.addEventListener('click', function(){ showAuthPanel('login'); });
+  tabRegister.addEventListener('click', function(){ showAuthPanel('register'); });
+  forgotLink.addEventListener('click', function(){ showAuthPanel('forgot'); });
+  backToLoginLink.addEventListener('click', function(){ showAuthPanel('login'); });
+
+  // ---- Профайл ----
+  var profileView = document.getElementById('profileView');
+  var openProfileBtn = document.getElementById('openProfileBtn');
+  var profileBackBtn = document.getElementById('profileBackBtn');
+  var profileUsernameInput = document.getElementById('profileUsernameInput');
+  var profileUsernameField = document.getElementById('profileUsernameField');
+  var profileAvatarPreview = document.getElementById('profileAvatarPreview');
+  var avatarEditBtn = document.getElementById('avatarEditBtn');
+  var avatarFileInput = document.getElementById('avatarFileInput');
+  var profileSaveBtn = document.getElementById('profileSaveBtn');
+  var profileAuthBtn = document.getElementById('profileAuthBtn');
+  var profileLockedMsg = document.getElementById('profileLockedMsg');
+  var pendingAvatarImg = null;
+  var profileOpenedFrom = null;
+
+  function renderProfilePreview(){
+    if(pendingAvatarImg){
+      profileAvatarPreview.innerHTML = '<img src="' + pendingAvatarImg + '">';
+    } else {
+      profileAvatarPreview.textContent = getInitials(profileUsernameInput.value || currentUser.username);
+    }
+  }
+
+  function renderProfileAuthBtn(){
+    if(currentUser.loggedIn){
+      profileAuthBtn.textContent = 'Гарах';
+    } else {
+      profileAuthBtn.textContent = 'Нэвтрэх';
+    }
+  }
+
+  function renderProfileLockState(){
+    var locked = !currentUser.loggedIn;
+    profileLockedMsg.style.display = locked ? 'block' : 'none';
+    avatarEditBtn.style.display = locked ? 'none' : 'flex';
+    profileUsernameField.style.display = locked ? 'none' : 'block';
+    profileSaveBtn.style.display = locked ? 'none' : 'block';
+  }
+
+  function openProfile(){
+    var mv = document.getElementById('mainView');
+    var agv = document.getElementById('allGamesView');
+    // Хэрэв нэвтрэх хуудаснаас буцаж ирсэн бол өмнөх харагдаж байсан хуудас руу буцна
+    if(profileOpenedFrom !== loginView){
+      profileOpenedFrom = (agv.style.display !== 'none') ? agv : mv;
+    }
+    showAllPagesHidden();
+
+    profileUsernameInput.value = currentUser.username;
+    pendingAvatarImg = currentUser.avatarImg;
+    renderProfilePreview();
+    profileSaveBtn.textContent = 'Хадгалах';
+    profileSaveBtn.classList.remove('saved');
+    renderProfileAuthBtn();
+    renderProfileLockState();
+
+    profileView.style.display = 'block';
+  }
+
+  openProfileBtn.addEventListener('click', function(){
+    if(currentUser.loggedIn){
+      profileOpenedFrom = null;
+      openProfile();
+    } else {
+      profileOpenedFrom = document.getElementById('mainView');
+      openLogin('main');
+    }
+  });
+
+  profileBackBtn.addEventListener('click', function(){
+    profileView.style.display = 'none';
+    if(profileOpenedFrom) profileOpenedFrom.style.display = 'block';
+    else document.getElementById('mainView').style.display = 'block';
+  });
+
+  avatarEditBtn.addEventListener('click', function(){
+    if(!currentUser.loggedIn) return;
+    avatarFileInput.click();
+  });
+
+  avatarFileInput.addEventListener('change', function(){
+    if(!currentUser.loggedIn) return;
+    var file = avatarFileInput.files && avatarFileInput.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      pendingAvatarImg = e.target.result;
+      renderProfilePreview();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  profileUsernameInput.addEventListener('input', function(){
+    if(!currentUser.loggedIn) return;
+    if(!pendingAvatarImg) renderProfilePreview();
+  });
+
+  profileSaveBtn.addEventListener('click', function(){
+    if(!currentUser.loggedIn) return;
+    var newName = profileUsernameInput.value.trim();
+    if(!newName) return;
+    currentUser.username = newName;
+    currentUser.avatarText = getInitials(newName);
+    currentUser.avatarImg = pendingAvatarImg;
+    renderTopbar();
+    profileSaveBtn.textContent = 'Хадгалагдлаа ✓';
+    profileSaveBtn.classList.add('saved');
+  });
+
+  profileAuthBtn.addEventListener('click', function(){
+    if(currentUser.loggedIn){
+      // Гарах: зочны төлөвт буцаж, гол нүүр рүү үлдэнэ (заавал нэвтрэх дэлгэц рүү оруулахгүй)
+      currentUser.username = 'Зочин';
+      currentUser.avatarText = 'ЗЧ';
+      currentUser.avatarImg = null;
+      currentUser.loggedIn = false;
+      renderTopbar();
+      profileView.style.display = 'none';
+      document.getElementById('mainView').style.display = 'block';
+    } else {
+      // Нэвтрэх: профайл дээрээс нэвтэрсний дараа буцаад профайл руугаа орно
+      profileOpenedFrom = loginView;
+      openLogin('profile');
+    }
+  });
+
+  // ---- Одоо байсан навигацийн код ----
   var seeAllBtn = document.getElementById('seeAllBtn');
   var backBtn = document.getElementById('backBtn');
   var mainView = document.getElementById('mainView');
