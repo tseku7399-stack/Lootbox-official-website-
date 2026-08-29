@@ -118,15 +118,28 @@
   }
   .balance-banner-full{ width:100%; height:100%; overflow:hidden; position:relative; }
   .balance-banner-full-track{
-    display:flex; flex-direction:column; height:400%;
-    animation: bannerCycleFull 9s ease-in-out infinite;
+    display:flex; flex-direction:row; width:400%; height:100%;
+    animation: bannerCycleFull 16s ease-in-out infinite;
   }
-  .balance-banner-full-track img{ width:100%; height:25%; object-fit:cover; flex-shrink:0; display:block; }
+  .balance-banner-full-track img{ width:25%; height:100%; object-fit:cover; flex-shrink:0; display:block; }
   @keyframes bannerCycleFull{
-    0%, 22% { transform: translateY(0); }
-    28%, 47% { transform: translateY(-25%); }
-    53%, 72% { transform: translateY(-50%); }
-    78%, 100% { transform: translateY(-75%); }
+    0%, 22% { transform: translateX(0); }
+    28%, 47% { transform: translateX(-25%); }
+    53%, 72% { transform: translateX(-50%); }
+    78%, 100% { transform: translateX(-75%); }
+  }
+  .balance-dots{
+    position:absolute; left:0; right:0; bottom:10px; z-index:2;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .balance-dots .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:rgba(255,255,255,0.35);
+    transition: background .25s ease, transform .25s ease, width .25s ease;
+    cursor:pointer;
+  }
+  .balance-dots .dot.active{
+    background:var(--gold-300); width:16px; border-radius:4px;
   }
   .search-empty{
     display:none; text-align:center; padding:24px 10px; color:var(--text-lo);
@@ -518,11 +531,16 @@
 
   <div class="balance-card">
     <div class="balance-banner-full" id="balanceBanner">
-      <div class="balance-banner-full-track">
+      <div class="balance-banner-full-track" id="balanceBannerTrack">
         <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
         <img src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2">
         <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
+      </div>
+      <div class="balance-dots" id="balanceDots">
+        <div class="dot active" data-index="0"></div>
+        <div class="dot" data-index="1"></div>
+        <div class="dot" data-index="2"></div>
       </div>
     </div>
   </div>
@@ -691,11 +709,11 @@
     <div class="id-fields">
       <div class="id-field">
         <label>ID оруулах</label>
-        <input type="text" placeholder="Жишээ: 123456789">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789">
       </div>
       <div class="id-field">
         <label>Zone ID оруулах</label>
-        <input type="text" placeholder="Жишээ: 2001">
+        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001">
       </div>
     </div>
 
@@ -1115,6 +1133,19 @@
     if (!selected) return;
     rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
   });
+
+  // ---- Balance banner dots (banner горилдог бүр удаа тохирсон цэг идэвхжинэ) ----
+  var balanceDotsEl = document.getElementById('balanceDots');
+  if(balanceDotsEl){
+    var balanceDots = balanceDotsEl.querySelectorAll('.dot');
+    var balanceDotIndex = 0;
+    setInterval(function(){
+      balanceDotIndex = (balanceDotIndex + 1) % balanceDots.length;
+      balanceDots.forEach(function(d, i){
+        d.classList.toggle('active', i === balanceDotIndex);
+      });
+    }, 4000);
+  }
 
   var claimBtn = document.getElementById('claimBtn');
   claimBtn.addEventListener('click', function(){
