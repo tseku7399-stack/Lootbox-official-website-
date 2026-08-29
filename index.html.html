@@ -389,6 +389,48 @@
     margin-bottom:14px; text-align:center; line-height:1.5;
   }
 
+  .google-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#fff; color:#3c4043; border:1px solid var(--line-strong);
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
+    padding:12px; border-radius:16px; cursor:pointer; margin-bottom:18px;
+    transition:opacity .15s ease;
+  }
+  .google-btn:hover{ opacity:0.9; }
+  .google-btn svg{ width:18px; height:18px; flex-shrink:0; }
+  .auth-divider{
+    display:flex; align-items:center; gap:10px; margin:0 0 18px;
+    color:var(--text-faint); font-size:11.5px;
+  }
+  .auth-divider::before, .auth-divider::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+
+  .google-modal-overlay{
+    display:none; position:fixed; inset:0; z-index:50;
+    background:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding:20px;
+  }
+  .google-modal{
+    width:100%; max-width:340px; background:#fff; color:#202124; border-radius:20px;
+    padding:26px 22px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
+  }
+  .google-modal-logo{ display:flex; justify-content:center; margin-bottom:14px; }
+  .google-modal-logo svg{ width:34px; height:34px; }
+  .google-modal-title{ font-family:'Poppins',sans-serif; font-weight:600; font-size:17px; text-align:center; margin-bottom:6px; }
+  .google-modal-sub{ font-size:12.5px; color:#5f6368; text-align:center; margin-bottom:20px; line-height:1.5; }
+  .google-modal input{
+    width:100%; border:1px solid #dadce0; border-radius:10px; padding:12px 13px;
+    font-size:15px; font-family:'Inter',sans-serif; outline:0; margin-bottom:10px; color:#202124; box-sizing:border-box;
+  }
+  .google-modal input:focus{ border-color:#4285F4; }
+  .google-modal-error{ font-size:12px; color:#d93025; margin:-2px 0 10px; display:none; }
+  .google-modal-actions{ display:flex; justify-content:flex-end; gap:14px; margin-top:6px; align-items:center; }
+  .google-modal-cancel{ font-size:14px; color:#1a73e8; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+  .google-modal-continue{
+    background:#1a73e8; color:#fff; border:0; font-weight:600; font-size:14px;
+    padding:9px 20px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif;
+  }
+
   /* Profile screen */
   .who{ cursor:pointer; }
   .avatar-lg-wrap{ position:relative; width:88px; height:88px; margin:6px auto 22px; }
@@ -454,6 +496,11 @@
       <!-- Нэвтрэх хэсэг -->
       <div id="loginPanel">
         <div class="login-sub">Бүртгэлээрээ нэвтэрч профайлаа хадгална уу</div>
+        <button type="button" class="google-btn" id="googleLoginBtn">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          Google-ээр нэвтрэх
+        </button>
+        <div class="auth-divider">эсвэл</div>
         <div class="login-field">
           <label>Хэрэглэгчийн нэр</label>
           <input type="text" id="loginUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
@@ -465,12 +512,16 @@
         <a class="forgot-link" id="forgotLink">Нууц үгээ мартсан уу?</a>
         <div class="login-error" id="loginError">Хэрэглэгчийн нэр эсвэл нууц үгээ оруулна уу</div>
         <button class="login-btn" id="loginBtn">Нэвтрэх</button>
-        <div class="login-hint">Демо горим: дурын нэр, нууц үг ашиглан нэвтэрч болно</div>
       </div>
 
       <!-- Бүртгүүлэх хэсэг -->
       <div id="registerPanel" style="display:none;">
         <div class="login-sub">Шинэ бүртгэл үүсгэж эхлээрэй</div>
+        <button type="button" class="google-btn" id="googleRegisterBtn">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+          Google-ээр бүртгүүлэх
+        </button>
+        <div class="auth-divider">эсвэл</div>
         <div class="login-field">
           <label>Хэрэглэгчийн нэр</label>
           <input type="text" id="registerUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
@@ -764,9 +815,43 @@
   </div>
 </div>
 
+<div class="google-modal-overlay" id="googleModalOverlay">
+  <div class="google-modal">
+    <div class="google-modal-logo">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+    </div>
+    <div class="google-modal-title">Google-ээр үргэлжлүүлэх</div>
+    <div class="google-modal-sub">Google имэйл хаягаа оруулж үргэлжлүүлнэ үү</div>
+    <input type="email" id="googleModalEmail" placeholder="name@gmail.com">
+    <div class="google-modal-error" id="googleModalError">Зөв имэйл хаяг оруулна уу</div>
+    <div class="google-modal-actions">
+      <span class="google-modal-cancel" id="googleModalCancel">Цуцлах</span>
+      <button class="google-modal-continue" id="googleModalContinue">Үргэлжлүүлэх</button>
+    </div>
+  </div>
+</div>
 
 <script>
-  // ---- Хэрэглэгчийн төлөв (сессийн турш санах, дахин ачаалахад анхны утга руу буцна) ----
+  // ---- Хэрэглэгчийн бүртгэлийн сан (localStorage-д жинхэнэ хадгалагдана) ----
+  var USERS_KEY = 'rewardhub_users';
+  var SESSION_KEY = 'rewardhub_session';
+
+  function loadUsers(){
+    try{
+      return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
+    }catch(e){ return {}; }
+  }
+  function saveUsers(users){
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+  function saveSession(key){
+    localStorage.setItem(SESSION_KEY, key);
+  }
+  function clearSession(){
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  // ---- Хэрэглэгчийн төлөв ----
   // Бүртгүүлээгүй, нэвтрээгүй байсан ч сайтад "Зочин"-оор шууд орж болно.
   var currentUser = {
     username: 'Зочин',
@@ -774,6 +859,7 @@
     avatarImg: null,
     loggedIn: false
   };
+  var currentUserKey = null; // localStorage-д хадгалагдсан хэрэглэгчийн түлхүүр (username эсвэл google:email)
 
   function getInitials(name){
     var parts = name.trim().split(/\s+/).filter(Boolean);
@@ -799,6 +885,20 @@
       avatarEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>';
     }
   }
+
+  // ---- Өмнө нь нэвтэрсэн сесс байвал автоматаар нэвтрүүлэх ----
+  (function restoreSession(){
+    var key = localStorage.getItem(SESSION_KEY);
+    if(!key) return;
+    var users = loadUsers();
+    var record = users[key];
+    if(!record) { clearSession(); return; }
+    currentUserKey = key;
+    currentUser.username = record.displayName;
+    currentUser.avatarText = getInitials(record.displayName);
+    currentUser.avatarImg = record.avatarImg || null;
+    currentUser.loggedIn = true;
+  })();
   renderTopbar();
 
   // ---- Нэвтрэх / Бүртгүүлэх / Нууц үг мартах ----
@@ -825,6 +925,13 @@
   var forgotError = document.getElementById('forgotError');
   var forgotSent = document.getElementById('forgotSent');
   var forgotBtn = document.getElementById('forgotBtn');
+  var googleLoginBtn = document.getElementById('googleLoginBtn');
+  var googleRegisterBtn = document.getElementById('googleRegisterBtn');
+  var googleModalOverlay = document.getElementById('googleModalOverlay');
+  var googleModalEmail = document.getElementById('googleModalEmail');
+  var googleModalError = document.getElementById('googleModalError');
+  var googleModalCancel = document.getElementById('googleModalCancel');
+  var googleModalContinue = document.getElementById('googleModalContinue');
 
   function showAllPagesHidden(){
     document.getElementById('mainView').style.display = 'none';
@@ -860,10 +967,23 @@
     loginView.style.display = 'block';
   }
 
-  function completeAuth(username){
-    currentUser.username = username;
-    currentUser.avatarText = getInitials(username);
+  function setLoginError(msg){
+    loginError.textContent = msg;
+    loginError.style.display = 'block';
+  }
+  function setRegisterError(msg){
+    registerError.textContent = msg;
+    registerError.style.display = 'block';
+  }
+
+  // key: users обьект дахь түлхүүр, record: {password, displayName, avatarImg, provider}
+  function completeAuth(key, record){
+    currentUserKey = key;
+    currentUser.username = record.displayName;
+    currentUser.avatarText = getInitials(record.displayName);
+    currentUser.avatarImg = record.avatarImg || null;
     currentUser.loggedIn = true;
+    saveSession(key);
     renderTopbar();
     loginView.style.display = 'none';
     if(loginReturnTo === 'profile'){
@@ -877,28 +997,67 @@
     var u = loginUsername.value.trim();
     var p = loginPassword.value;
     if(!u || !p){
-      loginError.style.display = 'block';
+      setLoginError('Хэрэглэгчийн нэр эсвэл нууц үгээ оруулна уу');
+      return;
+    }
+    var users = loadUsers();
+    var key = u.toLowerCase();
+    var record = users[key];
+    if(!record){
+      setLoginError('Ийм хэрэглэгч бүртгэлгүй байна');
+      return;
+    }
+    if(record.provider === 'google'){
+      setLoginError('Энэ бүртгэл Google-ээр үүссэн. Google-ээр нэвтэрнэ үү');
+      return;
+    }
+    if(record.password !== p){
+      setLoginError('Нууц үг буруу байна');
       return;
     }
     loginError.style.display = 'none';
-    completeAuth(u);
+    completeAuth(key, record);
   }
 
   function doRegister(){
     var u = registerUsername.value.trim();
     var p = registerPassword.value;
     var p2 = registerPassword2.value;
-    if(!u || !p || !p2 || p !== p2){
-      registerError.style.display = 'block';
+    if(!u || !p || !p2){
+      setRegisterError('Талбаруудыг зөв бөглөнө үү');
+      return;
+    }
+    if(p.length < 4){
+      setRegisterError('Нууц үг дор хаяж 4 тэмдэгт байх ёстой');
+      return;
+    }
+    if(p !== p2){
+      setRegisterError('Нууц үг таарахгүй байна');
+      return;
+    }
+    var users = loadUsers();
+    var key = u.toLowerCase();
+    if(users[key]){
+      setRegisterError('Энэ нэрээр өмнө нь бүртгүүлсэн байна');
       return;
     }
     registerError.style.display = 'none';
-    completeAuth(u);
+    var record = { password: p, displayName: u, avatarImg: null, provider: 'local' };
+    users[key] = record;
+    saveUsers(users);
+    completeAuth(key, record);
   }
 
   function doForgot(){
     var v = forgotInput.value.trim();
     if(!v){
+      forgotError.style.display = 'block';
+      forgotSent.style.display = 'none';
+      return;
+    }
+    var users = loadUsers();
+    if(!users[v.toLowerCase()]){
+      forgotError.textContent = 'Ийм хэрэглэгч бүртгэлгүй байна';
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
       return;
@@ -915,6 +1074,47 @@
   registerBtn.addEventListener('click', doRegister);
   registerPassword2.addEventListener('keydown', function(e){
     if(e.key === 'Enter') doRegister();
+  });
+
+  // ---- Google-ээр нэвтрэх / бүртгүүлэх (жинхэнэ Google OAuth биш, backend-гүй тул имэйл баталгаажуулах маягтаар дуурайна) ----
+  function openGoogleModal(){
+    googleModalEmail.value = '';
+    googleModalError.style.display = 'none';
+    googleModalOverlay.style.display = 'flex';
+    googleModalEmail.focus();
+  }
+  function closeGoogleModal(){
+    googleModalOverlay.style.display = 'none';
+  }
+  function doGoogleContinue(){
+    var email = googleModalEmail.value.trim();
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!emailOk){
+      googleModalError.style.display = 'block';
+      return;
+    }
+    googleModalError.style.display = 'none';
+    var users = loadUsers();
+    var key = 'google:' + email.toLowerCase();
+    var displayName = email.split('@')[0];
+    var record = users[key];
+    if(!record){
+      record = { password: null, displayName: displayName, avatarImg: null, provider: 'google' };
+      users[key] = record;
+      saveUsers(users);
+    }
+    closeGoogleModal();
+    completeAuth(key, record);
+  }
+  if(googleLoginBtn) googleLoginBtn.addEventListener('click', openGoogleModal);
+  if(googleRegisterBtn) googleRegisterBtn.addEventListener('click', openGoogleModal);
+  if(googleModalCancel) googleModalCancel.addEventListener('click', closeGoogleModal);
+  if(googleModalContinue) googleModalContinue.addEventListener('click', doGoogleContinue);
+  if(googleModalEmail) googleModalEmail.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doGoogleContinue();
+  });
+  if(googleModalOverlay) googleModalOverlay.addEventListener('click', function(e){
+    if(e.target === googleModalOverlay) closeGoogleModal();
   });
 
   forgotBtn.addEventListener('click', doForgot);
@@ -1031,6 +1231,14 @@
     currentUser.username = newName;
     currentUser.avatarText = getInitials(newName);
     currentUser.avatarImg = pendingAvatarImg;
+    if(currentUserKey){
+      var users = loadUsers();
+      if(users[currentUserKey]){
+        users[currentUserKey].displayName = newName;
+        users[currentUserKey].avatarImg = pendingAvatarImg;
+        saveUsers(users);
+      }
+    }
     renderTopbar();
     profileSaveBtn.textContent = 'Хадгалагдлаа ✓';
     profileSaveBtn.classList.add('saved');
@@ -1043,6 +1251,8 @@
       currentUser.avatarText = 'ЗЧ';
       currentUser.avatarImg = null;
       currentUser.loggedIn = false;
+      currentUserKey = null;
+      clearSession();
       renderTopbar();
       profileView.style.display = 'none';
       document.getElementById('mainView').style.display = 'block';
