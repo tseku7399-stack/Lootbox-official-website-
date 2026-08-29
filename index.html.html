@@ -880,13 +880,13 @@
     }catch(e){ return {}; }
   }
   function saveUsers(users){
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    try{ localStorage.setItem(USERS_KEY, JSON.stringify(users)); }catch(e){}
   }
   function saveSession(key){
-    localStorage.setItem(SESSION_KEY, key);
+    try{ localStorage.setItem(SESSION_KEY, key); }catch(e){}
   }
   function clearSession(){
-    localStorage.removeItem(SESSION_KEY);
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
   }
 
   // ---- Хэрэглэгчийн төлөв ----
@@ -926,16 +926,18 @@
 
   // ---- Өмнө нь нэвтэрсэн сесс байвал автоматаар нэвтрүүлэх ----
   (function restoreSession(){
-    var key = localStorage.getItem(SESSION_KEY);
-    if(!key) return;
-    var users = loadUsers();
-    var record = users[key];
-    if(!record) { clearSession(); return; }
-    currentUserKey = key;
-    currentUser.username = record.displayName;
-    currentUser.avatarText = getInitials(record.displayName);
-    currentUser.avatarImg = record.avatarImg || null;
-    currentUser.loggedIn = true;
+    try{
+      var key = localStorage.getItem(SESSION_KEY);
+      if(!key) return;
+      var users = loadUsers();
+      var record = users[key];
+      if(!record) { clearSession(); return; }
+      currentUserKey = key;
+      currentUser.username = record.displayName;
+      currentUser.avatarText = getInitials(record.displayName);
+      currentUser.avatarImg = record.avatarImg || null;
+      currentUser.loggedIn = true;
+    }catch(e){ /* localStorage боломжгүй орчинд ч бусад код цааш ажиллана */ }
   })();
   renderTopbar();
 
