@@ -113,16 +113,26 @@
   .filter-btn svg{ width:17px; height:17px; stroke:var(--gold-300); }
 
   .balance-card{
-    background:linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel-2) 100%);
-    border:1px solid var(--line); border-radius:22px; padding:20px 20px 18px;
-    margin-bottom:18px; position:relative; overflow:hidden;
+    border-radius:22px; margin-bottom:18px; position:relative; overflow:hidden;
+    height:150px;
   }
-  .balance-label{ font-size:12.5px; color:var(--text-lo); margin-bottom:6px; }
-  .balance-row{ display:flex; align-items:flex-start; justify-content:space-between; }
-  .balance-amount{
-    font-family:'Poppins',sans-serif; font-weight:700; font-size:28px; letter-spacing:-0.5px;
+  .balance-banner-full{ width:100%; height:100%; overflow:hidden; position:relative; }
+  .balance-banner-full-track{
+    display:flex; flex-direction:column; height:400%;
+    animation: bannerCycleFull 9s ease-in-out infinite;
   }
-  .coin-stack{ width:64px; height:64px; flex-shrink:0; margin-top:-6px; }
+  .balance-banner-full-track img{ width:100%; height:25%; object-fit:cover; flex-shrink:0; display:block; }
+  @keyframes bannerCycleFull{
+    0%, 22% { transform: translateY(0); }
+    28%, 47% { transform: translateY(-25%); }
+    53%, 72% { transform: translateY(-50%); }
+    78%, 100% { transform: translateY(-75%); }
+  }
+  .search-empty{
+    display:none; text-align:center; padding:24px 10px; color:var(--text-lo);
+    font-size:13px; background:var(--bg-panel-2); border:1px solid var(--line);
+    border-radius:16px; margin-bottom:18px;
+  }
   .balance-pills{ display:flex; gap:10px; margin-top:16px; }
   .pill{
     flex:1; display:flex; align-items:center; justify-content:space-between; gap:8px;
@@ -486,8 +496,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
       </div>
       <div class="who-text">
-        <div class="hi">Тавтай морил,</div>
-        <div class="name" id="topbarName">Асиб Ахмед 👋</div>
+        <div class="hi">👋 Тавтай морил,</div>
+        <div class="name" id="topbarName">Асиб Ахмед</div>
       </div>
     </div>
     <div class="bell">
@@ -499,7 +509,7 @@
   <div class="search-row">
     <div class="search-box">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" placeholder="Тоглоомоо хайх">
+      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх">
     </div>
     <div class="filter-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
@@ -507,32 +517,12 @@
   </div>
 
   <div class="balance-card">
-    <div class="balance-label">Нийт үлдэгдэл</div>
-    <div class="balance-row">
-      <div class="balance-amount">$12,487.45</div>
-      <svg class="coin-stack" viewBox="0 0 64 64">
-        <circle cx="40" cy="20" r="13" fill="#ff4e2a"/>
-        <circle cx="40" cy="20" r="9" fill="none" stroke="#cc3a1a" stroke-width="2"/>
-        <circle cx="24" cy="30" r="14" fill="#ff6b4a"/>
-        <circle cx="24" cy="30" r="9.5" fill="none" stroke="#cc3a1a" stroke-width="2"/>
-        <circle cx="36" cy="42" r="12" fill="#ff4e2a"/>
-        <circle cx="36" cy="42" r="8" fill="none" stroke="#cc3a1a" stroke-width="2"/>
-      </svg>
-    </div>
-    <div class="balance-pills">
-      <div class="pill">
-        <div class="pill-left">
-          <div class="pill-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 12h6"/></svg></div>
-          <div class="pill-text"><div class="k">Зоос</div><div class="v">12,560</div></div>
-        </div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-      </div>
-      <div class="pill">
-        <div class="pill-left">
-          <div class="pill-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 4-1 5-1 8a4 4 0 0 0 8 0c0-1-1-2-1-2 1 4-1 7-5 7a6 6 0 0 1-6-6c0-4 3-5 5-9Z"/></svg></div>
-          <div class="pill-text"><div class="k">Дараалал</div><div class="v">7 хоног</div></div>
-        </div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <div class="balance-banner-full" id="balanceBanner">
+      <div class="balance-banner-full-track">
+        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
+        <img src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2">
+        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
       </div>
     </div>
   </div>
@@ -541,7 +531,7 @@
     <h2>Тоглоомууд</h2>
     <a id="seeAllBtn">Бүгдийг харах</a>
   </div>
-  <div class="all-games-grid">
+  <div class="all-games-grid" id="mainGamesGrid">
     <div class="offer-card" data-game="PUBG Mobile">
       <div class="offer-cover a">
         <img class="full-img" src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
@@ -580,6 +570,7 @@
       </div>
     </div>
   </div>
+  <div class="search-empty" id="mainSearchEmpty" style="display:none;">Тоглоом олдсонгүй</div>
 
   <div class="daily-bonus">
     <div class="txt">
@@ -777,7 +768,7 @@
     var nameEl = document.getElementById('topbarName');
     var avatarEl = document.getElementById('topbarAvatar');
     if(currentUser.loggedIn){
-      nameEl.textContent = currentUser.username + ' 👋';
+      nameEl.textContent = currentUser.username;
     } else {
       nameEl.textContent = 'Зочин';
     }
@@ -1065,6 +1056,26 @@
     allGamesView.style.display = 'none';
     mainView.style.display = 'block';
   });
+
+  // ---- Тоглоом хайх ----
+  var gameSearchInput = document.getElementById('gameSearchInput');
+  var mainGamesGrid = document.getElementById('mainGamesGrid');
+  var mainSearchEmpty = document.getElementById('mainSearchEmpty');
+
+  gameSearchInput.addEventListener('input', function(){
+    var q = gameSearchInput.value.trim().toLowerCase();
+    var cards = mainGamesGrid.querySelectorAll('.offer-card');
+    var visibleCount = 0;
+    cards.forEach(function(card){
+      var name = (card.getAttribute('data-game') || '').toLowerCase();
+      var matches = q === '' || name.indexOf(q) !== -1;
+      card.style.display = matches ? '' : 'none';
+      if(matches) visibleCount++;
+    });
+    mainSearchEmpty.style.display = (visibleCount === 0) ? 'block' : 'none';
+    mainGamesGrid.style.display = (visibleCount === 0) ? 'none' : 'flex';
+  });
+
 
   document.querySelectorAll('.offer-card').forEach(function(card){
     card.addEventListener('click', function(){
