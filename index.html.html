@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="mn">
 <head>
@@ -345,7 +344,13 @@
   }
 
   /* Login screen */
-  .login-wrap{ padding:26px 4px 10px; }
+  .login-wrap{ padding:26px 4px 10px; position:relative; }
+  .login-close-btn{
+    position:absolute; top:0; right:4px; width:36px; height:36px; border-radius:50%;
+    background:var(--bg-elevated); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;
+  }
+  .login-close-btn svg{ width:16px; height:16px; stroke:var(--text-hi); }
   .login-logo{
     width:64px; height:64px; border-radius:20px; margin:0 auto 18px;
     background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
@@ -363,6 +368,15 @@
   }
   .login-field input:focus{ border-color:var(--gold-300); }
   .login-field input::placeholder{ color:var(--text-faint); }
+  .password-wrap{ position:relative; }
+  .password-wrap input{ padding-right:46px; }
+  .password-toggle-btn{
+    position:absolute; right:4px; top:50%; transform:translateY(-50%);
+    width:38px; height:38px; border:0; background:transparent; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; border-radius:10px;
+  }
+  .password-toggle-btn svg{ width:19px; height:19px; stroke:var(--text-faint); }
+  .password-toggle-btn:hover svg{ stroke:var(--text-lo); }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805;
@@ -484,6 +498,9 @@
 <div class="app">
   <div id="loginView" style="display:none;">
     <div class="login-wrap">
+      <div class="login-close-btn" id="loginCloseBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
       <div class="login-logo">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
@@ -502,15 +519,21 @@
         </button>
         <div class="auth-divider">эсвэл</div>
         <div class="login-field">
-          <label>Хэрэглэгчийн нэр</label>
-          <input type="text" id="loginUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
+          <label>Имэйл хаяг</label>
+          <input type="email" id="loginUsername" placeholder="Жишээ: name@gmail.com">
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
-          <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
+          <div class="password-wrap">
+            <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
+            <button type="button" class="password-toggle-btn" id="loginPasswordToggle" tabindex="-1">
+              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            </button>
+          </div>
         </div>
         <a class="forgot-link" id="forgotLink">Нууц үгээ мартсан уу?</a>
-        <div class="login-error" id="loginError">Хэрэглэгчийн нэр эсвэл нууц үгээ оруулна уу</div>
+        <div class="login-error" id="loginError">Имэйл хаяг эсвэл нууц үгээ оруулна уу</div>
         <button class="login-btn" id="loginBtn">Нэвтрэх</button>
       </div>
 
@@ -531,11 +554,23 @@
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
-          <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх">
+          <div class="password-wrap">
+            <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх">
+            <button type="button" class="password-toggle-btn" id="registerPasswordToggle" tabindex="-1">
+              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            </button>
+          </div>
         </div>
         <div class="login-field">
           <label>Нууц үг давтах</label>
-          <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
+          <div class="password-wrap">
+            <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
+            <button type="button" class="password-toggle-btn" id="registerPassword2Toggle" tabindex="-1">
+              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            </button>
+          </div>
         </div>
         <div class="login-error" id="registerError">Талбаруудыг зөв бөглөнө үү</div>
         <button class="login-btn" id="registerBtn">Бүртгүүлэх</button>
@@ -543,10 +578,10 @@
 
       <!-- Нууц үг мартсан хэсэг -->
       <div id="forgotPanel" style="display:none;">
-        <div class="login-sub">Бүртгэлтэй имэйл эсвэл хэрэглэгчийн нэрээ оруулна уу</div>
+        <div class="login-sub">Бүртгэлтэй имэйл хаягаа оруулна уу</div>
         <div class="login-field">
-          <label>Имэйл / Хэрэглэгчийн нэр</label>
-          <input type="text" id="forgotInput" placeholder="Жишээ: name@mail.com">
+          <label>Имэйл хаяг</label>
+          <input type="email" id="forgotInput" placeholder="Жишээ: name@gmail.com">
         </div>
         <div class="login-error" id="forgotError">Талбарыг бөглөнө үү</div>
         <div class="forgot-sent" id="forgotSent">Сэргээх линк илгээгдлээ ✓ Имэйлээ шалгана уу.</div>
@@ -936,12 +971,47 @@
   var googleModalError = document.getElementById('googleModalError');
   var googleModalCancel = document.getElementById('googleModalCancel');
   var googleModalContinue = document.getElementById('googleModalContinue');
+  var loginCloseBtn = document.getElementById('loginCloseBtn');
+  var loginOpenedFrom = null;
+
+  // ---- Нууц үг харуулах/нуух товч (keyboard хаагдахгүй байхаар хийсэн) ----
+  function setupPasswordToggle(inputId, btnId){
+    var input = document.getElementById(inputId);
+    var btn = document.getElementById(btnId);
+    if(!input || !btn) return;
+    var eyeOpen = btn.querySelector('.eye-open');
+    var eyeClosed = btn.querySelector('.eye-closed');
+    // mousedown/touchstart дээр preventDefault хийснээр товч дарахад input-ээс
+    // focus салахгүй тул утасны keyboard хаагдахгүй.
+    function preventBlur(e){ e.preventDefault(); }
+    btn.addEventListener('mousedown', preventBlur);
+    btn.addEventListener('touchstart', preventBlur, { passive:false });
+    btn.addEventListener('click', function(){
+      var isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      eyeOpen.style.display = isHidden ? 'none' : 'block';
+      eyeClosed.style.display = isHidden ? 'block' : 'none';
+      input.focus();
+    });
+  }
+  setupPasswordToggle('loginPassword', 'loginPasswordToggle');
+  setupPasswordToggle('registerPassword', 'registerPasswordToggle');
+  setupPasswordToggle('registerPassword2', 'registerPassword2Toggle');
 
   function showAllPagesHidden(){
     document.getElementById('mainView').style.display = 'none';
     document.getElementById('allGamesView').style.display = 'none';
     document.getElementById('profileView').style.display = 'none';
     document.getElementById('rechargeView').style.display = 'none';
+  }
+
+  function getCurrentVisiblePage(){
+    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView'];
+    for(var i=0;i<ids.length;i++){
+      var el = document.getElementById(ids[i]);
+      if(el && el.style.display !== 'none') return el;
+    }
+    return null;
   }
 
   function showAuthPanel(which){
@@ -956,6 +1026,7 @@
 
   function openLogin(returnTo){
     loginReturnTo = returnTo || 'main';
+    loginOpenedFrom = getCurrentVisiblePage();
     showAllPagesHidden();
     loginUsername.value = '';
     loginPassword.value = '';
@@ -971,6 +1042,16 @@
     showAuthPanel('login');
     loginView.style.display = 'block';
   }
+
+  function closeLogin(){
+    loginView.style.display = 'none';
+    if(loginOpenedFrom){
+      loginOpenedFrom.style.display = 'block';
+    } else {
+      document.getElementById('mainView').style.display = 'block';
+    }
+  }
+  loginCloseBtn.addEventListener('click', closeLogin);
 
   function setLoginError(msg){
     loginError.textContent = msg;
@@ -998,18 +1079,34 @@
     }
   }
 
+  function findUserKeyByEmail(users, email){
+    var lower = email.toLowerCase();
+    var keys = Object.keys(users);
+    for(var i=0;i<keys.length;i++){
+      if(users[keys[i]].email && users[keys[i]].email.toLowerCase() === lower){
+        return keys[i];
+      }
+    }
+    return null;
+  }
+
   function doLogin(){
-    var u = loginUsername.value.trim();
+    var email = loginUsername.value.trim();
     var p = loginPassword.value;
-    if(!u || !p){
-      setLoginError('Хэрэглэгчийн нэр эсвэл нууц үгээ оруулна уу');
+    if(!email || !p){
+      setLoginError('Имэйл хаяг эсвэл нууц үгээ оруулна уу');
+      return;
+    }
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if(!emailOk){
+      setLoginError('Зөв имэйл хаяг оруулна уу');
       return;
     }
     var users = loadUsers();
-    var key = u.toLowerCase();
-    var record = users[key];
+    var key = findUserKeyByEmail(users, email);
+    var record = key ? users[key] : null;
     if(!record){
-      setLoginError('Ийм хэрэглэгч бүртгэлгүй байна');
+      setLoginError('Ийм имэйлээр бүртгэл олдсонгүй');
       return;
     }
     if(record.provider === 'google'){
@@ -1069,13 +1166,14 @@
   function doForgot(){
     var v = forgotInput.value.trim();
     if(!v){
+      forgotError.textContent = 'Талбарыг бөглөнө үү';
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
       return;
     }
     var users = loadUsers();
-    if(!users[v.toLowerCase()]){
-      forgotError.textContent = 'Ийм хэрэглэгч бүртгэлгүй байна';
+    if(!findUserKeyByEmail(users, v)){
+      forgotError.textContent = 'Ийм имэйлээр бүртгэл олдсонгүй';
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
       return;
@@ -1117,7 +1215,7 @@
     var displayName = email.split('@')[0];
     var record = users[key];
     if(!record){
-      record = { password: null, displayName: displayName, avatarImg: null, provider: 'google' };
+      record = { password: null, displayName: displayName, email: email, avatarImg: null, provider: 'google' };
       users[key] = record;
       saveUsers(users);
     }
