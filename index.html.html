@@ -113,29 +113,28 @@
   .filter-btn svg{ width:17px; height:17px; stroke:var(--gold-300); }
 
   .balance-card{
-    margin-bottom:18px; position:relative;
+    border-radius:22px; margin-bottom:18px; position:relative; overflow:hidden;
+    height:150px;
   }
-  .balance-banner-full{
-    width:100%; height:150px; overflow:hidden; position:relative;
-    border-radius:22px; touch-action:pan-y; cursor:grab;
-  }
-  .balance-banner-full.dragging{ cursor:grabbing; }
+  .balance-banner-full{ width:100%; height:100%; overflow:hidden; position:relative; }
   .balance-banner-full-track{
-    display:flex; flex-direction:row; width:300%; height:100%;
-    transition: transform .35s cubic-bezier(.22,.68,0,1);
-    will-change: transform;
+    display:flex; flex-direction:row; height:100%;
+    cursor:grab; touch-action:pan-y; will-change:transform;
   }
-  .balance-banner-full-track.no-transition{ transition:none; }
-  .balance-banner-full-track img{ width:33.3334%; height:100%; object-fit:cover; flex-shrink:0; display:block; -webkit-user-drag:none; user-select:none; pointer-events:none; }
+  .balance-banner-full-track.dragging{ cursor:grabbing; }
+  .balance-banner-full-track img{
+    width:100%; height:100%; object-fit:cover; flex:0 0 100%; display:block;
+    pointer-events:none; -webkit-user-drag:none; user-select:none;
+  }
   .balance-dots{
-    margin-top:8px; z-index:2;
     display:flex; align-items:center; justify-content:center; gap:6px;
+    margin-top:1px;
   }
   .balance-dots .dot{
     width:6px; height:6px; border-radius:50%;
     background:rgba(255,255,255,0.35);
     transition: background .25s ease, transform .25s ease, width .25s ease;
-    cursor:pointer;
+    cursor:default;
   }
   .balance-dots .dot.active{
     background:var(--gold-300); width:16px; border-radius:4px;
@@ -373,9 +372,21 @@
     position:absolute; right:4px; top:50%; transform:translateY(-50%);
     width:38px; height:38px; border:0; background:transparent; cursor:pointer;
     display:flex; align-items:center; justify-content:center; border-radius:10px;
+    z-index:5; -webkit-tap-highlight-color:transparent;
   }
-  .password-toggle-btn svg{ width:19px; height:19px; stroke:var(--text-faint); }
-  .password-toggle-btn:hover svg{ stroke:var(--text-lo); }
+  .password-toggle-btn:hover{ background:rgba(255,255,255,0.06); }
+  .password-toggle-btn:active{ background:rgba(255,255,255,0.1); }
+  .password-eye{ width:19px; height:19px; position:relative; }
+  .password-eye svg{
+    position:absolute; inset:0; width:19px; height:19px;
+    stroke:var(--text-faint); fill:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .password-toggle-btn:hover .password-eye svg{ stroke:var(--text-lo); }
+  .password-eye .icon-open{ opacity:1; transform:scale(1); }
+  .password-eye .icon-closed{ opacity:0; transform:scale(0.7); }
+  .password-toggle-btn.is-visible .password-eye .icon-open{ opacity:0; transform:scale(0.7); }
+  .password-toggle-btn.is-visible .password-eye .icon-closed{ opacity:1; transform:scale(1); stroke:var(--gold-300); }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#1a0805;
@@ -488,11 +499,40 @@
   .profile-field input:disabled{ opacity:0.5; cursor:not-allowed; }
   .avatar-edit-btn.disabled{ opacity:0.4; cursor:not-allowed; pointer-events:none; }
   .profile-save-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* Entrance popup */
+  .entrance-popup-overlay{
+    display:none; position:fixed; inset:0; z-index:80;
+    background:rgba(0,0,0,0.7); align-items:center; justify-content:center; padding:24px;
+  }
+  .entrance-popup{
+    position:relative; width:100%; max-width:360px;
+    border-radius:22px; overflow:hidden;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.8);
+    background:var(--bg-panel-2);
+  }
+  .entrance-popup img{ width:100%; display:block; }
+  .entrance-popup-close{
+    position:absolute; top:10px; right:10px; width:34px; height:34px; border-radius:50%;
+    background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.25);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .entrance-popup-close svg{ width:16px; height:16px; stroke:#fff; }
 </style>
 </head>
 <body>
 
 <div class="blinds"></div>
+
+<div class="entrance-popup-overlay" id="entrancePopupOverlay">
+  <div class="entrance-popup">
+    <div class="entrance-popup-close" id="entrancePopupClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </div>
+    <img src="https://mgl.gogo.mn/newsn/images/ck/2024/06/12/monpayplus_gogo_1600x800-120941-1317322629.jpeg" alt="Promo">
+  </div>
+</div>
 
 <div class="app">
   <div id="loginView" style="display:none;">
@@ -525,9 +565,11 @@
           <label>Нууц үг</label>
           <div class="password-wrap">
             <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
-            <button type="button" class="password-toggle-btn" id="loginPasswordToggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="loginPasswordToggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -555,9 +597,11 @@
           <label>Нууц үг</label>
           <div class="password-wrap">
             <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх">
-            <button type="button" class="password-toggle-btn" id="registerPasswordToggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="registerPasswordToggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -565,9 +609,11 @@
           <label>Нууц үг давтах</label>
           <div class="password-wrap">
             <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
-            <button type="button" class="password-toggle-btn" id="registerPassword2Toggle" tabindex="-1">
-              <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+            <button type="button" class="password-toggle-btn" id="registerPassword2Toggle" aria-label="Нууц үг харуулах/нуух">
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
         </div>
@@ -620,16 +666,16 @@
   <div class="balance-card">
     <div class="balance-banner-full" id="balanceBanner">
       <div class="balance-banner-full-track" id="balanceBannerTrack">
-        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
-        <img src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2">
-      </div>
-      <div class="balance-dots" id="balanceDots">
-        <div class="dot active" data-index="0"></div>
-        <div class="dot" data-index="1"></div>
-        <div class="dot" data-index="2"></div>
+        <img src="https://mgl.gogo.mn/newsn/images/ck/2024/06/12/monpayplus_gogo_1600x800-120941-1317322629.jpeg" alt="Banner 1">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRaualgQaFoZW8rBMCMIEPbNUKvwtfqks4sZXoFO7aZq66l3NP02r2W2Ge&s=10" alt="Banner 2">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY5nVDN0lGFx_9kltwN9afhLNraTMZVK1SrUgGKYjPQLZpLW5K3lEq2ss&s=10" alt="Banner 3">
       </div>
     </div>
+  </div>
+  <div class="balance-dots" id="balanceDots">
+    <div class="dot active" data-index="0"></div>
+    <div class="dot" data-index="1"></div>
+    <div class="dot" data-index="2"></div>
   </div>
 
   <div class="section-head">
@@ -878,13 +924,13 @@
     }catch(e){ return {}; }
   }
   function saveUsers(users){
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    try{ localStorage.setItem(USERS_KEY, JSON.stringify(users)); }catch(e){}
   }
   function saveSession(key){
-    localStorage.setItem(SESSION_KEY, key);
+    try{ localStorage.setItem(SESSION_KEY, key); }catch(e){}
   }
   function clearSession(){
-    localStorage.removeItem(SESSION_KEY);
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
   }
 
   // ---- Хэрэглэгчийн төлөв ----
@@ -924,18 +970,35 @@
 
   // ---- Өмнө нь нэвтэрсэн сесс байвал автоматаар нэвтрүүлэх ----
   (function restoreSession(){
-    var key = localStorage.getItem(SESSION_KEY);
-    if(!key) return;
-    var users = loadUsers();
-    var record = users[key];
-    if(!record) { clearSession(); return; }
-    currentUserKey = key;
-    currentUser.username = record.displayName;
-    currentUser.avatarText = getInitials(record.displayName);
-    currentUser.avatarImg = record.avatarImg || null;
-    currentUser.loggedIn = true;
+    try{
+      var key = localStorage.getItem(SESSION_KEY);
+      if(!key) return;
+      var users = loadUsers();
+      var record = users[key];
+      if(!record) { clearSession(); return; }
+      currentUserKey = key;
+      currentUser.username = record.displayName;
+      currentUser.avatarText = getInitials(record.displayName);
+      currentUser.avatarImg = record.avatarImg || null;
+      currentUser.loggedIn = true;
+    }catch(e){ /* localStorage боломжгүй орчинд ч бусад код цааш ажиллана */ }
   })();
   renderTopbar();
+
+  // ---- Сайтад ормогц гарч ирэх popup ----
+  (function initEntrancePopup(){
+    var overlay = document.getElementById('entrancePopupOverlay');
+    var closeBtn = document.getElementById('entrancePopupClose');
+    if(!overlay || !closeBtn) return;
+    overlay.style.display = 'flex';
+    function closePopup(){
+      overlay.style.display = 'none';
+    }
+    closeBtn.addEventListener('click', closePopup);
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closePopup();
+    });
+  })();
 
   // ---- Нэвтрэх / Бүртгүүлэх / Нууц үг мартах ----
   var loginView = document.getElementById('loginView');
@@ -972,29 +1035,34 @@
   var loginCloseBtn = document.getElementById('loginCloseBtn');
   var loginOpenedFrom = null;
 
-  // ---- Нууц үг харуулах/нуух товч (keyboard хаагдахгүй байхаар хийсэн) ----
-  function setupPasswordToggle(inputId, btnId){
-    var input = document.getElementById(inputId);
-    var btn = document.getElementById(btnId);
-    if(!input || !btn) return;
-    var eyeOpen = btn.querySelector('.eye-open');
-    var eyeClosed = btn.querySelector('.eye-closed');
-    // mousedown/touchstart дээр preventDefault хийснээр товч дарахад input-ээс
-    // focus салахгүй тул утасны keyboard хаагдахгүй.
-    function preventBlur(e){ e.preventDefault(); }
-    btn.addEventListener('mousedown', preventBlur);
-    btn.addEventListener('touchstart', preventBlur, { passive:false });
-    btn.addEventListener('click', function(){
-      var isHidden = input.type === 'password';
-      input.type = isHidden ? 'text' : 'password';
-      eyeOpen.style.display = isHidden ? 'none' : 'block';
-      eyeClosed.style.display = isHidden ? 'block' : 'none';
-      input.focus();
-    });
+  // ---- Нууц үг харуулах/нуух товч ----
+  function togglePasswordVisibility(btn){
+    var wrap = btn.closest('.password-wrap');
+    var input = wrap ? wrap.querySelector('input') : null;
+    if(!input) return;
+    var willShow = input.type === 'password';
+    input.type = willShow ? 'text' : 'password';
+    btn.classList.toggle('is-visible', willShow);
+    // input.type солиход зарим хөтчид focus салж, гар (keyboard) хаагдаж болно
+    // тул шууд буцааж focus өгнө.
+    input.focus();
+    var pos = input.value.length;
+    try{ input.setSelectionRange(pos, pos); }catch(e){}
   }
-  setupPasswordToggle('loginPassword', 'loginPasswordToggle');
-  setupPasswordToggle('registerPassword', 'registerPasswordToggle');
-  setupPasswordToggle('registerPassword2', 'registerPassword2Toggle');
+  // Бие даасан event listener бүр дээр биш, бүх .password-toggle-btn товчийг
+  // нэг дор барьдаг delegated listener ашигласнаар илүү найдвартай ажиллана.
+  // mousedown/touchstart дээр preventDefault хийснээр товч дарах мөчид input-ээс
+  // focus огт салдаггүй тул утасны гар (keyboard) огт хаагдахгүй.
+  function preventFocusLoss(e){
+    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
+    if(btn) e.preventDefault();
+  }
+  document.addEventListener('mousedown', preventFocusLoss);
+  document.addEventListener('touchstart', preventFocusLoss, { passive:false });
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
+    if(btn) togglePasswordVisibility(btn);
+  });
 
   function showAllPagesHidden(){
     document.getElementById('mainView').style.display = 'none';
@@ -1458,116 +1526,151 @@
     rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
   });
 
-  // ---- Balance banner: гараар чөлөөтэй чирж сольдог swipe carousel ----
-  var balanceBannerEl = document.getElementById('balanceBanner');
-  var balanceTrackEl = document.getElementById('balanceBannerTrack');
-  var balanceDotsEl = document.getElementById('balanceDots');
-  if(balanceBannerEl && balanceTrackEl && balanceDotsEl){
-    var balanceDots = balanceDotsEl.querySelectorAll('.dot');
-    var slideCount = balanceDots.length;
-    var slideIndex = 0;
-    var bannerWidth = 0;
+  // ---- Banner: гараар хоёр тийш чөлөөтэй swipe хийж, төгсгөлгүй эргэлддэг (infinite loop) болгох ----
+  (function initBannerCarousel(){
+    var bannerEl = document.getElementById('balanceBanner');
+    var trackEl = document.getElementById('balanceBannerTrack');
+    var dotsEl = document.getElementById('balanceDots');
+    if(!bannerEl || !trackEl || !dotsEl) return;
+
+    var originalSlides = Array.prototype.slice.call(trackEl.children);
+    var N = originalSlides.length;
+    if(N === 0) return;
+
+    // Хоёр талд нь эхний/сүүлийн зургийн хуулбарыг тавьж, ямар ч чиглэлд
+    // чирэхэд яг мэдрэгдэхгүйгээр (seamless) эргэлддэг болгоно.
+    var lastClone = originalSlides[N - 1].cloneNode(true);
+    var firstClone = originalSlides[0].cloneNode(true);
+    lastClone.setAttribute('aria-hidden', 'true');
+    firstClone.setAttribute('aria-hidden', 'true');
+    trackEl.insertBefore(lastClone, originalSlides[0]);
+    trackEl.appendChild(firstClone);
+
+    var dots = dotsEl.querySelectorAll('.dot');
+    var currentIndex = 1; // 0 = clone(сүүлийн), 1..N = жинхэнэ зургууд, N+1 = clone(эхний)
+    var containerWidth = 0;
     var isDragging = false;
     var dragStartX = 0;
-    var dragCurrentX = 0;
-    var baseOffsetPx = 0;
+    var dragDeltaX = 0;
+    var autoTimer = null;
+    var pointerId = null;
 
-    var autoplayTimer = null;
-    var AUTOPLAY_MS = 4000;
-
-    function stopAutoplay(){
-      if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer = null; }
+    function getContainerWidth(){
+      return bannerEl.getBoundingClientRect().width;
     }
 
-    function startAutoplay(){
-      stopAutoplay();
-      autoplayTimer = setInterval(function(){
-        goToSlide((slideIndex + 1) % slideCount);
-      }, AUTOPLAY_MS);
+    // Track болон түүний бүх slide (clone-уудыг оролцуулаад)-д нь px-ээр
+    // өргөн тохируулж өгнө. Үгүй бол track өөрийн хайрцаг (box) нь зөвхөн
+    // нэг slide-ийн өргөнтэй тэнцүү үлдэж, transform-оор шилжсэний дараа
+    // харагдаж буй зурган дээр гар/хулгана дарахад pointer event track
+    // элемент рүү бариагдахгүй өнгөрчихдөг байсан тул chirэх (drag) ажиллахгүй байв.
+    function applySizes(){
+      containerWidth = getContainerWidth();
+      var totalSlides = trackEl.children.length;
+      trackEl.style.width = (totalSlides * containerWidth) + 'px';
+      Array.prototype.forEach.call(trackEl.children, function(child){
+        child.style.flex = '0 0 ' + containerWidth + 'px';
+        child.style.width = containerWidth + 'px';
+      });
+    }
+
+    function setPosition(withTransition){
+      trackEl.style.transition = withTransition ? 'transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none';
+      var offset = -(currentIndex * containerWidth) + dragDeltaX;
+      trackEl.style.transform = 'translateX(' + offset + 'px)';
     }
 
     function updateDots(){
-      balanceDots.forEach(function(d, i){
-        d.classList.toggle('active', i === slideIndex);
+      var realIndex = ((currentIndex - 1) % N + N) % N;
+      dots.forEach(function(d, i){
+        d.classList.toggle('active', i === realIndex);
       });
     }
 
-    function measure(){
-      bannerWidth = balanceBannerEl.getBoundingClientRect().width;
+    function stopAutoTimer(){
+      clearInterval(autoTimer);
+      autoTimer = null;
     }
 
-    function goToSlide(index, animate){
-      slideIndex = Math.max(0, Math.min(slideCount - 1, index));
-      baseOffsetPx = slideIndex * bannerWidth;
-      balanceTrackEl.classList.toggle('no-transition', animate === false);
-      balanceTrackEl.style.transform = 'translateX(' + (-baseOffsetPx) + 'px)';
-      if(animate === false){
-        // force reflow so the removed transition takes effect before re-enabling it
-        void balanceTrackEl.offsetWidth;
-        balanceTrackEl.classList.remove('no-transition');
-      }
+    // Автомат солигдол 4 секунд тутам явж байх бөгөөд, гараар хөдөлгөх
+    // бүрд энэ таймер шинээр эхэлж, дараагийн автомат солигдол 4 секундын
+    // дараа л болно.
+    function restartAutoTimer(){
+      stopAutoTimer();
+      autoTimer = setInterval(function(){
+        goToIndex(currentIndex + 1);
+      }, 4000);
+    }
+
+    function goToIndex(newIndex){
+      currentIndex = newIndex;
+      dragDeltaX = 0;
+      setPosition(true);
       updateDots();
     }
 
-    function pointerX(e){
-      return (e.touches && e.touches.length) ? e.touches[0].clientX : e.clientX;
-    }
-
-    function dragStart(e){
-      isDragging = true;
-      stopAutoplay();
-      measure();
-      dragStartX = pointerX(e);
-      dragCurrentX = dragStartX;
-      balanceTrackEl.classList.add('no-transition');
-      balanceBannerEl.classList.add('dragging');
-    }
-
-    function dragMove(e){
-      if(!isDragging) return;
-      dragCurrentX = pointerX(e);
-      var delta = dragCurrentX - dragStartX;
-      balanceTrackEl.style.transform = 'translateX(' + (-baseOffsetPx + delta) + 'px)';
-      if(e.cancelable) e.preventDefault();
-    }
-
-    function dragEnd(){
-      if(!isDragging) return;
-      isDragging = false;
-      balanceBannerEl.classList.remove('dragging');
-      balanceTrackEl.classList.remove('no-transition');
-      var delta = dragCurrentX - dragStartX;
-      var threshold = bannerWidth * 0.18;
-      var next = slideIndex;
-      if(delta <= -threshold) next = slideIndex + 1;
-      else if(delta >= threshold) next = slideIndex - 1;
-      goToSlide(next);
-      startAutoplay();
-    }
-
-    balanceBannerEl.addEventListener('mousedown', dragStart);
-    window.addEventListener('mousemove', dragMove);
-    window.addEventListener('mouseup', dragEnd);
-    balanceBannerEl.addEventListener('touchstart', dragStart, {passive:true});
-    balanceBannerEl.addEventListener('touchmove', dragMove, {passive:false});
-    balanceBannerEl.addEventListener('touchend', dragEnd);
-    balanceBannerEl.addEventListener('touchcancel', dragEnd);
-
-    balanceDots.forEach(function(d, i){
-      d.style.cursor = 'pointer';
-      d.addEventListener('click', function(){
-        stopAutoplay();
-        goToSlide(i);
-        startAutoplay();
-      });
+    // Clone зураг дээр ирж зогссоны дараа, transition дуусмагц анимацгүйгээр
+    // яг тухайн жинхэнэ зураг дээр "үсрэн" очиж, төгсгөлгүй мэт мэдрэгддэг болгоно.
+    trackEl.addEventListener('transitionend', function(e){
+      if(e.propertyName && e.propertyName !== 'transform') return;
+      if(currentIndex === 0){
+        currentIndex = N;
+        setPosition(false);
+      } else if(currentIndex === N + 1){
+        currentIndex = 1;
+        setPosition(false);
+      }
     });
 
-    window.addEventListener('resize', function(){ measure(); goToSlide(slideIndex, false); });
+    function onPointerDown(e){
+      isDragging = true;
+      pointerId = e.pointerId;
+      dragStartX = e.clientX;
+      dragDeltaX = 0;
+      containerWidth = getContainerWidth();
+      trackEl.classList.add('dragging');
+      stopAutoTimer();
+      try{ trackEl.setPointerCapture(pointerId); }catch(err){}
+    }
 
-    measure();
-    goToSlide(0, false);
-    startAutoplay();
-  }
+    function onPointerMove(e){
+      if(!isDragging) return;
+      dragDeltaX = e.clientX - dragStartX;
+      setPosition(false);
+    }
+
+    function onPointerUp(e){
+      if(!isDragging) return;
+      isDragging = false;
+      trackEl.classList.remove('dragging');
+      var threshold = containerWidth * 0.08;
+      if(dragDeltaX <= -threshold){
+        goToIndex(currentIndex + 1);
+      } else if(dragDeltaX >= threshold){
+        goToIndex(currentIndex - 1);
+      } else {
+        dragDeltaX = 0;
+        setPosition(true);
+      }
+      try{ trackEl.releasePointerCapture(pointerId); }catch(err){}
+      restartAutoTimer();
+    }
+
+    trackEl.addEventListener('pointerdown', onPointerDown);
+    trackEl.addEventListener('pointermove', onPointerMove);
+    trackEl.addEventListener('pointerup', onPointerUp);
+    trackEl.addEventListener('pointercancel', onPointerUp);
+
+    window.addEventListener('resize', function(){
+      applySizes();
+      setPosition(false);
+    });
+
+    applySizes();
+    setPosition(false);
+    updateDots();
+    restartAutoTimer();
+  })();
 
   var claimBtn = document.getElementById('claimBtn');
   claimBtn.addEventListener('click', function(){
