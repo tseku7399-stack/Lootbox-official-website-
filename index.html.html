@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Reward Hub — Дашбоард</title>
+<title>LootBox — Дашбоард</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -320,6 +320,7 @@
 
   .id-fields{ display:flex; gap:10px; margin-bottom:24px; }
   .id-field{ flex:1; min-width:0; }
+  .id-field.id-field-wide{ flex:1 1 100%; }
   .id-field label{ display:block; font-size:11.5px; color:var(--text-lo); margin-bottom:6px; }
   .id-field input{
     width:100%; background:var(--bg-elevated); border:1px solid var(--line);
@@ -327,6 +328,18 @@
     outline:0; font-family:'Inter',sans-serif; box-sizing:border-box;
   }
   .id-field input::placeholder{ color:var(--text-faint); }
+
+  .id-verify-row{ display:flex; gap:8px; }
+  .id-verify-row input{ flex:1; min-width:0; }
+  .verify-btn{
+    flex-shrink:0; white-space:nowrap; background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    color:#fff; border:0; border-radius:12px; padding:0 16px; font-size:13px; font-weight:600;
+    font-family:'Poppins',sans-serif; cursor:pointer; transition:opacity .15s ease;
+  }
+  .verify-btn:disabled{ opacity:.6; cursor:default; }
+  .verify-result{ font-size:12px; margin-top:8px; min-height:15px; }
+  .verify-result.success{ color:#4ade80; }
+  .verify-result.error{ color:var(--red); }
 
   .package-card{
     background:var(--bg-panel-2); border:1px solid var(--line); border-radius:16px;
@@ -578,7 +591,7 @@
       <div class="login-logo">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
-      <div class="login-title">Reward Hub</div>
+      <div class="login-title">LootBox</div>
 
       <div class="auth-tabs">
         <div class="auth-tab active" id="tabLogin">Нэвтрэх</div>
@@ -866,14 +879,14 @@
     </div>
 
     <div class="step-label"><div class="step-num">1</div><span>Тоглогчийн ID оруулах</span></div>
-    <div class="id-fields">
-      <div class="id-field">
+    <div class="id-fields" id="idFieldsContainer">
+      <div class="id-field id-field-wide">
         <label>ID оруулах</label>
-        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789">
-      </div>
-      <div class="id-field">
-        <label>Zone ID оруулах</label>
-        <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001">
+        <div class="id-verify-row">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">
+          <button type="button" class="verify-btn" id="verifyIdBtn">ID шалгах</button>
+        </div>
+        <div class="verify-result" id="verifyResult"></div>
       </div>
     </div>
 
@@ -1569,9 +1582,93 @@
   });
 
 
+  var ZONE_ID_GAMES = ['MLBB'];
+  var currentRechargeGame = null;
+
+  var GAME_NAME_POOLS = {
+    'Free Fire': ['DragonSlayerFF','NightHunter_07','KingCobraFF','ShadowReaper88','IceQueen_MN','ThunderWolf99','GhostSniperFF','PhoenixRising22'],
+    'PUBG Mobile': ['ChickenDinner88','GhostRecon_UB','SilentAssassin07','DesertEaglePro','SnowLeopard99','RedZoneRaider','NightOwlSniper','WastelandWolf'],
+    'MLBB': ['MythicKing_99','TankMaster88','JungleLord07','SavageStreak_MN','GoldLaneGod','RoamKing22','BurstDamagePro','LegendRankUB'],
+    'Roblox': ['xX_Builder123_Xx','RobloxianPro22','PixelCrafter99','SkyBlockKing','NoobMaster69','BlockyHero07','AdoptMePro88','TycoonTitan'],
+    'Standoff 2': ['HeadshotKing07','AWP_God_MN','ClutchMaster99','RushBRaider','SmokeGrenadePro','AimGodUB','FlashbangFury','WallbangWizard'],
+    'Call of Duty Mobile': ['GhostOps99','SilentSniper_MN','WarzoneWolf07','KillstreakKing','StealthOperative','NightRaiderUB','TacticalNuke88','ClutchGamer22']
+  };
+
+  function hashSeed(str){
+    var hash = 0;
+    for(var i = 0; i < str.length; i++){
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function generateMockAccount(game, idValue){
+    var pool = GAME_NAME_POOLS[game];
+    var seed = hashSeed((game || '') + ':' + idValue);
+    var name = pool ? pool[seed % pool.length] : ('Player_' + idValue.slice(-4));
+    var level = 5 + (seed % 95);
+    return { name: name, level: level };
+  }
+
+  function attachVerifyHandler(){
+    var btn = document.getElementById('verifyIdBtn');
+    if(!btn) return;
+    var input = document.getElementById('playerIdInput');
+    var result = document.getElementById('verifyResult');
+    btn.addEventListener('click', function(){
+      var val = input.value.trim();
+      if(!val){
+        result.className = 'verify-result error';
+        result.textContent = 'ID-гаа оруулна уу';
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Шалгаж байна...';
+      result.className = 'verify-result';
+      result.textContent = '';
+      setTimeout(function(){
+        btn.disabled = false;
+        btn.textContent = 'ID шалгах';
+        result.className = 'verify-result success';
+        var account = generateMockAccount(currentRechargeGame, val);
+        result.innerHTML = '✓ Тоглогч олдлоо: <b>' + account.name + '</b> · Lv.' + account.level;
+      }, 900);
+    });
+  }
+
+  function renderIdFields(game){
+    var container = document.getElementById('idFieldsContainer');
+    if(ZONE_ID_GAMES.indexOf(game) !== -1){
+      container.innerHTML =
+        '<div class="id-field">' +
+          '<label>ID оруулах</label>' +
+          '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
+        '</div>' +
+        '<div class="id-field">' +
+          '<label>Zone ID оруулах</label>' +
+          '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001" id="zoneIdInput">' +
+        '</div>';
+    } else {
+      container.innerHTML =
+        '<div class="id-field id-field-wide">' +
+          '<label>ID оруулах</label>' +
+          '<div class="id-verify-row">' +
+            '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
+            '<button type="button" class="verify-btn" id="verifyIdBtn">ID шалгах</button>' +
+          '</div>' +
+          '<div class="verify-result" id="verifyResult"></div>' +
+        '</div>';
+      attachVerifyHandler();
+    }
+  }
+
+  attachVerifyHandler();
+
   document.querySelectorAll('.offer-card').forEach(function(card){
     card.addEventListener('click', function(){
       var game = card.getAttribute('data-game');
+      currentRechargeGame = game;
       lastListView = (allGamesView.style.display === 'none') ? mainView : allGamesView;
       lastListView.style.display = 'none';
 
@@ -1579,6 +1676,8 @@
       rechargeSub.textContent = 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
+
+      renderIdFields(game);
 
       document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
       rechargeTotal.textContent = '—';
