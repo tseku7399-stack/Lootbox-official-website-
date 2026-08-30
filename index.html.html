@@ -359,15 +359,23 @@
 
   .package-card{
     background:var(--bg-panel-2); border:1px solid var(--line); border-radius:16px;
-    padding:14px 12px; text-align:center; cursor:pointer; transition:border-color .15s ease;
-    position:relative;
+    padding:14px 12px; cursor:pointer; transition:border-color .15s ease;
+    position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; text-align:left;
   }
   .package-card.selected, .package-card.best.selected, .package-card.popular.selected{
     background:var(--ml-purple-dim); border:1.5px solid var(--ml-purple);
   }
-  .package-card .amt{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; margin-bottom:5px; }
+  .package-card .pkg-info{ min-width:0; }
+  .package-card .amt{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; margin-bottom:5px; white-space:nowrap; }
+  .package-card .amt .cur-icon{ display:inline-flex; vertical-align:-3px; margin-right:5px; }
+  .package-card .amt .cur-icon svg{ width:16px; height:16px; display:block; }
   .package-card .amt em{ font-style:normal; color:var(--gold-300); font-size:10px; font-weight:700; margin-left:3px; }
-  .package-card .price{ font-size:11.5px; color:var(--text-lo); }
+  .package-card .price{ font-size:11.5px; color:var(--text-lo); white-space:nowrap; }
+  .package-card .pkg-thumb-wrap{
+    width:42px; height:42px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  }
+  .package-card .pkg-thumb-wrap img{ width:100%; height:100%; object-fit:contain; }
+  .package-card .pkg-thumb-wrap svg{ width:28px; height:28px; }
   .package-card .badge{
     position:absolute; top:-9px; right:10px; font-size:8.5px; font-weight:800;
     padding:3px 8px; border-radius:8px; letter-spacing:0.3px; color:#fff;
@@ -907,14 +915,7 @@
     </div>
 
     <div class="step-label"><div class="step-num">2</div><span>Diamond багц сонгох</span></div>
-    <div class="package-grid">
-      <div class="package-card"><div class="amt">💎 60</div><div class="price">5,000₮</div></div>
-      <div class="package-card best"><span class="badge best-badge">ХЯМД</span><div class="amt">💎 325 <em>+25</em></div><div class="price">25,000₮</div></div>
-      <div class="package-card"><div class="amt">💎 660 <em>+60</em></div><div class="price">50,000₮</div></div>
-      <div class="package-card popular"><span class="badge popular-badge">ТҮГЭЭМЭЛ</span><div class="amt">💎 1800 <em>+200</em></div><div class="price">130,000₮</div></div>
-      <div class="package-card"><div class="amt">💎 3850 <em>+480</em></div><div class="price">270,000₮</div></div>
-      <div class="package-card"><div class="amt">💎 8100 <em>+1100</em></div><div class="price">550,000₮</div></div>
-    </div>
+    <div class="package-grid" id="packageGrid"></div>
 
     <div class="recharge-checkout-bar">
       <div>
@@ -1679,7 +1680,63 @@
     }
   }
 
+  var CURRENCY_ICONS = {
+    DIAMOND: '<svg viewBox="0 0 24 24"><path d="M4.5 9L12 3l7.5 6-7.5 12z" fill="#af9bf1"/><path d="M8 9l4-6 4 6-4 12z" fill="#e3dbfa"/><path d="M4.5 9h15" stroke="#5b43a7" stroke-width="0.6"/></svg>',
+    UC: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd66b"/><circle cx="12" cy="12" r="9.3" fill="none" stroke="#c9932a" stroke-width="1.2"/><text x="12" y="15.5" font-family="Poppins,sans-serif" font-size="8.5" font-weight="800" fill="#7a4e00" text-anchor="middle">UC</text></svg>',
+    ROBUX: '<svg viewBox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z" fill="#e7e9ee"/><path d="M12 2l8 4.5-8 4.5-8-4.5z" fill="#ffffff"/><path d="M12 11l8-4.5v9L12 20z" fill="#c7cbd6"/></svg>'
+  };
+
+  var GAME_CURRENCY = {
+    'PUBG Mobile': 'UC',
+    'Roblox': 'ROBUX'
+  };
+
+  var PACKAGE_TIERS = [
+    { amount:78,   bonus:8,    price:"5'000₮",   img:'https://www.gameshop.mn/78.webp' },
+    { amount:156,  bonus:16,   price:"9'600₮",   img:'https://www.gameshop.mn/156.webp' },
+    { amount:234,  bonus:23,   price:"13'800₮",  img:'https://www.gameshop.mn/234.webp' },
+    { amount:625,  bonus:81,   price:"37'000₮",  img:'https://www.gameshop.mn/625.webp' },
+    { amount:1860, bonus:335,  price:"110'800₮", img:'https://www.gameshop.mn/1860.webp' },
+    { amount:3099, bonus:589,  price:"184'600₮", img:'https://www.gameshop.mn/3099.webp' },
+    { amount:4649, bonus:883,  price:"276'900₮", img:'https://www.gameshop.mn/4649.webp' },
+    { amount:7740, bonus:1548, price:"461'500₮", img:'https://www.gameshop.mn/7740.webp' },
+    { special:true, label:'TWILIGHT PASS', price:"30'800₮", img:null },
+    { special:true, label:'WEEKLY PASS',   price:"5'900₮",  img:'https://www.gameshop.mn/weekly.png' }
+  ];
+
+  function renderPackages(game){
+    var currency = GAME_CURRENCY[game] || 'DIAMOND';
+    var grid = document.getElementById('packageGrid');
+    if(!grid) return;
+    grid.innerHTML = PACKAGE_TIERS.map(function(t){
+      var cardClass = 'package-card';
+      var badgeHtml = '';
+      if(t.badge === 'best'){ cardClass += ' best'; badgeHtml = '<span class="badge best-badge">' + t.badgeLabel + '</span>'; }
+      if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
+      var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
+      var thumbHtml = (currency === 'DIAMOND' && t.img)
+        ? '<div class="pkg-thumb-wrap"><img src="' + t.img + '" alt="" loading="lazy"></div>'
+        : '<div class="pkg-thumb-wrap">' + CURRENCY_ICONS[currency] + '</div>';
+      return '<div class="' + cardClass + '">' + badgeHtml +
+        '<div class="pkg-info"><div class="amt">' + mainLine + '</div><div class="price">' + t.price + '</div></div>' +
+        thumbHtml + '</div>';
+    }).join('');
+    attachPackageHandlers();
+  }
+
+  function attachPackageHandlers(){
+    document.querySelectorAll('.package-card').forEach(function(pkg){
+      pkg.addEventListener('click', function(){
+        document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
+        pkg.classList.add('selected');
+        var priceEl = pkg.querySelector('.price');
+        rechargeTotal.textContent = priceEl ? priceEl.textContent : '—';
+      });
+    });
+  }
+
   attachVerifyHandler();
+  renderPackages(null);
 
   document.querySelectorAll('.offer-card').forEach(function(card){
     card.addEventListener('click', function(){
@@ -1694,8 +1751,8 @@
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
 
       renderIdFields(game);
+      renderPackages(game);
 
-      document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
       rechargeTotal.textContent = '—';
 
       rechargeView.style.display = 'block';
@@ -1705,15 +1762,6 @@
   rechargeBackBtn.addEventListener('click', function(){
     rechargeView.style.display = 'none';
     lastListView.style.display = 'block';
-  });
-
-  document.querySelectorAll('.package-card').forEach(function(pkg){
-    pkg.addEventListener('click', function(){
-      document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
-      pkg.classList.add('selected');
-      var priceEl = pkg.querySelector('.price');
-      rechargeTotal.textContent = priceEl ? priceEl.textContent : '—';
-    });
   });
 
   var rechargeBuyBtn = document.getElementById('rechargeBuyBtn');
