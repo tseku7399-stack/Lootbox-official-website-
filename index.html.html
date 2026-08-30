@@ -118,19 +118,17 @@
   }
   .balance-banner-full{ width:100%; height:100%; overflow:hidden; position:relative; }
   .balance-banner-full-track{
-    display:flex; flex-direction:row; width:400%; height:100%;
-    animation: bannerCycleFull 16s ease-in-out infinite;
+    display:flex; flex-direction:row; height:100%;
+    cursor:grab; touch-action:pan-y; will-change:transform;
   }
-  .balance-banner-full-track img{ width:25%; height:100%; object-fit:cover; flex-shrink:0; display:block; }
-  @keyframes bannerCycleFull{
-    0%, 22% { transform: translateX(0); }
-    28%, 47% { transform: translateX(-25%); }
-    53%, 72% { transform: translateX(-50%); }
-    78%, 100% { transform: translateX(-75%); }
+  .balance-banner-full-track.dragging{ cursor:grabbing; }
+  .balance-banner-full-track img{
+    width:100%; height:100%; object-fit:cover; flex:0 0 100%; display:block;
+    pointer-events:none; -webkit-user-drag:none; user-select:none;
   }
   .balance-dots{
-    position:absolute; left:0; right:0; bottom:10px; z-index:2;
     display:flex; align-items:center; justify-content:center; gap:6px;
+    margin-top:10px;
   }
   .balance-dots .dot{
     width:6px; height:6px; border-radius:50%;
@@ -501,11 +499,40 @@
   .profile-field input:disabled{ opacity:0.5; cursor:not-allowed; }
   .avatar-edit-btn.disabled{ opacity:0.4; cursor:not-allowed; pointer-events:none; }
   .profile-save-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* Entrance popup */
+  .entrance-popup-overlay{
+    display:none; position:fixed; inset:0; z-index:80;
+    background:rgba(0,0,0,0.7); align-items:center; justify-content:center; padding:24px;
+  }
+  .entrance-popup{
+    position:relative; width:100%; max-width:360px;
+    border-radius:22px; overflow:hidden;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.8);
+    background:var(--bg-panel-2);
+  }
+  .entrance-popup img{ width:100%; display:block; }
+  .entrance-popup-close{
+    position:absolute; top:10px; right:10px; width:34px; height:34px; border-radius:50%;
+    background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.25);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .entrance-popup-close svg{ width:16px; height:16px; stroke:#fff; }
 </style>
 </head>
 <body>
 
 <div class="blinds"></div>
+
+<div class="entrance-popup-overlay" id="entrancePopupOverlay">
+  <div class="entrance-popup">
+    <div class="entrance-popup-close" id="entrancePopupClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </div>
+    <img src="https://mgl.gogo.mn/newsn/images/ck/2024/06/12/monpayplus_gogo_1600x800-120941-1317322629.jpeg" alt="Promo">
+  </div>
+</div>
 
 <div class="app">
   <div id="loginView" style="display:none;">
@@ -639,17 +666,16 @@
   <div class="balance-card">
     <div class="balance-banner-full" id="balanceBanner">
       <div class="balance-banner-full-track" id="balanceBannerTrack">
-        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
-        <img src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2">
-        <img src="https://andovar.com/static/31e56f5747a526aae41356711605dcca/3f3db/pubgfacts.webp" alt="PUBG Mobile">
-      </div>
-      <div class="balance-dots" id="balanceDots">
-        <div class="dot active" data-index="0"></div>
-        <div class="dot" data-index="1"></div>
-        <div class="dot" data-index="2"></div>
+        <img src="https://mgl.gogo.mn/newsn/images/ck/2024/06/12/monpayplus_gogo_1600x800-120941-1317322629.jpeg" alt="Banner 1">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRaualgQaFoZW8rBMCMIEPbNUKvwtfqks4sZXoFO7aZq66l3NP02r2W2Ge&s=10" alt="Banner 2">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY5nVDN0lGFx_9kltwN9afhLNraTMZVK1SrUgGKYjPQLZpLW5K3lEq2ss&s=10" alt="Banner 3">
       </div>
     </div>
+  </div>
+  <div class="balance-dots" id="balanceDots">
+    <div class="dot active" data-index="0"></div>
+    <div class="dot" data-index="1"></div>
+    <div class="dot" data-index="2"></div>
   </div>
 
   <div class="section-head">
@@ -958,6 +984,21 @@
     }catch(e){ /* localStorage боломжгүй орчинд ч бусад код цааш ажиллана */ }
   })();
   renderTopbar();
+
+  // ---- Сайтад ормогц гарч ирэх popup ----
+  (function initEntrancePopup(){
+    var overlay = document.getElementById('entrancePopupOverlay');
+    var closeBtn = document.getElementById('entrancePopupClose');
+    if(!overlay || !closeBtn) return;
+    overlay.style.display = 'flex';
+    function closePopup(){
+      overlay.style.display = 'none';
+    }
+    closeBtn.addEventListener('click', closePopup);
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closePopup();
+    });
+  })();
 
   // ---- Нэвтрэх / Бүртгүүлэх / Нууц үг мартах ----
   var loginView = document.getElementById('loginView');
@@ -1485,18 +1526,121 @@
     rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
   });
 
-  // ---- Balance banner dots (banner горилдог бүр удаа тохирсон цэг идэвхжинэ) ----
-  var balanceDotsEl = document.getElementById('balanceDots');
-  if(balanceDotsEl){
-    var balanceDots = balanceDotsEl.querySelectorAll('.dot');
-    var balanceDotIndex = 0;
-    setInterval(function(){
-      balanceDotIndex = (balanceDotIndex + 1) % balanceDots.length;
-      balanceDots.forEach(function(d, i){
-        d.classList.toggle('active', i === balanceDotIndex);
+  // ---- Banner: гараар чирж (swipe/drag) солих + 4 секундын дараа автоматаар үргэлжлэх ----
+  (function initBannerCarousel(){
+    var bannerEl = document.getElementById('balanceBanner');
+    var trackEl = document.getElementById('balanceBannerTrack');
+    var dotsEl = document.getElementById('balanceDots');
+    if(!bannerEl || !trackEl || !dotsEl) return;
+
+    var slides = trackEl.querySelectorAll('img');
+    var dots = dotsEl.querySelectorAll('.dot');
+    var slideCount = slides.length;
+    if(slideCount === 0) return;
+
+    var currentIndex = 0;
+    var containerWidth = 0;
+    var isDragging = false;
+    var dragStartX = 0;
+    var dragDeltaX = 0;
+    var autoTimer = null;
+    var pointerId = null;
+
+    function getContainerWidth(){
+      return bannerEl.getBoundingClientRect().width;
+    }
+
+    function setPosition(withTransition){
+      trackEl.style.transition = withTransition ? 'transform 0.35s ease' : 'none';
+      var offset = -(currentIndex * containerWidth) + dragDeltaX;
+      trackEl.style.transform = 'translateX(' + offset + 'px)';
+    }
+
+    function updateDots(){
+      dots.forEach(function(d, i){
+        d.classList.toggle('active', i === currentIndex);
       });
-    }, 4000);
-  }
+    }
+
+    function goToSlide(index){
+      currentIndex = ((index % slideCount) + slideCount) % slideCount;
+      dragDeltaX = 0;
+      setPosition(true);
+      updateDots();
+    }
+
+    function stopAutoTimer(){
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
+    // Автомат солигдол 4 секунд тутам явж байх бөгөөд, гараар хөдөлгөх/сонгох
+    // бүрд энэ таймер шинээр эхэлж, дараагийн автомат солигдол 4 секундын
+    // дараа л болно.
+    function restartAutoTimer(){
+      stopAutoTimer();
+      autoTimer = setInterval(function(){
+        goToSlide(currentIndex + 1);
+      }, 4000);
+    }
+
+    function onPointerDown(e){
+      isDragging = true;
+      pointerId = e.pointerId;
+      dragStartX = e.clientX;
+      dragDeltaX = 0;
+      containerWidth = getContainerWidth();
+      trackEl.classList.add('dragging');
+      stopAutoTimer();
+      try{ trackEl.setPointerCapture(pointerId); }catch(err){}
+    }
+
+    function onPointerMove(e){
+      if(!isDragging) return;
+      dragDeltaX = e.clientX - dragStartX;
+      setPosition(false);
+    }
+
+    function onPointerUp(e){
+      if(!isDragging) return;
+      isDragging = false;
+      trackEl.classList.remove('dragging');
+      var threshold = containerWidth * 0.15;
+      if(dragDeltaX <= -threshold){
+        goToSlide(currentIndex + 1);
+      } else if(dragDeltaX >= threshold){
+        goToSlide(currentIndex - 1);
+      } else {
+        dragDeltaX = 0;
+        setPosition(true);
+      }
+      try{ trackEl.releasePointerCapture(pointerId); }catch(err){}
+      restartAutoTimer();
+    }
+
+    trackEl.addEventListener('pointerdown', onPointerDown);
+    trackEl.addEventListener('pointermove', onPointerMove);
+    trackEl.addEventListener('pointerup', onPointerUp);
+    trackEl.addEventListener('pointercancel', onPointerUp);
+
+    dots.forEach(function(d){
+      d.addEventListener('click', function(){
+        var idx = parseInt(d.getAttribute('data-index'), 10) || 0;
+        goToSlide(idx);
+        restartAutoTimer();
+      });
+    });
+
+    window.addEventListener('resize', function(){
+      containerWidth = getContainerWidth();
+      setPosition(false);
+    });
+
+    containerWidth = getContainerWidth();
+    setPosition(false);
+    updateDots();
+    restartAutoTimer();
+  })();
 
   var claimBtn = document.getElementById('claimBtn');
   claimBtn.addEventListener('click', function(){
