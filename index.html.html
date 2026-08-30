@@ -128,7 +128,7 @@
   }
   .balance-dots{
     display:flex; align-items:center; justify-content:center; gap:6px;
-    margin-top:4px;
+    margin-top:1px;
   }
   .balance-dots .dot{
     width:6px; height:6px; border-radius:50%;
@@ -1560,7 +1560,7 @@
     }
 
     function setPosition(withTransition){
-      trackEl.style.transition = withTransition ? 'transform 0.35s ease' : 'none';
+      trackEl.style.transition = withTransition ? 'transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none';
       var offset = -(currentIndex * containerWidth) + dragDeltaX;
       trackEl.style.transform = 'translateX(' + offset + 'px)';
     }
@@ -1628,7 +1628,7 @@
       if(!isDragging) return;
       isDragging = false;
       trackEl.classList.remove('dragging');
-      var threshold = containerWidth * 0.12;
+      var threshold = containerWidth * 0.08;
       if(dragDeltaX <= -threshold){
         goToIndex(currentIndex + 1);
       } else if(dragDeltaX >= threshold){
