@@ -1761,10 +1761,34 @@
     trackEl.addEventListener('pointerup', onPointerUp);
     trackEl.addEventListener('pointercancel', onPointerUp);
 
+    // Cache: mainView (эсвэл дурын эцэг элемент) display:none үед
+    // getBoundingClientRect() 0 буцаадаг тул тэр үед хэмжээг дахин
+    // тооцоолохгүй, зөвхөн бодит (0-ээс их) өргөн ирсэн үед л шинэчилнэ.
+    // Ингэснээр login/profile гэх мэт дэлгэц рүү орж (жишээ нь гар
+    // бичвэрийн keyboard нээгдэхэд resize event гарна) гарч ирэхэд
+    // banner "алга" болохгүй.
     window.addEventListener('resize', function(){
+      var w = getContainerWidth();
+      if(w <= 0) return;
       applySizes();
       setPosition(false);
     });
+
+    // mainView дахин харагдах мөч бүрд (display:none -> block) banner-ийн
+    // бодит хэмжээг ResizeObserver ашиглан автоматаар дахин тооцоолж,
+    // дурын навигацийн газраас буцаж ирэхэд ч banner үргэлж зөв харагдана.
+    if(typeof ResizeObserver !== 'undefined'){
+      var lastObservedWidth = 0;
+      var ro = new ResizeObserver(function(){
+        var w = getContainerWidth();
+        if(w > 0 && Math.round(w) !== Math.round(lastObservedWidth)){
+          lastObservedWidth = w;
+          applySizes();
+          setPosition(false);
+        }
+      });
+      ro.observe(bannerEl);
+    }
 
     applySizes();
     setPosition(false);
