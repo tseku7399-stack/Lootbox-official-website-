@@ -715,7 +715,7 @@
         <div class="title">PUBG Mobile</div>
       </div>
     </div>
-    <div class="offer-card" data-game="MLBB" data-aliases="mobile legends,mobile legends bang bang,mlbb">
+    <div class="offer-card" data-game="MLBB" data-display-name="Mobile Legends" data-aliases="mobile legends,mobile legends bang bang,mlbb">
       <div class="offer-cover c">
         <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
       </div>
@@ -789,7 +789,7 @@
           <div class="title">PUBG Mobile</div>
         </div>
       </div>
-      <div class="offer-card" data-game="MLBB">
+      <div class="offer-card" data-game="MLBB" data-display-name="Mobile Legends">
         <div class="offer-cover c">
           <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
         </div>
@@ -1567,7 +1567,7 @@
       lastListView = (allGamesView.style.display === 'none') ? mainView : allGamesView;
       lastListView.style.display = 'none';
 
-      rechargeTitle.textContent = game;
+      rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       rechargeSub.textContent = 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
