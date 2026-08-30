@@ -98,6 +98,7 @@
     flex:1; display:flex; align-items:center; gap:8px;
     background:var(--bg-elevated); border:1px solid var(--line);
     border-radius:14px; padding:0 14px; height:44px;
+    position:relative;
   }
   .search-box svg{ width:16px; height:16px; stroke:var(--text-faint); flex-shrink:0; }
   .search-box input{
@@ -105,6 +106,28 @@
     font-size:16px; width:100%; font-family:'Inter',sans-serif;
   }
   .search-box input::placeholder{ color:var(--text-faint); }
+  .search-dropdown{
+    display:none;
+    position:absolute; left:-1px; right:-1px; top:calc(100% + 8px);
+    background:var(--bg-panel-2); border:1px solid var(--line-strong);
+    border-radius:16px; overflow:hidden; z-index:60;
+    box-shadow:0 24px 48px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    max-height:280px; overflow-y:auto;
+  }
+  .search-dropdown.open{ display:block; }
+  .search-dropdown-item{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer;
+  }
+  .search-dropdown-item + .search-dropdown-item{ border-top:1px solid var(--line); }
+  .search-dropdown-item:hover{ background:var(--bg-elevated); }
+  .search-dropdown-icon{
+    width:32px; height:32px; border-radius:9px; overflow:hidden; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; background:var(--bg-elevated);
+  }
+  .search-dropdown-icon img{ width:100%; height:100%; object-fit:cover; }
+  .search-dropdown-icon svg{ width:100%; height:100%; }
+  .search-dropdown-name{ font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; }
+  .search-dropdown-empty{ padding:18px 12px; text-align:center; color:var(--text-lo); font-size:13px; }
   .filter-btn{
     width:44px; height:44px; border-radius:14px; background:var(--bg-elevated);
     border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
@@ -657,6 +680,7 @@
     <div class="search-box">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх">
+      <div class="search-dropdown" id="searchDropdown"></div>
     </div>
     <div class="filter-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
@@ -691,7 +715,7 @@
         <div class="title">PUBG Mobile</div>
       </div>
     </div>
-    <div class="offer-card" data-game="MLBB">
+    <div class="offer-card" data-game="MLBB" data-aliases="mobile legends,mobile legends bang bang,mlbb">
       <div class="offer-cover c">
         <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
       </div>
@@ -721,8 +745,6 @@
       </div>
     </div>
   </div>
-  <div class="search-empty" id="mainSearchEmpty" style="display:none;">Тоглоом олдсонгүй</div>
-
   <div class="daily-bonus">
     <div class="txt">
       <div class="t1">Өдрийн бонус</div>
@@ -1467,23 +1489,75 @@
     mainView.style.display = 'block';
   });
 
-  // ---- Тоглоом хайх ----
+  // ---- Тоглоом хайх (үр дүнг доор байгаа тоглоомын жагсаалтад биш, dropdown-д харуулна) ----
   var gameSearchInput = document.getElementById('gameSearchInput');
-  var mainGamesGrid = document.getElementById('mainGamesGrid');
-  var mainSearchEmpty = document.getElementById('mainSearchEmpty');
+  var searchDropdown = document.getElementById('searchDropdown');
+
+  var searchableCards = (function(){
+    var map = {};
+    document.querySelectorAll('.offer-card[data-game]').forEach(function(card){
+      var name = card.getAttribute('data-game');
+      if(!map[name]) map[name] = card;
+    });
+    return Object.keys(map).map(function(name){
+      var card = map[name];
+      var cover = card.querySelector('.offer-cover');
+      return {
+        name: name,
+        el: card,
+        aliases: (card.getAttribute('data-aliases') || '').toLowerCase(),
+        iconHtml: cover ? cover.innerHTML : ''
+      };
+    });
+  })();
+
+  function closeSearchDropdown(){
+    searchDropdown.classList.remove('open');
+    searchDropdown.innerHTML = '';
+  }
+
+  function renderSearchDropdown(results){
+    if(results.length === 0){
+      searchDropdown.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
+    } else {
+      searchDropdown.innerHTML = results.map(function(r){
+        return '<div class="search-dropdown-item" data-name="' + r.name + '">' +
+                 '<div class="search-dropdown-icon">' + r.iconHtml + '</div>' +
+                 '<div class="search-dropdown-name">' + r.name + '</div>' +
+               '</div>';
+      }).join('');
+    }
+    searchDropdown.classList.add('open');
+
+    searchDropdown.querySelectorAll('.search-dropdown-item').forEach(function(item){
+      item.addEventListener('click', function(){
+        var name = item.getAttribute('data-name');
+        var match = searchableCards.filter(function(r){ return r.name === name; })[0];
+        closeSearchDropdown();
+        gameSearchInput.value = '';
+        if(match){ match.el.click(); }
+      });
+    });
+  }
 
   gameSearchInput.addEventListener('input', function(){
     var q = gameSearchInput.value.trim().toLowerCase();
-    var cards = mainGamesGrid.querySelectorAll('.offer-card');
-    var visibleCount = 0;
-    cards.forEach(function(card){
-      var name = (card.getAttribute('data-game') || '').toLowerCase();
-      var matches = q === '' || name.indexOf(q) !== -1;
-      card.style.display = matches ? '' : 'none';
-      if(matches) visibleCount++;
+    if(q === ''){
+      closeSearchDropdown();
+      return;
+    }
+    var results = searchableCards.filter(function(r){
+      return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
     });
-    mainSearchEmpty.style.display = (visibleCount === 0) ? 'block' : 'none';
-    mainGamesGrid.style.display = (visibleCount === 0) ? 'none' : 'flex';
+    renderSearchDropdown(results);
+  });
+
+  gameSearchInput.addEventListener('focus', function(){
+    if(gameSearchInput.value.trim() !== '') searchDropdown.classList.add('open');
+  });
+
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.search-box')) closeSearchDropdown();
   });
 
 
