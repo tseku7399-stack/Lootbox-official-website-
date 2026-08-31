@@ -1114,20 +1114,29 @@
   }
 
   // ---- Firebase Auth: сесс автоматаар хадгалагддаг тул хуудас ачаалах бүрд өмнөх нэвтрэлтийг сэргээнэ ----
-  firebase.auth().onAuthStateChanged(function(user){
-    if(user){
-      var kr = getOrCreateLocalRecord(user);
-      applyUserRecord(kr.key, kr.record);
-    } else {
-      currentUserKey = null;
-      currentUser.username = 'Зочин';
-      currentUser.avatarText = 'ЗЧ';
-      currentUser.avatarImg = null;
-      currentUser.email = '';
-      currentUser.loggedIn = false;
-      renderTopbar();
+  // Firebase SDK нь сүлжээний шалтгаанаар (интернэтгүй, CDN блоклогдсон г.м) ачаалагдаагүй
+  // тохиолдолд "firebase is not defined" алдаа шидэж, доор бичигдсэн бусад БҮХ код
+  // (нууц үг харуулах/нуух товч, tab-ууд, login/register товч гэх мэт) огт ажиллахгүй
+  // болдог байсан тул эндээс цааш аюулгүй (safe) шалгаж, алдаа гарвал зөвхөн
+  // нэвтрэлтийн сэргээлтийг алгасаад, үлдсэн бүх функц хэвийн ажиллуулна.
+  try{
+    if(typeof firebase !== 'undefined' && firebase.auth){
+      firebase.auth().onAuthStateChanged(function(user){
+        if(user){
+          var kr = getOrCreateLocalRecord(user);
+          applyUserRecord(kr.key, kr.record);
+        } else {
+          currentUserKey = null;
+          currentUser.username = 'Зочин';
+          currentUser.avatarText = 'ЗЧ';
+          currentUser.avatarImg = null;
+          currentUser.email = '';
+          currentUser.loggedIn = false;
+          renderTopbar();
+        }
+      });
     }
-  });
+  }catch(e){}
   renderTopbar();
 
   // ---- Сайтад ормогц гарч ирэх popup ----
