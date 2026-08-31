@@ -380,6 +380,7 @@
   .package-card .amt{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; margin-bottom:5px; }
   .package-card .amt .cur-icon{ display:inline-flex; vertical-align:-3px; margin-right:5px; }
   .package-card .amt .cur-icon svg, .package-card .amt .cur-icon img{ width:16px; height:16px; display:block; object-fit:contain; }
+  .package-card .amt .cur-icon img.cur-photo{ width:23px; height:23px; transform:translate(2px,-2px); }
   .package-card .amt em{ font-style:normal; color:var(--gold-300); font-size:10px; font-weight:700; margin-left:3px; }
   .package-card .price{ font-size:11.5px; color:var(--text-lo); }
   .package-card .badge{
@@ -1811,7 +1812,7 @@
 
   var CURRENCY_ICONS = {
     DIAMOND: '<svg viewBox="0 0 24 24"><path d="M4.5 9L12 3l7.5 6-7.5 12z" fill="#af9bf1"/><path d="M8 9l4-6 4 6-4 12z" fill="#e3dbfa"/><path d="M4.5 9h15" stroke="#5b43a7" stroke-width="0.6"/></svg>',
-    UC: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd66b"/><circle cx="12" cy="12" r="9.3" fill="none" stroke="#c9932a" stroke-width="1.2"/><text x="12" y="15.5" font-family="Poppins,sans-serif" font-size="8.5" font-weight="800" fill="#7a4e00" text-anchor="middle">UC</text></svg>',
+    UC: '<img src="https://www.gameshop.mn/uc.png" alt="UC">',
     ROBUX: '<svg viewBox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z" fill="#e7e9ee"/><path d="M12 2l8 4.5-8 4.5-8-4.5z" fill="#ffffff"/><path d="M12 11l8-4.5v9L12 20z" fill="#c7cbd6"/></svg>'
   };
 
@@ -1820,7 +1821,7 @@
     'Roblox': 'ROBUX'
   };
 
-  var PACKAGE_TIERS = [
+  var DEFAULT_PACKAGE_TIERS = [
     { amount:78,   bonus:8,    price:"5'000₮",   img:'https://www.gameshop.mn/78.webp' },
     { amount:156,  bonus:16,   price:"9'600₮",   img:'https://www.gameshop.mn/156.webp' },
     { amount:234,  bonus:23,   price:"13'800₮",  img:'https://www.gameshop.mn/234.webp' },
@@ -1833,11 +1834,24 @@
     { special:true, label:'WEEKLY PASS',   price:"5'900₮",  img:'https://www.gameshop.mn/weekly.png' }
   ];
 
+  var GAME_PACKAGE_TIERS = {
+    'PUBG Mobile': [
+      { amount:60,    bonus:0, price:'5,000₮' },
+      { amount:325,   bonus:0, price:'18,000₮' },
+      { amount:660,   bonus:0, price:'35,500₮' },
+      { amount:1800,  bonus:0, price:'87,000₮' },
+      { amount:3850,  bonus:0, price:'170,000₮' },
+      { amount:8100,  bonus:0, price:'340,000₮' },
+      { amount:16200, bonus:0, price:'670,000₮' }
+    ]
+  };
+
   function renderPackages(game){
     var currency = GAME_CURRENCY[game] || 'DIAMOND';
+    var tiers = GAME_PACKAGE_TIERS[game] || DEFAULT_PACKAGE_TIERS;
     var grid = document.getElementById('packageGrid');
     if(!grid) return;
-    grid.innerHTML = PACKAGE_TIERS.map(function(t){
+    grid.innerHTML = tiers.map(function(t){
       var cardClass = 'package-card';
       var badgeHtml = '';
       if(t.badge === 'best'){ cardClass += ' best'; badgeHtml = '<span class="badge best-badge">' + t.badgeLabel + '</span>'; }
@@ -1845,7 +1859,7 @@
       var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
       var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : ''));
       var iconHtml = (currency === 'DIAMOND' && t.img)
-        ? '<img src="' + t.img + '" alt="" loading="lazy">'
+        ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
         : CURRENCY_ICONS[currency];
       return '<div class="' + cardClass + '" data-item="' + itemText + '" data-price="' + t.price + '">' + badgeHtml +
         '<div class="amt"><span class="cur-icon">' + iconHtml + '</span>' + mainLine + '</div>' +
