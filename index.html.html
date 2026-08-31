@@ -380,7 +380,7 @@
   .package-card .amt{ font-family:'Poppins',sans-serif; font-weight:600; font-size:14px; margin-bottom:5px; }
   .package-card .amt .cur-icon{ display:inline-flex; vertical-align:-3px; margin-right:5px; }
   .package-card .amt .cur-icon svg, .package-card .amt .cur-icon img{ width:16px; height:16px; display:block; object-fit:contain; }
-  .package-card .amt .cur-icon img.cur-photo{ width:23px; height:23px; transform:translate(2px,-2px); }
+  .package-card .amt .cur-icon img.cur-photo{ width:28px; height:28px; transform:translate(2px,1px); }
   .package-card .amt em{ font-style:normal; color:var(--gold-300); font-size:10px; font-weight:700; margin-left:3px; }
   .package-card .price{ font-size:11.5px; color:var(--text-lo); }
   .package-card .badge{
@@ -581,6 +581,10 @@
   .profile-history-title{
     font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
     color:var(--text-hi); margin-bottom:10px;
+  }
+  .profile-history-total{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:13px;
+    color:var(--gold-300); margin-bottom:12px;
   }
   .profile-history-item{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -988,6 +992,7 @@
 
     <div class="profile-history" id="profileHistorySection">
       <h3 class="profile-history-title">Худалдан авалтын түүх</h3>
+      <div class="profile-history-total" id="profileHistoryTotal"></div>
       <div class="profile-history-list" id="profileHistoryList"></div>
     </div>
   </div>
@@ -1417,6 +1422,7 @@
   var profileEmailInput = document.getElementById('profileEmailInput');
   var profileEmailField = document.getElementById('profileEmailField');
   var profileHistorySection = document.getElementById('profileHistorySection');
+  var profileHistoryTotal = document.getElementById('profileHistoryTotal');
   var profileHistoryList = document.getElementById('profileHistoryList');
   var profileAvatarPreview = document.getElementById('profileAvatarPreview');
   var avatarEditBtn = document.getElementById('avatarEditBtn');
@@ -1462,6 +1468,15 @@
   function renderPurchaseHistory(){
     var record = getCurrentRecord();
     var purchases = (record && record.purchases) ? record.purchases : [];
+
+    var total = purchases.reduce(function(sum, p){
+      var num = parseInt(String(p.price || '').replace(/[^0-9]/g, ''), 10);
+      return sum + (isNaN(num) ? 0 : num);
+    }, 0);
+    if(profileHistoryTotal){
+      profileHistoryTotal.textContent = 'Нийт дүн: ₮' + total.toLocaleString('en-US');
+    }
+
     if(purchases.length === 0){
       profileHistoryList.innerHTML = '<div class="profile-history-empty">Одоогоор худалдан авалт алга байна</div>';
       return;
