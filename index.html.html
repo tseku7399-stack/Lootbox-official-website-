@@ -922,7 +922,7 @@
       <h2>Цэнэглэх</h2>
     </div>
 
-    <div class="recharge-banner">
+    <div class="recharge-banner" id="rechargeBanner">
       <div class="recharge-banner-icon" id="rechargeBannerIcon"></div>
       <div>
         <div class="rb-name" id="rechargeTitle">Mobile Legends</div>
@@ -1868,7 +1868,9 @@
   attachVerifyHandler();
   renderPackages(null);
 
-  var RECHARGE_BANNER_OVERRIDE = {
+  var rechargeBannerEl = document.getElementById('rechargeBanner');
+  var DEFAULT_BANNER_BG = 'linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple))';
+  var RECHARGE_BANNER_BG = {
     'PUBG Mobile': 'https://image.api.playstation.com/vulcan/ap/rnd/202602/1201/d76d3a33c1f1d6ac704b5b4f0787ba1def145bb73d6c4ab0.jpg'
   };
 
@@ -1881,11 +1883,18 @@
 
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       rechargeSub.textContent = 'Шууд цэнэглэлт';
-      if(RECHARGE_BANNER_OVERRIDE[game]){
-        rechargeBannerIcon.innerHTML = '<img src="' + RECHARGE_BANNER_OVERRIDE[game] + '" alt="' + game + '">';
+      var cover = card.querySelector('.offer-cover');
+      rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
+
+      if(RECHARGE_BANNER_BG[game]){
+        rechargeBannerEl.style.backgroundImage =
+          'linear-gradient(135deg, rgba(21,11,46,0.62), rgba(58,30,107,0.48) 55%, rgba(124,77,255,0.35)), url(\'' + RECHARGE_BANNER_BG[game] + '\')';
+        rechargeBannerEl.style.backgroundSize = 'cover';
+        rechargeBannerEl.style.backgroundPosition = 'center';
       } else {
-        var cover = card.querySelector('.offer-cover');
-        rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
+        rechargeBannerEl.style.backgroundImage = DEFAULT_BANNER_BG;
+        rechargeBannerEl.style.backgroundSize = '';
+        rechargeBannerEl.style.backgroundPosition = '';
       }
 
       renderIdFields(game);
