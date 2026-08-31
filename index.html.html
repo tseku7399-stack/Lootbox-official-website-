@@ -92,6 +92,32 @@
     position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%;
     background:var(--red); border:1.5px solid var(--bg-elevated);
   }
+  .notif-panel{
+    position:absolute; top:48px; right:0; width:270px; max-height:340px; overflow-y:auto;
+    background:var(--bg-elevated); border:1px solid var(--line-strong); border-radius:16px;
+    padding:8px; display:none; z-index:60; cursor:default;
+    box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  }
+  .notif-panel.open{ display:block; }
+  .notif-panel-head{
+    display:flex; align-items:center; justify-content:space-between; padding:6px 8px 10px;
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-hi);
+    border-bottom:1px solid var(--line); margin-bottom:6px;
+  }
+  .notif-clear{ font-size:10.5px; font-weight:600; color:var(--gold-300); cursor:pointer; }
+  .notif-item{ display:flex; gap:9px; padding:8px; border-radius:12px; }
+  .notif-item:hover{ background:rgba(255,255,255,0.05); }
+  .notif-item.unread{ background:rgba(79,168,245,0.08); }
+  .notif-icon{
+    width:30px; height:30px; border-radius:9px; background:var(--bg-panel-2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold-300);
+  }
+  .notif-icon svg{ width:15px; height:15px; }
+  .notif-body{ min-width:0; }
+  .notif-body .t{ font-size:12px; font-weight:600; color:var(--text-hi); margin-bottom:1px; }
+  .notif-body .s{ font-size:10.5px; color:var(--text-lo); line-height:1.35; }
+  .notif-body .time{ font-size:9.5px; color:var(--text-faint); margin-top:3px; }
+  .notif-empty{ text-align:center; padding:26px 10px; font-size:11.5px; color:var(--text-lo); }
 
   .search-row{ display:flex; gap:10px; margin-bottom:18px; }
   .search-box{
@@ -564,6 +590,21 @@
   }
   .profile-field input:disabled{ opacity:0.5; cursor:not-allowed; }
   .avatar-edit-btn.disabled{ opacity:0.4; cursor:not-allowed; pointer-events:none; }
+  .profile-history{ margin-top:24px; }
+  .profile-history-title{
+    font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
+    color:var(--text-hi); margin-bottom:10px;
+  }
+  .profile-history-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--bg-panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px;
+  }
+  .profile-history-item .ph-game{ font-family:'Poppins',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-hi); }
+  .profile-history-item .ph-item{ font-size:11px; color:var(--text-lo); margin-top:2px; }
+  .profile-history-item .ph-date{ font-size:10px; color:var(--text-faint); margin-top:4px; }
+  .profile-history-item .ph-price{ font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:var(--gold-300); white-space:nowrap; flex-shrink:0; }
+  .profile-history-empty{ text-align:center; padding:20px 10px; font-size:12px; color:var(--text-lo); }
   .profile-save-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
   /* Entrance popup */
@@ -713,9 +754,16 @@
         <div class="name" id="topbarName">Асиб Ахмед</div>
       </div>
     </div>
-    <div class="bell">
+    <div class="bell" id="notifBell">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-      <div class="dot"></div>
+      <div class="dot" id="notifDot"></div>
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-panel-head">
+          <span>Мэдэгдэл</span>
+          <span class="notif-clear" id="notifClearBtn">Бүгдийг устгах</span>
+        </div>
+        <div class="notif-list" id="notifList"></div>
+      </div>
     </div>
   </div>
 
@@ -943,8 +991,18 @@
       <input type="text" id="profileUsernameInput" placeholder="Хэрэглэгчийн нэрээ оруулах">
     </div>
 
+    <div class="profile-field" id="profileEmailField">
+      <label>И-мэйл хаяг</label>
+      <input type="email" id="profileEmailInput" disabled>
+    </div>
+
     <button class="profile-save-btn" id="profileSaveBtn">Хадгалах</button>
     <button class="profile-logout-btn" id="profileAuthBtn">Гарах</button>
+
+    <div class="profile-history" id="profileHistorySection">
+      <h3 class="profile-history-title">Худалдан авалтын түүх</h3>
+      <div class="profile-history-list" id="profileHistoryList"></div>
+    </div>
   </div>
 </div>
 
@@ -990,6 +1048,7 @@
     username: 'Зочин',
     avatarText: 'ЗЧ',
     avatarImg: null,
+    email: '',
     loggedIn: false
   };
   var currentUserKey = null; // localStorage-д хадгалагдсан хэрэглэгчийн түлхүүр (username эсвэл google:email)
@@ -1031,6 +1090,7 @@
       currentUser.username = record.displayName;
       currentUser.avatarText = getInitials(record.displayName);
       currentUser.avatarImg = record.avatarImg || null;
+      currentUser.email = record.email || '';
       currentUser.loggedIn = true;
     }catch(e){ /* localStorage боломжгүй орчинд ч бусад код цааш ажиллана */ }
   })();
@@ -1185,6 +1245,7 @@
     currentUser.username = record.displayName;
     currentUser.avatarText = getInitials(record.displayName);
     currentUser.avatarImg = record.avatarImg || null;
+    currentUser.email = record.email || '';
     currentUser.loggedIn = true;
     saveSession(key);
     renderTopbar();
@@ -1366,6 +1427,10 @@
   var profileBackBtn = document.getElementById('profileBackBtn');
   var profileUsernameInput = document.getElementById('profileUsernameInput');
   var profileUsernameField = document.getElementById('profileUsernameField');
+  var profileEmailInput = document.getElementById('profileEmailInput');
+  var profileEmailField = document.getElementById('profileEmailField');
+  var profileHistorySection = document.getElementById('profileHistorySection');
+  var profileHistoryList = document.getElementById('profileHistoryList');
   var profileAvatarPreview = document.getElementById('profileAvatarPreview');
   var avatarEditBtn = document.getElementById('avatarEditBtn');
   var avatarFileInput = document.getElementById('avatarFileInput');
@@ -1396,7 +1461,30 @@
     profileLockedMsg.style.display = locked ? 'block' : 'none';
     avatarEditBtn.style.display = locked ? 'none' : 'flex';
     profileUsernameField.style.display = locked ? 'none' : 'block';
+    profileEmailField.style.display = locked ? 'none' : 'block';
     profileSaveBtn.style.display = locked ? 'none' : 'block';
+    profileHistorySection.style.display = locked ? 'none' : 'block';
+  }
+
+  function getCurrentRecord(){
+    if(!currentUserKey) return null;
+    var users = loadUsers();
+    return users[currentUserKey] || null;
+  }
+
+  function renderPurchaseHistory(){
+    var record = getCurrentRecord();
+    var purchases = (record && record.purchases) ? record.purchases : [];
+    if(purchases.length === 0){
+      profileHistoryList.innerHTML = '<div class="profile-history-empty">Одоогоор худалдан авалт алга байна</div>';
+      return;
+    }
+    profileHistoryList.innerHTML = purchases.map(function(p){
+      return '<div class="profile-history-item">' +
+        '<div class="ph-left"><div class="ph-game">' + p.game + '</div><div class="ph-item">' + p.item + '</div><div class="ph-date">' + p.date + '</div></div>' +
+        '<div class="ph-price">' + p.price + '</div>' +
+      '</div>';
+    }).join('');
   }
 
   function openProfile(){
@@ -1409,12 +1497,14 @@
     showAllPagesHidden();
 
     profileUsernameInput.value = currentUser.username;
+    profileEmailInput.value = currentUser.email || '';
     pendingAvatarImg = currentUser.avatarImg;
     renderProfilePreview();
     profileSaveBtn.textContent = 'Хадгалах';
     profileSaveBtn.classList.remove('saved');
     renderProfileAuthBtn();
     renderProfileLockState();
+    renderPurchaseHistory();
 
     profileView.style.display = 'block';
   }
@@ -1428,6 +1518,64 @@
       openLogin('main');
     }
   });
+
+  var NOTIF_ICONS = {
+    diamond:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 9L12 3l7.5 6-7.5 12z"/></svg>',
+    gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13"/><path d="M12 8C10.5 5 7 4 7 6.5S9.5 8 12 8Zm0 0c1.5-3 5-4 5-1.5S14.5 8 12 8Z"/></svg>',
+    bellIcon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>'
+  };
+
+  var NOTIFICATIONS = [
+    { icon:'diamond',  title:'Цэнэглэлт амжилттай',        body:'MLBB руу 1860 + 335 Diamond амжилттай орлоо.',      time:'5 минутын өмнө',   unread:true },
+    { icon:'gift',     title:'Тусгай урамшуулал',           body:'Өнөөдрийн багцад 10% хямдрал идэвхжлээ.',           time:'2 цагийн өмнө',    unread:true },
+    { icon:'bellIcon', title:'Weekly Pass дуусах гэж байна', body:'Таны 7 хоногийн эрх маргааш дуусна.',               time:'Өчигдөр',           unread:false },
+    { icon:'check',    title:'И-мэйл баталгаажлаа',          body:'Таны и-мэйл хаяг амжилттай баталгаажлаа.',          time:'2 өдрийн өмнө',    unread:false }
+  ];
+
+  function renderNotifications(){
+    var list = document.getElementById('notifList');
+    var dot = document.getElementById('notifDot');
+    if(!list) return;
+    if(NOTIFICATIONS.length === 0){
+      list.innerHTML = '<div class="notif-empty">Мэдэгдэл алга байна</div>';
+    } else {
+      list.innerHTML = NOTIFICATIONS.map(function(n){
+        return '<div class="notif-item' + (n.unread ? ' unread' : '') + '">' +
+          '<div class="notif-icon">' + (NOTIF_ICONS[n.icon] || '') + '</div>' +
+          '<div class="notif-body"><div class="t">' + n.title + '</div><div class="s">' + n.body + '</div><div class="time">' + n.time + '</div></div>' +
+        '</div>';
+      }).join('');
+    }
+    if(dot) dot.style.display = NOTIFICATIONS.some(function(n){ return n.unread; }) ? 'block' : 'none';
+  }
+
+  function setNotifPanelOpen(open){
+    var panel = document.getElementById('notifPanel');
+    if(!panel) return;
+    panel.classList.toggle('open', open);
+    if(open){
+      NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+      renderNotifications();
+    }
+  }
+
+  document.getElementById('notifBell').addEventListener('click', function(e){
+    e.stopPropagation();
+    var panel = document.getElementById('notifPanel');
+    setNotifPanelOpen(!panel.classList.contains('open'));
+  });
+  document.getElementById('notifPanel').addEventListener('click', function(e){ e.stopPropagation(); });
+  document.getElementById('notifClearBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    NOTIFICATIONS.length = 0;
+    renderNotifications();
+  });
+  document.addEventListener('click', function(){
+    setNotifPanelOpen(false);
+  });
+
+  renderNotifications();
 
   profileBackBtn.addEventListener('click', function(){
     profileView.style.display = 'none';
@@ -1486,6 +1634,7 @@
       currentUser.username = 'Зочин';
       currentUser.avatarText = 'ЗЧ';
       currentUser.avatarImg = null;
+      currentUser.email = '';
       currentUser.loggedIn = false;
       currentUserKey = null;
       clearSession();
@@ -1708,10 +1857,11 @@
       if(t.badge === 'best'){ cardClass += ' best'; badgeHtml = '<span class="badge best-badge">' + t.badgeLabel + '</span>'; }
       if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
       var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
+      var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : ''));
       var iconHtml = (currency === 'DIAMOND' && t.img)
         ? '<img src="' + t.img + '" alt="" loading="lazy">'
         : CURRENCY_ICONS[currency];
-      return '<div class="' + cardClass + '">' + badgeHtml +
+      return '<div class="' + cardClass + '" data-item="' + itemText + '" data-price="' + t.price + '">' + badgeHtml +
         '<div class="amt"><span class="cur-icon">' + iconHtml + '</span>' + mainLine + '</div>' +
         '<div class="price">' + t.price + '</div></div>';
     }).join('');
@@ -1763,6 +1913,24 @@
     var selected = document.querySelector('.package-card.selected');
     if (!selected) return;
     rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
+
+    if(currentUser.loggedIn && currentUserKey){
+      var users = loadUsers();
+      var record = users[currentUserKey];
+      if(record){
+        if(!record.purchases) record.purchases = [];
+        var now = new Date();
+        var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
+        record.purchases.unshift({
+          game: rechargeTitle.textContent,
+          item: selected.getAttribute('data-item') || '',
+          price: selected.getAttribute('data-price') || '',
+          date: dateStr
+        });
+        users[currentUserKey] = record;
+        saveUsers(users);
+      }
+    }
   });
 
   // ---- Banner: гараар хоёр тийш чөлөөтэй swipe хийж, төгсгөлгүй эргэлддэг (infinite loop) болгох ----
