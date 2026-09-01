@@ -1131,7 +1131,22 @@
     currentUser.username = record.displayName;
     currentUser.avatarText = getInitials(record.displayName);
     currentUser.avatarImg = record.avatarImg || null;
-    currentUser.email = record.email || '';
+    // Локал бичлэг дэх имэйл хоосон/хуучирсан байж болзошгүй тул Firebase-ийн
+    // бодит нэвтэрсэн хэрэглэгчийн имэйлийг нөөц эх сурвалж болгон ашиглана.
+    var liveEmail = '';
+    try{
+      liveEmail = (firebase.auth().currentUser && firebase.auth().currentUser.email) || '';
+    }catch(e){}
+    currentUser.email = record.email || liveEmail || '';
+    // Хэрэв локал бичлэгт имэйл дутуу байсан бол Firebase-с ирсэн жинхэнэ
+    // имэйлээр нэн даруй сэргээж, дараагийн удаа дахин алдахгүй байхаар хадгална.
+    if(!record.email && liveEmail && key){
+      var usersToFix = loadUsers();
+      if(usersToFix[key]){
+        usersToFix[key].email = liveEmail;
+        saveUsers(usersToFix);
+      }
+    }
     currentUser.loggedIn = true;
     renderTopbar();
   }
