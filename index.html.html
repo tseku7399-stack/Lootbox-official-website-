@@ -451,8 +451,14 @@
     outline:0; font-family:'Inter',sans-serif; box-sizing:border-box;
   }
   .login-field input:focus{ border-color:var(--gold-300); }
-  .login-field input.field-invalid{
+  input.field-invalid{
     border-color:var(--red) !important;
+    animation:fieldShake 0.4s;
+  }
+  .section-invalid{
+    outline:2px solid var(--red);
+    outline-offset:5px;
+    border-radius:16px;
     animation:fieldShake 0.4s;
   }
   @keyframes fieldShake{
@@ -504,7 +510,6 @@
     text-decoration:none; cursor:pointer; margin:-6px 0 14px;
   }
   #forgotPanel .forgot-link{ text-align:center; margin:16px 0 0; }
-  #verifyPanel .forgot-link{ text-align:center; margin:10px 0 0; }
   .forgot-sent{
     display:none; font-size:12.5px; color:var(--gold-300); background:rgba(126,93,232,0.10);
     border:1px solid rgba(126,93,232,0.30); border-radius:14px; padding:11px 14px;
@@ -748,16 +753,6 @@
         <div class="forgot-sent" id="forgotSent">Сэргээх линк илгээгдлээ ✓ Имэйлээ шалгана уу.</div>
         <button class="login-btn" id="forgotBtn">Сэргээх линк илгээх</button>
         <a class="forgot-link" id="backToLoginLink">← Нэвтрэх хэсэг рүү буцах</a>
-      </div>
-
-      <!-- Имэйл баталгаажуулах хэсэг -->
-      <div id="verifyPanel" style="display:none;">
-        <div class="login-sub">Бүртгэл амжилттай үүслээ. Баталгаажуулах холбоосыг <b id="verifyEmailTarget" style="color:var(--text-hi);"></b> хаяг руу илгээлээ. Имэйлээ нээж холбоос дээр дарснаар бүртгэл идэвхжинэ.</div>
-        <div class="login-error" id="verifyError"></div>
-        <div class="forgot-sent" id="verifySent">Холбоос дахин илгээгдлээ ✓ Имэйлээ шалгана уу.</div>
-        <button class="login-btn" id="verifyCheckBtn">Баталгаажуулсан эсэхийг шалгах</button>
-        <a class="forgot-link" id="verifyResendLink">Холбоосыг дахин илгээх</a>
-        <a class="forgot-link" id="verifyBackLink">← Нэвтрэх хэсэг рүү буцах</a>
       </div>
     </div>
   </div>
@@ -1150,21 +1145,9 @@
   try{
     if(typeof firebase !== 'undefined' && firebase.auth){
       firebase.auth().onAuthStateChanged(function(user){
-        var isPasswordAcct = user && user.providerData[0] && user.providerData[0].providerId === 'password';
-        if(user && (!isPasswordAcct || user.emailVerified)){
+        if(user){
           var kr = getOrCreateLocalRecord(user);
           applyUserRecord(kr.key, kr.record);
-        } else if(user){
-          // Нууц үгээр бүртгүүлсэн боловч имэйлээ баталгаажуулаагүй хэрэглэгч:
-          // Firebase сесс хадгалагдана (дахин код/линк илгээхэд ашиглах), гэхдээ
-          // сайтад "Зочин" төлөвтэй, нэвтрээгүй хэвээр харагдана.
-          currentUserKey = null;
-          currentUser.username = 'Зочин';
-          currentUser.avatarText = 'ЗЧ';
-          currentUser.avatarImg = null;
-          currentUser.email = '';
-          currentUser.loggedIn = false;
-          renderTopbar();
         } else {
           currentUserKey = null;
           currentUser.username = 'Зочин';
@@ -1219,13 +1202,6 @@
   var forgotError = document.getElementById('forgotError');
   var forgotSent = document.getElementById('forgotSent');
   var forgotBtn = document.getElementById('forgotBtn');
-  var verifyPanel = document.getElementById('verifyPanel');
-  var verifyEmailTarget = document.getElementById('verifyEmailTarget');
-  var verifyError = document.getElementById('verifyError');
-  var verifySent = document.getElementById('verifySent');
-  var verifyCheckBtn = document.getElementById('verifyCheckBtn');
-  var verifyResendLink = document.getElementById('verifyResendLink');
-  var verifyBackLink = document.getElementById('verifyBackLink');
   var googleLoginBtn = document.getElementById('googleLoginBtn');
   var googleRegisterBtn = document.getElementById('googleRegisterBtn');
   var loginCloseBtn = document.getElementById('loginCloseBtn');
@@ -1280,19 +1256,10 @@
     loginPanel.style.display = which === 'login' ? 'block' : 'none';
     registerPanel.style.display = which === 'register' ? 'block' : 'none';
     forgotPanel.style.display = which === 'forgot' ? 'block' : 'none';
-    verifyPanel.style.display = which === 'verify' ? 'block' : 'none';
     tabLogin.classList.toggle('active', which === 'login');
     tabRegister.classList.toggle('active', which === 'register');
     var tabsRow = tabLogin.parentElement;
-    tabsRow.style.display = (which === 'forgot' || which === 'verify') ? 'none' : 'flex';
-  }
-
-  function showVerifyPanel(email){
-    verifyEmailTarget.textContent = email || '';
-    verifyError.style.display = 'none';
-    verifySent.style.display = 'none';
-    showAuthPanel('verify');
-    loginView.style.display = 'block';
+    tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
   }
 
   function openLogin(returnTo){
@@ -1310,8 +1277,6 @@
     forgotInput.value = '';
     forgotError.style.display = 'none';
     forgotSent.style.display = 'none';
-    verifyError.style.display = 'none';
-    verifySent.style.display = 'none';
     showAuthPanel('login');
     loginView.style.display = 'block';
   }
@@ -1353,6 +1318,17 @@
     }
   }
 
+  // ---- Input биш хэсэг (жишээ нь багц сонгох grid) рүү шилжиж анхааруулах ----
+  function highlightInvalidSection(el){
+    if(!el) return;
+    el.classList.add('section-invalid');
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    clearTimeout(el._sectionInvalidTimer);
+    el._sectionInvalidTimer = setTimeout(function(){
+      el.classList.remove('section-invalid');
+    }, 2200);
+  }
+
   // key: users обьект дахь түлхүүр, record: {password, displayName, avatarImg, provider}
   function completeAuth(key, record){
     applyUserRecord(key, record);
@@ -1385,11 +1361,6 @@
       .then(function(cred){
         loginBtn.disabled = false;
         loginBtn.textContent = 'Нэвтрэх';
-        var isPasswordAcct = cred.user.providerData[0] && cred.user.providerData[0].providerId === 'password';
-        if(isPasswordAcct && !cred.user.emailVerified){
-          showVerifyPanel(cred.user.email);
-          return;
-        }
         var kr = getOrCreateLocalRecord(cred.user);
         completeAuth(kr.key, kr.record);
       })
@@ -1440,16 +1411,13 @@
         return cred.user.updateProfile({ displayName: u }).then(function(){ return cred.user; });
       })
       .then(function(user){
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Бүртгүүлэх';
         var users = loadUsers();
         var record = { displayName: u, email: email, avatarImg: null, provider: 'password', purchases: [] };
         users[user.uid] = record;
         saveUsers(users);
-        return user.sendEmailVerification().catch(function(){}).then(function(){ return user; });
-      })
-      .then(function(user){
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Бүртгүүлэх';
-        showVerifyPanel(user.email);
+        completeAuth(user.uid, record);
       })
       .catch(function(err){
         registerBtn.disabled = false;
@@ -1470,6 +1438,7 @@
       forgotError.textContent = 'Талбарыг бөглөнө үү';
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
+      highlightInvalidField(forgotInput);
       return;
     }
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -1477,6 +1446,7 @@
       forgotError.textContent = 'Зөв имэйл хаяг оруулна уу';
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
+      highlightInvalidField(forgotInput);
       return;
     }
     forgotError.style.display = 'none';
@@ -1491,54 +1461,7 @@
         forgotError.textContent = firebaseErrorMessage(err);
         forgotError.style.display = 'block';
         forgotSent.style.display = 'none';
-      });
-  }
-
-  function doVerifyCheck(){
-    var user = firebase.auth().currentUser;
-    if(!user){
-      verifyError.textContent = 'Холбоос дээр дарсны дараа дахин шалгана уу.';
-      verifyError.style.display = 'block';
-      return;
-    }
-    verifySent.style.display = 'none';
-    verifyError.style.display = 'none';
-    verifyCheckBtn.disabled = true;
-    verifyCheckBtn.textContent = 'Шалгаж байна...';
-    user.reload().then(function(){
-      verifyCheckBtn.disabled = false;
-      verifyCheckBtn.textContent = 'Баталгаажуулсан эсэхийг шалгах';
-      var refreshed = firebase.auth().currentUser;
-      if(refreshed && refreshed.emailVerified){
-        var kr = getOrCreateLocalRecord(refreshed);
-        completeAuth(kr.key, kr.record);
-      } else {
-        verifyError.textContent = 'Одоогоор баталгаажуулаагүй байна. Имэйл дэх холбоос дээр дарсны дараа дахин шалгана уу.';
-        verifyError.style.display = 'block';
-      }
-    }).catch(function(err){
-      verifyCheckBtn.disabled = false;
-      verifyCheckBtn.textContent = 'Баталгаажуулсан эсэхийг шалгах';
-      verifyError.textContent = firebaseErrorMessage(err);
-      verifyError.style.display = 'block';
-    });
-  }
-
-  function doVerifyResend(){
-    var user = firebase.auth().currentUser;
-    if(!user){
-      verifyError.textContent = 'Холбоос дээр дарсны дараа дахин шалгана уу.';
-      verifyError.style.display = 'block';
-      return;
-    }
-    verifyError.style.display = 'none';
-    user.sendEmailVerification()
-      .then(function(){
-        verifySent.style.display = 'block';
-      })
-      .catch(function(err){
-        verifyError.textContent = firebaseErrorMessage(err);
-        verifyError.style.display = 'block';
+        highlightInvalidField(forgotInput);
       });
   }
 
@@ -1551,10 +1474,6 @@
   registerPassword2.addEventListener('keydown', function(e){
     if(e.key === 'Enter') doRegister();
   });
-
-  verifyCheckBtn.addEventListener('click', doVerifyCheck);
-  verifyResendLink.addEventListener('click', doVerifyResend);
-  verifyBackLink.addEventListener('click', function(){ showAuthPanel('login'); });
 
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
   function doGoogleAuth(){
@@ -1783,7 +1702,10 @@
   profileSaveBtn.addEventListener('click', function(){
     if(!currentUser.loggedIn) return;
     var newName = profileUsernameInput.value.trim();
-    if(!newName) return;
+    if(!newName){
+      highlightInvalidField(profileUsernameInput);
+      return;
+    }
     currentUser.username = newName;
     currentUser.avatarText = getInitials(newName);
     currentUser.avatarImg = pendingAvatarImg;
@@ -1950,6 +1872,7 @@
       if(!val){
         result.className = 'verify-result error';
         result.textContent = 'ID-гаа оруулна уу';
+        highlightInvalidField(input);
         return;
       }
       btn.disabled = true;
@@ -2111,8 +2034,21 @@
 
   var rechargeBuyBtn = document.getElementById('rechargeBuyBtn');
   rechargeBuyBtn.addEventListener('click', function(){
+    var playerIdEl = document.getElementById('playerIdInput');
+    if(playerIdEl && !playerIdEl.value.trim()){
+      highlightInvalidField(playerIdEl);
+      return;
+    }
+    var zoneIdEl = document.getElementById('zoneIdInput');
+    if(zoneIdEl && !zoneIdEl.value.trim()){
+      highlightInvalidField(zoneIdEl);
+      return;
+    }
     var selected = document.querySelector('.package-card.selected');
-    if (!selected) return;
+    if (!selected){
+      highlightInvalidSection(document.getElementById('packageGrid'));
+      return;
+    }
     rechargeBuyBtn.textContent = 'Захиалагдлаа ✓';
 
     if(currentUser.loggedIn && currentUserKey){
