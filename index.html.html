@@ -1118,7 +1118,7 @@
       };
       users[key] = record;
       saveUsers(users);
-    } else if(!record.email && user.email){
+    } else if(user.email && record.email !== user.email){
       record.email = user.email;
       users[key] = record;
       saveUsers(users);
