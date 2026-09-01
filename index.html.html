@@ -24,6 +24,11 @@
     --text-lo:#9a9aa2;
     --text-faint:#65656b;
     --red:#ff5d5d;
+    --blue-a:#5ec8ff;
+    --blue-b:#2f6fe0;
+    --green-a:#4ee0a0;
+    --green-b:#1f9d5c;
+    --orange-a:#ff9a5a;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{ scroll-behavior:auto; }
@@ -94,32 +99,95 @@
     position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%;
     background:var(--red); border:1.5px solid var(--bg-elevated);
   }
-  .notif-panel{
-    position:absolute; top:48px; right:0; width:270px; max-height:340px; overflow-y:auto;
-    background:var(--bg-elevated); border:1px solid var(--line-strong); border-radius:16px;
-    padding:8px; display:none; z-index:60; cursor:default;
-    box-shadow:0 16px 40px rgba(0,0,0,0.5);
+  /* ---- Мэдэгдлийн хуудас (MonPay маягийн цэвэрхэн, орчин үеийн загвар) ---- */
+  .notif-tabs{
+    display:flex; gap:6px; margin-bottom:16px; background:var(--bg-elevated);
+    border:1px solid var(--line); border-radius:14px; padding:4px;
   }
-  .notif-panel.open{ display:block; }
-  .notif-panel-head{
-    display:flex; align-items:center; justify-content:space-between; padding:6px 8px 10px;
-    font-family:'Poppins',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-hi);
-    border-bottom:1px solid var(--line); margin-bottom:6px;
+  .notif-tab{
+    flex:1; text-align:center; padding:9px 10px; border-radius:11px;
+    font-family:'Poppins',sans-serif; font-size:12.5px; font-weight:600;
+    color:var(--text-lo); cursor:pointer; transition:background .2s ease, color .2s ease, box-shadow .2s ease;
+    user-select:none;
   }
-  .notif-clear{ font-size:10.5px; font-weight:600; color:var(--gold-300); cursor:pointer; }
-  .notif-item{ display:flex; gap:9px; padding:8px; border-radius:12px; }
-  .notif-item:hover{ background:rgba(255,255,255,0.05); }
-  .notif-item.unread{ background:rgba(124,92,255,0.08); }
-  .notif-icon{
-    width:30px; height:30px; border-radius:9px; background:var(--bg-panel-2);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold-300);
+  .notif-tab .cnt{ font-size:10.5px; opacity:.85; margin-left:3px; }
+  .notif-tab.active{
+    background:linear-gradient(135deg, var(--gold-300), var(--gold-700)); color:#fff;
+    box-shadow:0 8px 18px -6px rgba(124,92,255,0.55);
   }
-  .notif-icon svg{ width:15px; height:15px; }
-  .notif-body{ min-width:0; }
-  .notif-body .t{ font-size:12px; font-weight:600; color:var(--text-hi); margin-bottom:1px; }
-  .notif-body .s{ font-size:10.5px; color:var(--text-lo); line-height:1.35; }
-  .notif-body .time{ font-size:9.5px; color:var(--text-faint); margin-top:3px; }
-  .notif-empty{ text-align:center; padding:26px 10px; font-size:11.5px; color:var(--text-lo); }
+
+  .notif-toolbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .notif-toolbar-action{
+    display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600;
+    color:var(--gold-300); cursor:pointer; user-select:none;
+  }
+  .notif-toolbar-action svg{ width:13px; height:13px; }
+  .notif-toolbar-action.danger{ color:var(--text-faint); }
+  .notif-toolbar-action.danger:hover{ color:var(--red); }
+
+  .notif-day-label{
+    font-family:'Poppins',sans-serif; font-size:11px; font-weight:700; letter-spacing:.04em;
+    color:var(--text-faint); text-transform:uppercase; margin:18px 2px 10px;
+  }
+  .notif-day-label:first-child{ margin-top:0; }
+
+  .notif-card{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    border-radius:18px; padding:13px 12px; margin-bottom:10px;
+    position:relative; overflow:hidden; cursor:pointer;
+    transition:transform .35s cubic-bezier(.22,.61,.36,1), opacity .35s ease, border-color .18s ease, background .18s ease, margin .35s ease, padding .35s ease, max-height .35s ease;
+    max-height:200px;
+  }
+  .notif-card:active{ transform:scale(0.98); }
+  .notif-card.unread{
+    background:linear-gradient(180deg, rgba(124,92,255,0.10), rgba(124,92,255,0.03));
+    border-color:rgba(124,92,255,0.32);
+  }
+  .notif-card.unread::before{
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(180deg, var(--gold-300), var(--gold-700));
+  }
+  .notif-card.removing{
+    opacity:0; transform:translateX(50px) scale(0.95);
+    margin-bottom:0; padding-top:0; padding-bottom:0; max-height:0; border-width:0;
+  }
+
+  .notif-card-icon{
+    width:42px; height:42px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    box-shadow:0 8px 16px -6px rgba(0,0,0,0.55);
+  }
+  .notif-card-icon svg{ width:19px; height:19px; }
+  .notif-card-icon.c-diamond{ background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); }
+  .notif-card-icon.c-gift{ background:linear-gradient(145deg, var(--orange-a), var(--red)); }
+  .notif-card-icon.c-bellIcon{ background:linear-gradient(145deg, var(--blue-a), var(--blue-b)); }
+  .notif-card-icon.c-check{ background:linear-gradient(145deg, var(--green-a), var(--green-b)); }
+
+  .notif-card-body{ min-width:0; flex:1; }
+  .notif-card-body .t{ display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--text-hi); margin-bottom:2px; }
+  .notif-card-body .t .udot{ width:6px; height:6px; border-radius:50%; background:var(--gold-300); flex-shrink:0; }
+  .notif-card-body .s{ font-size:11.5px; color:var(--text-lo); line-height:1.42; }
+  .notif-card-body .time{ font-size:10px; color:var(--text-faint); margin-top:6px; }
+
+  .notif-card-del{
+    width:26px; height:26px; border-radius:9px; flex-shrink:0; margin-top:2px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); background:transparent; cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .notif-card-del:hover{ background:rgba(255,93,93,0.14); color:var(--red); }
+  .notif-card-del svg{ width:13px; height:13px; }
+
+  .notif-page-empty{ text-align:center; padding:56px 20px 20px; color:var(--text-lo); }
+  .notif-page-empty .ic{
+    width:64px; height:64px; margin:0 auto 16px; border-radius:20px;
+    background:var(--bg-elevated); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--text-faint);
+  }
+  .notif-page-empty .ic svg{ width:28px; height:28px; }
+  .notif-page-empty .tt{ font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px; color:var(--text-hi); margin-bottom:4px; }
+  .notif-page-empty .ss{ font-size:12px; }
 
   .search-row{ display:flex; gap:10px; margin-bottom:18px; }
   .search-box{
@@ -772,13 +840,6 @@
     <div class="bell" id="notifBell">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <div class="dot" id="notifDot"></div>
-      <div class="notif-panel" id="notifPanel">
-        <div class="notif-panel-head">
-          <span>Мэдэгдэл</span>
-          <span class="notif-clear" id="notifClearBtn">Бүгдийг устгах</span>
-        </div>
-        <div class="notif-list" id="notifList"></div>
-      </div>
     </div>
   </div>
 
@@ -1020,6 +1081,33 @@
       <div class="profile-history-list" id="profileHistoryList"></div>
     </div>
   </div>
+
+  <div id="notificationsView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="notifBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <h2>Мэдэгдэл</h2>
+    </div>
+
+    <div class="notif-tabs">
+      <div class="notif-tab active" data-filter="all" id="notifTabAll">Бүгд</div>
+      <div class="notif-tab" data-filter="unread" id="notifTabUnread">Уншаагүй</div>
+    </div>
+
+    <div class="notif-toolbar">
+      <div class="notif-toolbar-action" id="notifMarkAllBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+        Бүгдийг уншсан
+      </div>
+      <div class="notif-toolbar-action danger" id="notifClearAllBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>
+        Бүгдийг устгах
+      </div>
+    </div>
+
+    <div id="notifPageList"></div>
+  </div>
 </div>
 
 
@@ -1257,10 +1345,11 @@
     document.getElementById('allGamesView').style.display = 'none';
     document.getElementById('profileView').style.display = 'none';
     document.getElementById('rechargeView').style.display = 'none';
+    document.getElementById('notificationsView').style.display = 'none';
   }
 
   function getCurrentVisiblePage(){
-    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView'];
+    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView', 'notificationsView'];
     for(var i=0;i<ids.length;i++){
       var el = document.getElementById(ids[i]);
       if(el && el.style.display !== 'none') return el;
@@ -1637,55 +1726,140 @@
   };
 
   var NOTIFICATIONS = [
-    { icon:'diamond',  title:'Цэнэглэлт амжилттай',        body:'MLBB руу 1860 + 335 Diamond амжилттай орлоо.',      time:'5 минутын өмнө',   unread:true },
-    { icon:'gift',     title:'Тусгай урамшуулал',           body:'Өнөөдрийн багцад 10% хямдрал идэвхжлээ.',           time:'2 цагийн өмнө',    unread:true },
-    { icon:'bellIcon', title:'Weekly Pass дуусах гэж байна', body:'Таны 7 хоногийн эрх маргааш дуусна.',               time:'Өчигдөр',           unread:false },
-    { icon:'check',    title:'И-мэйл баталгаажлаа',          body:'Таны и-мэйл хаяг амжилттай баталгаажлаа.',          time:'2 өдрийн өмнө',    unread:false }
+    { id:1, icon:'diamond',  title:'Цэнэглэлт амжилттай',         body:'MLBB руу 1860 + 335 Diamond амжилттай орлоо.',                       time:'5 минутын өмнө', day:'today',     unread:true },
+    { id:2, icon:'gift',     title:'Тусгай урамшуулал',            body:'Өнөөдрийн багцад 10% хямдрал идэвхжлээ.',                            time:'2 цагийн өмнө',  day:'today',     unread:true },
+    { id:3, icon:'bellIcon', title:'Weekly Pass дуусах гэж байна',  body:'Таны 7 хоногийн эрх маргааш дуусна.',                                time:'Өчигдөр, 19:40', day:'yesterday', unread:false },
+    { id:4, icon:'check',    title:'И-мэйл баталгаажлаа',           body:'Таны и-мэйл хаяг амжилттай баталгаажлаа.',                           time:'2 өдрийн өмнө',  day:'earlier',   unread:false },
+    { id:5, icon:'gift',     title:'Тэмдэглэлт өдрийн бэлэг',       body:'Бүртгэлийнхээ жилийн ойд зориулсан тусгай бэлэг тань хүлээж байна.', time:'3 өдрийн өмнө',  day:'earlier',   unread:false }
   ];
 
-  function renderNotifications(){
-    var list = document.getElementById('notifList');
+  var DAY_LABELS = { today:'Өнөөдөр', yesterday:'Өчигдөр', earlier:'Өмнөх' };
+  var notifFilter = 'all';
+
+  function updateNotifDot(){
     var dot = document.getElementById('notifDot');
-    if(!list) return;
-    if(NOTIFICATIONS.length === 0){
-      list.innerHTML = '<div class="notif-empty">Мэдэгдэл алга байна</div>';
-    } else {
-      list.innerHTML = NOTIFICATIONS.map(function(n){
-        return '<div class="notif-item' + (n.unread ? ' unread' : '') + '">' +
-          '<div class="notif-icon">' + (NOTIF_ICONS[n.icon] || '') + '</div>' +
-          '<div class="notif-body"><div class="t">' + n.title + '</div><div class="s">' + n.body + '</div><div class="time">' + n.time + '</div></div>' +
-        '</div>';
-      }).join('');
-    }
     if(dot) dot.style.display = NOTIFICATIONS.some(function(n){ return n.unread; }) ? 'block' : 'none';
   }
 
-  function setNotifPanelOpen(open){
-    var panel = document.getElementById('notifPanel');
-    if(!panel) return;
-    panel.classList.toggle('open', open);
-    if(open){
-      NOTIFICATIONS.forEach(function(n){ n.unread = false; });
-      renderNotifications();
+  function renderNotifPage(){
+    var container = document.getElementById('notifPageList');
+    if(!container) return;
+
+    var tabAll = document.getElementById('notifTabAll');
+    var tabUnread = document.getElementById('notifTabUnread');
+    var unreadCount = NOTIFICATIONS.filter(function(n){ return n.unread; }).length;
+    if(tabAll) tabAll.innerHTML = 'Бүгд' + (NOTIFICATIONS.length ? ' <span class="cnt">' + NOTIFICATIONS.length + '</span>' : '');
+    if(tabUnread) tabUnread.innerHTML = 'Уншаагүй' + (unreadCount ? ' <span class="cnt">' + unreadCount + '</span>' : '');
+
+    var visible = notifFilter === 'unread' ? NOTIFICATIONS.filter(function(n){ return n.unread; }) : NOTIFICATIONS;
+
+    if(visible.length === 0){
+      container.innerHTML =
+        '<div class="notif-page-empty">' +
+          '<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>' +
+          '<div class="tt">' + (notifFilter === 'unread' ? 'Уншаагүй мэдэгдэл алга' : 'Мэдэгдэл алга байна') + '</div>' +
+          '<div class="ss">' + (notifFilter === 'unread' ? 'Шинэ зүйл ирвэл эндээс харагдана' : 'Шинэ мэдэгдэл ирэхэд эндээс харагдана') + '</div>' +
+        '</div>';
+      updateNotifDot();
+      return;
     }
+
+    var order = ['today', 'yesterday', 'earlier'];
+    var html = '';
+    order.forEach(function(day){
+      var items = visible.filter(function(n){ return n.day === day; });
+      if(items.length === 0) return;
+      html += '<div class="notif-day-label">' + DAY_LABELS[day] + '</div>';
+      html += items.map(function(n){
+        return '<div class="notif-card' + (n.unread ? ' unread' : '') + '" data-id="' + n.id + '">' +
+          '<div class="notif-card-icon c-' + n.icon + '">' + (NOTIF_ICONS[n.icon] || '') + '</div>' +
+          '<div class="notif-card-body">' +
+            '<div class="t">' + n.title + (n.unread ? '<span class="udot"></span>' : '') + '</div>' +
+            '<div class="s">' + n.body + '</div>' +
+            '<div class="time">' + n.time + '</div>' +
+          '</div>' +
+          '<div class="notif-card-del" data-del="' + n.id + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>' +
+        '</div>';
+      }).join('');
+    });
+    container.innerHTML = html;
+    updateNotifDot();
+  }
+
+  function removeNotification(id){
+    var cardEl = document.querySelector('.notif-card[data-id="' + id + '"]');
+    var doRemove = function(){
+      var idx = NOTIFICATIONS.findIndex(function(n){ return n.id === id; });
+      if(idx !== -1) NOTIFICATIONS.splice(idx, 1);
+      renderNotifPage();
+    };
+    if(cardEl){
+      cardEl.classList.add('removing');
+      setTimeout(doRemove, 320);
+    } else {
+      doRemove();
+    }
+  }
+
+  document.getElementById('notifPageList').addEventListener('click', function(e){
+    var delBtn = e.target.closest ? e.target.closest('[data-del]') : null;
+    if(delBtn){
+      e.stopPropagation();
+      removeNotification(parseInt(delBtn.getAttribute('data-del'), 10));
+      return;
+    }
+    var card = e.target.closest ? e.target.closest('.notif-card') : null;
+    if(card){
+      var id = parseInt(card.getAttribute('data-id'), 10);
+      var n = NOTIFICATIONS.find(function(x){ return x.id === id; });
+      if(n && n.unread){
+        n.unread = false;
+        renderNotifPage();
+      }
+    }
+  });
+
+  document.getElementById('notifTabAll').addEventListener('click', function(){
+    notifFilter = 'all';
+    document.getElementById('notifTabAll').classList.add('active');
+    document.getElementById('notifTabUnread').classList.remove('active');
+    renderNotifPage();
+  });
+  document.getElementById('notifTabUnread').addEventListener('click', function(){
+    notifFilter = 'unread';
+    document.getElementById('notifTabUnread').classList.add('active');
+    document.getElementById('notifTabAll').classList.remove('active');
+    renderNotifPage();
+  });
+
+  document.getElementById('notifMarkAllBtn').addEventListener('click', function(){
+    NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+    renderNotifPage();
+  });
+  document.getElementById('notifClearAllBtn').addEventListener('click', function(){
+    NOTIFICATIONS.length = 0;
+    renderNotifPage();
+  });
+
+  function openNotifications(){
+    showAllPagesHidden();
+    notifFilter = 'all';
+    document.getElementById('notifTabAll').classList.add('active');
+    document.getElementById('notifTabUnread').classList.remove('active');
+    renderNotifPage();
+    document.getElementById('notificationsView').style.display = 'block';
   }
 
   document.getElementById('notifBell').addEventListener('click', function(e){
     e.stopPropagation();
-    var panel = document.getElementById('notifPanel');
-    setNotifPanelOpen(!panel.classList.contains('open'));
+    openNotifications();
   });
-  document.getElementById('notifPanel').addEventListener('click', function(e){ e.stopPropagation(); });
-  document.getElementById('notifClearBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    NOTIFICATIONS.length = 0;
-    renderNotifications();
-  });
-  document.addEventListener('click', function(){
-    setNotifPanelOpen(false);
+  document.getElementById('notifBackBtn').addEventListener('click', function(){
+    document.getElementById('notificationsView').style.display = 'none';
+    document.getElementById('mainView').style.display = 'block';
   });
 
-  renderNotifications();
+  updateNotifDot();
 
   profileBackBtn.addEventListener('click', function(){
     profileView.style.display = 'none';
