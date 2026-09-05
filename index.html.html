@@ -942,7 +942,8 @@
   <div class="search-row">
     <div class="search-box" id="homeSearchBox">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх" readonly>
+      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх">
+      <div class="search-dropdown" id="homeSearchDropdown"></div>
     </div>
   </div>
 
@@ -1945,13 +1946,10 @@
     mainView.style.display = 'block';
   });
 
-  // ---- Тоглоом хайх: дарахад тусдаа бүтэн хуудас руу орно ----
+  // ---- Тоглоом хайх: талбарт шууд бичихэд, доор нь dropdown жагсаалт нээгдэнэ (дотогшоо шилждэггүй) ----
   var gameSearchInput = document.getElementById('gameSearchInput');
   var homeSearchBox = document.getElementById('homeSearchBox');
-  var searchPageInput = document.getElementById('searchPageInput');
-  var searchPageList = document.getElementById('searchPageList');
-  var searchBackBtn = document.getElementById('searchBackBtn');
-  var searchOpenedFrom = null;
+  var homeSearchDropdown = document.getElementById('homeSearchDropdown');
 
   var searchableCards = (function(){
     var map = {};
@@ -1971,54 +1969,50 @@
     });
   })();
 
-  function renderSearchPageList(query){
+  function renderHomeSearchDropdown(query){
     var q = query.trim().toLowerCase();
     var results = q === '' ? searchableCards : searchableCards.filter(function(r){
       return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
     });
     if(results.length === 0){
-      searchPageList.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
+      homeSearchDropdown.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
     } else {
-      searchPageList.innerHTML = results.map(function(r){
+      homeSearchDropdown.innerHTML = results.map(function(r){
         return '<div class="search-dropdown-item" data-name="' + r.name + '">' +
                  '<div class="search-dropdown-icon">' + r.iconHtml + '</div>' +
                  '<div class="search-dropdown-name">' + r.name + '</div>' +
                '</div>';
       }).join('');
     }
-    searchPageList.querySelectorAll('.search-dropdown-item').forEach(function(item){
+    homeSearchDropdown.querySelectorAll('.search-dropdown-item').forEach(function(item){
       item.addEventListener('click', function(){
         var name = item.getAttribute('data-name');
         var match = searchableCards.filter(function(r){ return r.name === name; })[0];
-        document.getElementById('searchView').style.display = 'none';
+        closeHomeSearchDropdown();
+        gameSearchInput.value = '';
         if(match){ match.el.click(); }
       });
     });
   }
 
-  function openSearchPage(){
-    searchOpenedFrom = getCurrentVisiblePage() || document.getElementById('mainView');
-    showAllPagesHidden();
-    document.getElementById('searchView').style.display = 'block';
-    searchPageInput.value = gameSearchInput.value || '';
-    renderSearchPageList(searchPageInput.value);
-    setTimeout(function(){ searchPageInput.focus(); }, 60);
+  function openHomeSearchDropdown(){
+    renderHomeSearchDropdown(gameSearchInput.value);
+    homeSearchDropdown.classList.add('open');
   }
 
-  homeSearchBox.addEventListener('click', openSearchPage);
+  function closeHomeSearchDropdown(){
+    homeSearchDropdown.classList.remove('open');
+  }
 
-  searchPageInput.addEventListener('input', function(){
-    renderSearchPageList(searchPageInput.value);
+  gameSearchInput.addEventListener('focus', openHomeSearchDropdown);
+  gameSearchInput.addEventListener('input', function(){
+    renderHomeSearchDropdown(gameSearchInput.value);
+    homeSearchDropdown.classList.add('open');
   });
 
-  if(searchBackBtn){
-    searchBackBtn.addEventListener('click', function(){
-      document.getElementById('searchView').style.display = 'none';
-      gameSearchInput.value = searchPageInput.value;
-      if(searchOpenedFrom) searchOpenedFrom.style.display = 'block';
-      else document.getElementById('mainView').style.display = 'block';
-    });
-  }
+  document.addEventListener('click', function(e){
+    if(!homeSearchBox.contains(e.target)) closeHomeSearchDropdown();
+  });
 
   var ZONE_ID_GAMES = ['MLBB'];
   var currentRechargeGame = null;
