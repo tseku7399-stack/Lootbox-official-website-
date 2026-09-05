@@ -255,6 +255,19 @@
   .search-dropdown-icon svg{ width:100%; height:100%; }
   .search-dropdown-name{ font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; }
   .search-dropdown-empty{ padding:18px 12px; text-align:center; color:var(--text-lo); font-size:13px; }
+  #searchPageList{ margin-top:8px; }
+  .search-history-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:4px 4px 10px; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text-lo);
+  }
+  .search-history-clear{ color:var(--gold-300); cursor:pointer; font-weight:600; }
+  .search-history-item .search-dropdown-name{ flex:1; }
+  .search-history-remove{
+    width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); flex-shrink:0; cursor:pointer;
+  }
+  .search-history-remove svg{ width:12px; height:12px; }
+  .search-history-remove:hover{ color:var(--text-hi); background:rgba(255,255,255,0.08); }
   .filter-btn{
     width:44px; height:44px; border-radius:14px; background:var(--bg-elevated);
     border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
@@ -939,10 +952,9 @@
   </div>
 
   <div class="search-row">
-    <div class="search-box">
+    <div class="search-box" id="homeSearchBox">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх">
-      <div class="search-dropdown" id="searchDropdown"></div>
+      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх" readonly>
     </div>
     <div class="filter-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
@@ -1090,6 +1102,19 @@
       <span class="notif-clear" id="notifClearBtn">Бүгдийг устгах</span>
     </div>
     <div class="notif-list" id="notifList"></div>
+  </div>
+
+  <div id="searchView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="searchBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchPageInput" placeholder="Тоглоом хайх">
+      </div>
+    </div>
+    <div id="searchPageList"></div>
   </div>
 
   <div id="rechargeView" style="display:none;">
@@ -1405,10 +1430,11 @@
     document.getElementById('profileView').style.display = 'none';
     document.getElementById('rechargeView').style.display = 'none';
     document.getElementById('notificationsView').style.display = 'none';
+    document.getElementById('searchView').style.display = 'none';
   }
 
   function getCurrentVisiblePage(){
-    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView', 'notificationsView'];
+    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView', 'notificationsView', 'searchView'];
     for(var i=0;i<ids.length;i++){
       var el = document.getElementById(ids[i]);
       if(el && el.style.display !== 'none') return el;
@@ -1934,9 +1960,13 @@
     mainView.style.display = 'block';
   });
 
-  // ---- Тоглоом хайх (үр дүнг доор байгаа тоглоомын жагсаалтад биш, dropdown-д харуулна) ----
+  // ---- Тоглоом хайх: дарахад тусдаа бүтэн хуудас руу орно ----
   var gameSearchInput = document.getElementById('gameSearchInput');
-  var searchDropdown = document.getElementById('searchDropdown');
+  var homeSearchBox = document.getElementById('homeSearchBox');
+  var searchPageInput = document.getElementById('searchPageInput');
+  var searchPageList = document.getElementById('searchPageList');
+  var searchBackBtn = document.getElementById('searchBackBtn');
+  var searchOpenedFrom = null;
 
   var searchableCards = (function(){
     var map = {};
@@ -1956,55 +1986,136 @@
     });
   })();
 
-  function closeSearchDropdown(){
-    searchDropdown.classList.remove('open');
-    searchDropdown.innerHTML = '';
+  // ---- Хайлтын түүх: localStorage-д хадгалагдана ----
+  var SEARCH_HISTORY_KEY = 'rewardhub_search_history';
+  var SEARCH_HISTORY_MAX = 8;
+
+  function loadSearchHistory(){
+    try{
+      var arr = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY));
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  function saveSearchHistory(arr){
+    try{ localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(arr)); }catch(e){}
+  }
+  function addToSearchHistory(name){
+    var hist = loadSearchHistory().filter(function(n){ return n !== name; });
+    hist.unshift(name);
+    if(hist.length > SEARCH_HISTORY_MAX) hist = hist.slice(0, SEARCH_HISTORY_MAX);
+    saveSearchHistory(hist);
+  }
+  function removeFromSearchHistory(name){
+    saveSearchHistory(loadSearchHistory().filter(function(n){ return n !== name; }));
+    renderSearchPageList(searchPageInput.value);
   }
 
-  function renderSearchDropdown(results){
+  function renderSearchHistoryView(){
+    var hist = loadSearchHistory();
+    if(hist.length === 0){
+      searchPageList.innerHTML = '<div class="search-dropdown-empty">Хайлтын түүх алга байна</div>';
+      return;
+    }
+    var itemsHtml = hist.map(function(name){
+      var match = searchableCards.filter(function(r){ return r.name === name; })[0];
+      var iconHtml = match ? match.iconHtml : '';
+      return '<div class="search-dropdown-item search-history-item" data-name="' + name + '">' +
+               '<div class="search-dropdown-icon">' + iconHtml + '</div>' +
+               '<div class="search-dropdown-name">' + name + '</div>' +
+               '<div class="search-history-remove" data-remove="' + name + '">' +
+                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
+               '</div>' +
+             '</div>';
+    }).join('');
+    searchPageList.innerHTML =
+      '<div class="search-history-head"><span>Хайлтын түүх</span><span class="search-history-clear" id="searchHistoryClearBtn">Цэвэрлэх</span></div>' +
+      itemsHtml;
+
+    searchPageList.querySelectorAll('.search-history-item').forEach(function(item){
+      item.addEventListener('click', function(e){
+        if(e.target.closest && e.target.closest('.search-history-remove')) return;
+        var name = item.getAttribute('data-name');
+        var match = searchableCards.filter(function(r){ return r.name === name; })[0];
+        if(match){
+          addToSearchHistory(name);
+          document.getElementById('searchView').style.display = 'none';
+          match.el.click();
+        } else {
+          searchPageInput.value = name;
+          renderSearchPageList(name);
+        }
+      });
+    });
+    searchPageList.querySelectorAll('.search-history-remove').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        removeFromSearchHistory(btn.getAttribute('data-remove'));
+      });
+    });
+    var clearBtn = document.getElementById('searchHistoryClearBtn');
+    if(clearBtn){
+      clearBtn.addEventListener('click', function(){
+        saveSearchHistory([]);
+        renderSearchPageList('');
+      });
+    }
+  }
+
+  function renderSearchPageList(query){
+    var q = query.trim().toLowerCase();
+    // Хайлт хийгээгүй (талбар хоосон) үед ямар ч тоглоом харуулахгүй,
+    // харин оронд нь хайлтын түүхийг харуулна.
+    if(q === ''){
+      renderSearchHistoryView();
+      return;
+    }
+    var results = searchableCards.filter(function(r){
+      return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
+    });
     if(results.length === 0){
-      searchDropdown.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
+      searchPageList.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
     } else {
-      searchDropdown.innerHTML = results.map(function(r){
+      searchPageList.innerHTML = results.map(function(r){
         return '<div class="search-dropdown-item" data-name="' + r.name + '">' +
                  '<div class="search-dropdown-icon">' + r.iconHtml + '</div>' +
                  '<div class="search-dropdown-name">' + r.name + '</div>' +
                '</div>';
       }).join('');
     }
-    searchDropdown.classList.add('open');
-
-    searchDropdown.querySelectorAll('.search-dropdown-item').forEach(function(item){
+    searchPageList.querySelectorAll('.search-dropdown-item').forEach(function(item){
       item.addEventListener('click', function(){
         var name = item.getAttribute('data-name');
         var match = searchableCards.filter(function(r){ return r.name === name; })[0];
-        closeSearchDropdown();
-        gameSearchInput.value = '';
+        addToSearchHistory(name);
+        document.getElementById('searchView').style.display = 'none';
         if(match){ match.el.click(); }
       });
     });
   }
 
-  gameSearchInput.addEventListener('input', function(){
-    var q = gameSearchInput.value.trim().toLowerCase();
-    if(q === ''){
-      closeSearchDropdown();
-      return;
-    }
-    var results = searchableCards.filter(function(r){
-      return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
+  function openSearchPage(){
+    searchOpenedFrom = getCurrentVisiblePage() || document.getElementById('mainView');
+    showAllPagesHidden();
+    document.getElementById('searchView').style.display = 'block';
+    searchPageInput.value = gameSearchInput.value || '';
+    renderSearchPageList(searchPageInput.value);
+    setTimeout(function(){ searchPageInput.focus(); }, 60);
+  }
+
+  homeSearchBox.addEventListener('click', openSearchPage);
+
+  searchPageInput.addEventListener('input', function(){
+    renderSearchPageList(searchPageInput.value);
+  });
+
+  if(searchBackBtn){
+    searchBackBtn.addEventListener('click', function(){
+      document.getElementById('searchView').style.display = 'none';
+      gameSearchInput.value = searchPageInput.value;
+      if(searchOpenedFrom) searchOpenedFrom.style.display = 'block';
+      else document.getElementById('mainView').style.display = 'block';
     });
-    renderSearchDropdown(results);
-  });
-
-  gameSearchInput.addEventListener('focus', function(){
-    if(gameSearchInput.value.trim() !== '') searchDropdown.classList.add('open');
-  });
-
-  document.addEventListener('click', function(e){
-    if(!e.target.closest('.search-box')) closeSearchDropdown();
-  });
-
+  }
 
   var ZONE_ID_GAMES = ['MLBB'];
   var currentRechargeGame = null;
