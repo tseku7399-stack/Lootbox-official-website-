@@ -347,8 +347,6 @@
   .offer-cover.c{ background:linear-gradient(160deg,#7a5cff,#4b2fb8 60%,#2c1c78); }
   .offer-cover.d{ background:linear-gradient(160deg,#3a3a3a,#1c1c1c 60%,#0f0f0f); }
   .offer-cover.e{ background:linear-gradient(160deg,#2c2c2c,#181818 60%,#0d0d0d); }
-  .offer-cover.f{ background:linear-gradient(160deg,#af9bf1,#7e5de8 60%,#302358); }
-  .offer-cover.g{ background:linear-gradient(160deg,#3a4a2e,#1c2416 60%,#0d100a); }
   .offer-body{ padding:6px 7px 7px; }
   .offer-body .title{ font-family:'Poppins',sans-serif; font-size:11px; font-weight:600; margin-bottom:1px; padding-right:20px; }
   .offer-body .sub{ font-size:9px; color:var(--text-lo); margin-bottom:6px; }
@@ -1070,24 +1068,6 @@
         </div>
         <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
 </div>
-      <div class="offer-card" data-game="Free Fire">
-        <div class="offer-cover f">
-          <img class="full-img" src="https://media.vandal.net/m/70714/garena-free-fire-20192221291138_1.jpg" alt="Free Fire">
-        </div>
-        <div class="offer-body">
-          <div class="title">Free Fire</div>
-        </div>
-        <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
-</div>
-      <div class="offer-card" data-game="Call of Duty Mobile">
-        <div class="offer-cover g">
-          <img class="full-img" src="https://play-lh.googleusercontent.com/cKXlbU72_2wSXdjcD_zPWED3EVaaOQVqqHgiA9JoRQMprYen49arNUMTngcRc9UWLnv-ANT9gyQBDQpvAn61lg" alt="Call of Duty Mobile">
-        </div>
-        <div class="offer-body">
-          <div class="title">Call of Duty Mobile</div>
-        </div>
-        <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
-</div>
     </div>
   </div>
 
@@ -1107,7 +1087,7 @@
       <div class="back-btn" id="rechargeBackBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </div>
-      <h2>Цэнэглэх</h2>
+      <h2 id="rechargeHeadTitle">Цэнэглэх</h2>
     </div>
 
     <div class="recharge-banner" id="rechargeBanner">
@@ -2020,12 +2000,10 @@
   var currentRechargeGame = null;
 
   var GAME_NAME_POOLS = {
-    'Free Fire': ['DragonSlayerFF','NightHunter_07','KingCobraFF','ShadowReaper88','IceQueen_MN','ThunderWolf99','GhostSniperFF','PhoenixRising22'],
     'PUBG Mobile': ['ChickenDinner88','GhostRecon_UB','SilentAssassin07','DesertEaglePro','SnowLeopard99','RedZoneRaider','NightOwlSniper','WastelandWolf'],
     'MLBB': ['MythicKing_99','TankMaster88','JungleLord07','SavageStreak_MN','GoldLaneGod','RoamKing22','BurstDamagePro','LegendRankUB'],
     'Roblox': ['xX_Builder123_Xx','RobloxianPro22','PixelCrafter99','SkyBlockKing','NoobMaster69','BlockyHero07','AdoptMePro88','TycoonTitan'],
-    'Standoff 2': ['HeadshotKing07','AWP_God_MN','ClutchMaster99','RushBRaider','SmokeGrenadePro','AimGodUB','FlashbangFury','WallbangWizard'],
-    'Call of Duty Mobile': ['GhostOps99','SilentSniper_MN','WarzoneWolf07','KillstreakKing','StealthOperative','NightRaiderUB','TacticalNuke88','ClutchGamer22']
+    'Standoff 2': ['HeadshotKing07','AWP_God_MN','ClutchMaster99','RushBRaider','SmokeGrenadePro','AimGodUB','FlashbangFury','WallbangWizard']
   };
 
   function hashSeed(str){
@@ -2186,6 +2164,8 @@
       lastListView.style.display = 'none';
 
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
+      var rechargeHeadTitle = document.getElementById('rechargeHeadTitle');
+      if(rechargeHeadTitle) rechargeHeadTitle.textContent = card.getAttribute('data-display-name') || game;
       rechargeSub.textContent = 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
