@@ -1971,7 +1971,12 @@
 
   function renderHomeSearchDropdown(query){
     var q = query.trim().toLowerCase();
-    var results = q === '' ? searchableCards : searchableCards.filter(function(r){
+    if(q === ''){
+      homeSearchDropdown.innerHTML = '';
+      closeHomeSearchDropdown();
+      return;
+    }
+    var results = searchableCards.filter(function(r){
       return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
     });
     if(results.length === 0){
@@ -1993,11 +1998,11 @@
         if(match){ match.el.click(); }
       });
     });
+    homeSearchDropdown.classList.add('open');
   }
 
   function openHomeSearchDropdown(){
     renderHomeSearchDropdown(gameSearchInput.value);
-    homeSearchDropdown.classList.add('open');
   }
 
   function closeHomeSearchDropdown(){
@@ -2007,7 +2012,6 @@
   gameSearchInput.addEventListener('focus', openHomeSearchDropdown);
   gameSearchInput.addEventListener('input', function(){
     renderHomeSearchDropdown(gameSearchInput.value);
-    homeSearchDropdown.classList.add('open');
   });
 
   document.addEventListener('click', function(e){
