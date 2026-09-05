@@ -192,29 +192,33 @@
   .notif-panel{
     position:absolute; top:48px; right:0; width:270px; max-height:340px; overflow-y:auto;
     background:var(--bg-elevated); border:1px solid var(--line-strong); border-radius:16px;
-    padding:8px; display:none; z-index:60; cursor:default;
+    padding:8px; z-index:60; cursor:default;
     box-shadow:0 16px 40px rgba(0,0,0,0.5);
+    opacity:0; visibility:hidden; pointer-events:none;
+    transform:translateY(-10px) scaleY(0.96); transform-origin:top right;
+    transition:opacity .22s ease, transform .3s cubic-bezier(.16,1,.3,1), visibility .22s;
   }
-  .notif-panel.open{ display:block; }
+  .notif-panel.open{
+    opacity:1; visibility:visible; pointer-events:auto;
+    transform:translateY(0) scaleY(1);
+  }
   .notif-panel-head{
     display:flex; align-items:center; justify-content:space-between; padding:6px 8px 10px;
     font-family:'Poppins',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-hi);
     border-bottom:1px solid var(--line); margin-bottom:6px;
   }
   .notif-clear{ font-size:10.5px; font-weight:600; color:var(--gold-300); cursor:pointer; }
-  .notif-item{ display:flex; gap:9px; padding:8px; border-radius:12px; }
-  .notif-item:hover{ background:rgba(255,255,255,0.05); }
-  .notif-item.unread{ background:rgba(124,92,255,0.08); }
-  .notif-icon{
-    width:30px; height:30px; border-radius:9px; background:var(--bg-panel-2);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--gold-300);
-  }
-  .notif-icon svg{ width:15px; height:15px; }
-  .notif-body{ min-width:0; }
-  .notif-body .t{ font-size:12px; font-weight:600; color:var(--text-hi); margin-bottom:1px; }
-  .notif-body .s{ font-size:10.5px; color:var(--text-lo); line-height:1.35; }
-  .notif-body .time{ font-size:9.5px; color:var(--text-faint); margin-top:3px; }
+  .notif-item{ padding:10px 6px; border-bottom:1px solid var(--line); cursor:default; }
+  .notif-item:last-child{ border-bottom:none; }
+  .notif-item:hover{ background:rgba(255,255,255,0.04); }
+  .notif-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .notif-title{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--text-hi); min-width:0; }
+  .notif-title span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .notif-item.unread .notif-title::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--gold-300); flex-shrink:0; }
+  .notif-time{ font-size:9.5px; color:var(--text-faint); flex-shrink:0; white-space:nowrap; }
+  .notif-desc{ font-size:10.5px; color:var(--text-lo); line-height:1.35; margin-top:3px; }
   .notif-empty{ text-align:center; padding:26px 10px; font-size:11.5px; color:var(--text-lo); }
+
 
   .search-row{ display:flex; gap:10px; margin-bottom:18px; }
   .search-box{
@@ -389,7 +393,7 @@
     cursor:pointer; flex-shrink:0;
   }
   .back-btn svg{ width:17px; height:17px; stroke:var(--text-hi); }
-  .games-page-head h2{ font-family:'Poppins',sans-serif; font-size:16.5px; font-weight:600; }
+  .games-page-head h2{ font-family:'Poppins',sans-serif; font-size:16.5px; font-weight:600; flex:1; }
 
   .footer-contact{
     display:flex; align-items:center; justify-content:space-between;
@@ -876,13 +880,6 @@
       <div class="bell" id="notifBell">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
         <div class="dot" id="notifDot"></div>
-        <div class="notif-panel" id="notifPanel">
-          <div class="notif-panel-head">
-            <span>Мэдэгдэл</span>
-            <span class="notif-clear" id="notifClearBtn">Бүгдийг устгах</span>
-          </div>
-          <div class="notif-list" id="notifList"></div>
-        </div>
       </div>
       <div class="navbar-profile" id="navbarProfileBtn">
         <div class="avatar" id="navbarAvatar">
@@ -1092,6 +1089,17 @@
         <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
 </div>
     </div>
+  </div>
+
+  <div id="notificationsView" style="display:none;">
+    <div class="games-page-head">
+      <div class="back-btn" id="notifBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </div>
+      <h2>Мэдэгдэл</h2>
+      <span class="notif-clear" id="notifClearBtn">Бүгдийг устгах</span>
+    </div>
+    <div class="notif-list" id="notifList"></div>
   </div>
 
   <div id="rechargeView" style="display:none;">
@@ -1406,10 +1414,11 @@
     document.getElementById('allGamesView').style.display = 'none';
     document.getElementById('profileView').style.display = 'none';
     document.getElementById('rechargeView').style.display = 'none';
+    document.getElementById('notificationsView').style.display = 'none';
   }
 
   function getCurrentVisiblePage(){
-    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView'];
+    var ids = ['mainView', 'allGamesView', 'profileView', 'rechargeView', 'notificationsView'];
     for(var i=0;i<ids.length;i++){
       var el = document.getElementById(ids[i]);
       if(el && el.style.display !== 'none') return el;
@@ -1806,38 +1815,42 @@
     } else {
       list.innerHTML = NOTIFICATIONS.map(function(n){
         return '<div class="notif-item' + (n.unread ? ' unread' : '') + '">' +
-          '<div class="notif-icon">' + (NOTIF_ICONS[n.icon] || '') + '</div>' +
-          '<div class="notif-body"><div class="t">' + n.title + '</div><div class="s">' + n.body + '</div><div class="time">' + n.time + '</div></div>' +
+          '<div class="notif-row"><div class="notif-title"><span>' + n.title + '</span></div><div class="notif-time">' + n.time + '</div></div>' +
+          '<div class="notif-desc">' + n.body + '</div>' +
         '</div>';
       }).join('');
     }
     if(dot) dot.style.display = NOTIFICATIONS.some(function(n){ return n.unread; }) ? 'block' : 'none';
   }
 
-  function setNotifPanelOpen(open){
-    var panel = document.getElementById('notifPanel');
-    if(!panel) return;
-    panel.classList.toggle('open', open);
-    if(open){
-      NOTIFICATIONS.forEach(function(n){ n.unread = false; });
-      renderNotifications();
-    }
+  var notifOpenedFrom = null;
+
+  function openNotifications(){
+    notifOpenedFrom = getCurrentVisiblePage() || document.getElementById('mainView');
+    showAllPagesHidden();
+    NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+    renderNotifications();
+    document.getElementById('notificationsView').style.display = 'block';
   }
 
   document.getElementById('notifBell').addEventListener('click', function(e){
     e.stopPropagation();
-    var panel = document.getElementById('notifPanel');
-    setNotifPanelOpen(!panel.classList.contains('open'));
+    openNotifications();
   });
-  document.getElementById('notifPanel').addEventListener('click', function(e){ e.stopPropagation(); });
   document.getElementById('notifClearBtn').addEventListener('click', function(e){
     e.stopPropagation();
     NOTIFICATIONS.length = 0;
     renderNotifications();
   });
-  document.addEventListener('click', function(){
-    setNotifPanelOpen(false);
-  });
+
+  var notifBackBtn = document.getElementById('notifBackBtn');
+  if(notifBackBtn){
+    notifBackBtn.addEventListener('click', function(){
+      document.getElementById('notificationsView').style.display = 'none';
+      if(notifOpenedFrom) notifOpenedFrom.style.display = 'block';
+      else document.getElementById('mainView').style.display = 'block';
+    });
+  }
 
   renderNotifications();
 
