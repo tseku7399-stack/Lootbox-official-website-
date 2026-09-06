@@ -29,6 +29,8 @@
     --hover-tint-strong:rgba(255,255,255,0.1);
     --navbar-border:rgba(124,92,255,0.35);
     --navbar-shadow:rgba(0,0,0,0.7);
+    --continue-shadow-1:rgba(0,0,0,0.35);
+    --continue-shadow-2:rgba(0,0,0,0.1);
   }
   /* Цагаан (light) загвар — Тохиргоо цэснээс сонгогдоход body дээр нэмэгдэнэ */
   body.theme-light{
@@ -52,6 +54,8 @@
     --hover-tint-strong:rgba(20,20,30,0.09);
     --navbar-border:rgba(124,92,255,0.22);
     --navbar-shadow:rgba(20,20,30,0.12);
+    --continue-shadow-1:rgba(124,92,255,0.28);
+    --continue-shadow-2:rgba(20,20,30,0.06);
   }
   body.theme-light{
     background:
@@ -393,7 +397,7 @@
     background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
     border-radius:11px 4px 4px 4px;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:-2px -2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.1);
+    box-shadow:-2px -2px 6px var(--continue-shadow-1), 0 0 0 1px var(--continue-shadow-2);
   }
   .offer-continue svg{ width:9px; height:9px; stroke:#ffffff; margin:1px 0 0 2px; }
   .all-games-grid .offer-continue{ width:18px; height:18px; border-radius:9px 3px 3px 3px; }
