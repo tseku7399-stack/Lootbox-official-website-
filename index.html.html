@@ -497,6 +497,12 @@
     font-family:'Poppins',sans-serif; cursor:pointer; transition:opacity .15s ease;
   }
   .verify-btn:disabled{ opacity:.6; cursor:default; }
+  .btn-spinner{
+    display:inline-block; width:14px; height:14px; vertical-align:-2px;
+    border:2px solid rgba(255,255,255,0.4); border-top-color:#fff;
+    border-radius:50%; animation:btnSpin .7s linear infinite;
+  }
+  @keyframes btnSpin{ to{ transform:rotate(360deg); } }
   .verify-result{ font-size:12px; margin-top:8px; min-height:15px; }
   .verify-result.success{ color:#4ade80; }
   .verify-result.error{ color:var(--red); }
@@ -2359,13 +2365,15 @@
         highlightInvalidField(input);
         return;
       }
+      btn.style.width = btn.offsetWidth + 'px';
       btn.disabled = true;
-      btn.textContent = 'Шалгаж байна...';
+      btn.innerHTML = '<span class="btn-spinner"></span>';
       result.className = 'verify-result';
       result.textContent = '';
       setTimeout(function(){
         btn.disabled = false;
         btn.textContent = 'ID шалгах';
+        btn.style.width = '';
         result.className = 'verify-result success';
         var account = generateMockAccount(currentRechargeGame, val);
         result.innerHTML = '✓ Тоглогч олдлоо: <b>' + account.name + '</b> · Lv.' + account.level;
