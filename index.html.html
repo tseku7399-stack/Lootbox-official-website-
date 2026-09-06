@@ -2369,13 +2369,24 @@
     var btn = document.getElementById('verifyIdBtn');
     if(!btn) return;
     var input = document.getElementById('playerIdInput');
+    var zoneInput = document.getElementById('zoneIdInput');
     var result = document.getElementById('verifyResult');
     btn.addEventListener('click', function(){
       var val = input.value.trim();
-      if(!val){
+      var zoneVal = zoneInput ? zoneInput.value.trim() : '';
+      var missingId = !val;
+      var missingZone = !!zoneInput && !zoneVal;
+      if(missingId || missingZone){
         result.className = 'verify-result error';
-        result.textContent = 'ID-гаа оруулна уу';
-        highlightInvalidField(input);
+        if(missingId && missingZone){
+          result.textContent = 'ID болон Zone ID хоёуланг нь оруулна уу';
+        } else if(missingId){
+          result.textContent = 'ID-гаа оруулна уу';
+        } else {
+          result.textContent = 'Zone ID-гаа оруулна уу';
+        }
+        if(missingId) highlightInvalidField(input);
+        if(missingZone) highlightInvalidField(zoneInput);
         return;
       }
       btn.style.width = btn.offsetWidth + 'px';
