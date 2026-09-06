@@ -497,6 +497,7 @@
     font-family:'Poppins',sans-serif; cursor:pointer; transition:opacity .15s ease;
   }
   .verify-btn:disabled{ opacity:.6; cursor:default; }
+  .verify-btn-full{ display:block; width:100%; margin-top:10px; padding:12px 16px; }
   .btn-spinner{
     display:inline-block; width:14px; height:14px; vertical-align:-2px;
     border:2px solid rgba(255,255,255,0.4); border-top-color:#fff;
@@ -2403,16 +2404,14 @@
           '<div style="display:flex; gap:10px;">' +
             '<div class="id-field">' +
               '<label>ID оруулах</label>' +
-              '<div class="id-verify-row">' +
-                '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
-                '<button type="button" class="verify-btn" id="verifyIdBtn">ID шалгах</button>' +
-              '</div>' +
+              '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
             '</div>' +
             '<div class="id-field">' +
               '<label>Zone ID оруулах</label>' +
               '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001" id="zoneIdInput">' +
             '</div>' +
           '</div>' +
+          '<button type="button" class="verify-btn verify-btn-full" id="verifyIdBtn">ID шалгах</button>' +
           '<div class="verify-result" id="verifyResult"></div>' +
         '</div>';
       attachVerifyHandler();
