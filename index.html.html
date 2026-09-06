@@ -25,6 +25,31 @@
     --text-faint:#65656b;
     --red:#ff5d5d;
   }
+  /* Цагаан (light) загвар — Тохиргоо цэснээс сонгогдоход body дээр нэмэгдэнэ */
+  body.theme-light{
+    --bg-void:#eef0f4;
+    --bg-panel:#ffffff;
+    --bg-panel-2:#f6f6f9;
+    --bg-elevated:#f0f0f4;
+    --line:rgba(20,20,30,0.08);
+    --line-strong:rgba(20,20,30,0.14);
+    --gold-100:#efe8ff;
+    --gold-300:#7c5cff;
+    --gold-500:#6a3ee0;
+    --gold-700:#4b2fb8;
+    --gold-900:#2c1c78;
+    --text-hi:#18181c;
+    --text-lo:#5b5b64;
+    --text-faint:#8c8c94;
+    --red:#e0393f;
+  }
+  body.theme-light{
+    background:
+      radial-gradient(65% 50% at 12% -5%, rgba(255,140,64,0.10), transparent 60%),
+      radial-gradient(55% 45% at 90% 105%, rgba(150,38,38,0.10), transparent 65%),
+      var(--bg-void);
+  }
+  body.theme-light .blinds{ opacity:0.35; }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{ scroll-behavior:auto; }
   html,body{height:100%;}
@@ -164,6 +189,7 @@
   .side-drawer-overlay.open .side-drawer-link:nth-child(4){ animation-delay:.23s; }
   .side-drawer-overlay.open .side-drawer-link:nth-child(5){ animation-delay:.28s; }
   .side-drawer-overlay.open .side-drawer-link:nth-child(6){ animation-delay:.33s; }
+  .side-drawer-overlay.open .side-drawer-link:nth-child(7){ animation-delay:.38s; }
   .side-drawer-foot{ margin-top:auto; font-size:11px; color:var(--text-faint); text-align:center; }
 
 
@@ -520,6 +546,55 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
   }
   .payment-modal-close svg{ width:15px; height:15px; stroke:var(--text-hi); }
+
+  /* Тохиргоо modal (Settings) */
+  .settings-modal-overlay{
+    display:none; position:fixed; inset:0; z-index:96;
+    background:rgba(0,0,0,0.65); align-items:center; justify-content:center; padding:18px;
+  }
+  .settings-modal-overlay.open{ display:flex; }
+  .settings-modal{
+    width:100%; max-width:380px; max-height:88vh; overflow-y:auto;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:22px;
+    padding:20px 18px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
+  }
+  .settings-modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .settings-modal-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--text-hi); }
+  .settings-modal-close{
+    width:30px; height:30px; border-radius:50%; background:var(--bg-elevated);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .settings-modal-close svg{ width:15px; height:15px; stroke:var(--text-hi); }
+  .settings-section-label{
+    font-size:11.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:10px;
+  }
+  .theme-options{ display:flex; gap:10px; margin-bottom:6px; }
+  .theme-option{
+    flex:1; border-radius:16px; border:1.5px solid var(--line); background:var(--bg-elevated);
+    padding:12px 10px 12px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px;
+    transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+  .theme-option:active{ transform:scale(0.97); }
+  .theme-option.active{ border-color:var(--gold-300); box-shadow:0 0 0 3px rgba(124,92,255,0.18); }
+  .theme-swatch{
+    width:100%; height:52px; border-radius:11px; border:1px solid var(--line-strong);
+    position:relative; overflow:hidden; flex-shrink:0;
+  }
+  .theme-swatch::before{
+    content:""; position:absolute; inset:0;
+  }
+  .theme-swatch.swatch-dark::before{ background:linear-gradient(160deg,#18181b 0%, #202024 55%, #2c1c78 130%); }
+  .theme-swatch.swatch-light::before{ background:linear-gradient(160deg,#ffffff 0%, #f0f0f4 55%, #efe8ff 130%); }
+  .theme-swatch .ts-dot{
+    position:absolute; top:8px; right:8px; width:16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    opacity:0; transform:scale(0.5); transition:opacity .2s ease, transform .2s ease;
+  }
+  .theme-swatch .ts-dot svg{ width:9px; height:9px; stroke:#fff; }
+  .theme-option.active .ts-dot{ opacity:1; transform:scale(1); }
+  .theme-option-label{ font-size:12.5px; font-weight:600; color:var(--text-hi); font-family:'Inter',sans-serif; }
   .payment-modal-summary{
     background:linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple));
     border-radius:16px; padding:14px 16px; margin-bottom:16px;
@@ -1019,6 +1094,10 @@
           <div class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
           Мэдэгдэл
         </div>
+        <div class="side-drawer-link" id="drawerSettingsLink">
+          <div class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          Тохиргоо
+        </div>
         <div class="side-drawer-link" id="drawerLogoutLink">
           <div class="dl-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></div>
           Гарах
@@ -1331,7 +1410,31 @@
   </div>
 </div>
 
-
+<div class="settings-modal-overlay" id="settingsModalOverlay">
+  <div class="settings-modal">
+    <div class="settings-modal-head">
+      <div class="settings-modal-title">Тохиргоо</div>
+      <div class="settings-modal-close" id="settingsModalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <div class="settings-section-label">Загвар</div>
+    <div class="theme-options">
+      <div class="theme-option active" id="themeOptionDark" data-theme="dark">
+        <div class="theme-swatch swatch-dark">
+          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        </div>
+        <div class="theme-option-label">Одоогийн өнгө</div>
+      </div>
+      <div class="theme-option" id="themeOptionLight" data-theme="light">
+        <div class="theme-swatch swatch-light">
+          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        </div>
+        <div class="theme-option-label">Цагаан өнгө</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -2834,6 +2937,14 @@
         if(bell) bell.click();
       });
     }
+    var settingsLink = document.getElementById('drawerSettingsLink');
+    if(settingsLink){
+      settingsLink.addEventListener('click', function(){
+        closeDrawer();
+        var settingsOverlay = document.getElementById('settingsModalOverlay');
+        if(settingsOverlay) settingsOverlay.classList.add('open');
+      });
+    }
     var logoutLink = document.getElementById('drawerLogoutLink');
     if(logoutLink){
       logoutLink.addEventListener('click', function(){
@@ -2842,6 +2953,35 @@
         if(authBtn) authBtn.click();
       });
     }
+  })();
+
+  // ---- Тохиргоо (Settings) modal: загвар (theme) солих ----
+  (function initSettingsModal(){
+    var overlay = document.getElementById('settingsModalOverlay');
+    var closeBtn = document.getElementById('settingsModalClose');
+    var optionDark = document.getElementById('themeOptionDark');
+    var optionLight = document.getElementById('themeOptionLight');
+    if(!overlay) return;
+
+    function closeSettings(){ overlay.classList.remove('open'); }
+
+    closeBtn.addEventListener('click', closeSettings);
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closeSettings();
+    });
+
+    function applyTheme(theme){
+      if(theme === 'light'){
+        document.body.classList.add('theme-light');
+      } else {
+        document.body.classList.remove('theme-light');
+      }
+      optionDark.classList.toggle('active', theme === 'dark');
+      optionLight.classList.toggle('active', theme === 'light');
+    }
+
+    optionDark.addEventListener('click', function(){ applyTheme('dark'); });
+    optionLight.addEventListener('click', function(){ applyTheme('light'); });
   })();
 </script>
 
