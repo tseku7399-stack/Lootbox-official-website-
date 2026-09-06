@@ -1317,7 +1317,7 @@
         </div>
         <div class="transfer-row">
           <span class="tr-label">Хүлээн авагч</span>
-          <span class="tr-value">LootBox LLC</span>
+          <span class="tr-value" id="transferRecipient">—</span>
         </div>
         <div class="transfer-row">
           <span class="tr-label">Шилжүүлэх дүн</span>
@@ -2403,13 +2403,27 @@
   });
 
   // ---- Төлбөрийн загвар: QPay QR (доор нь дэмжигдэх банкууд) болон Шилжүүлэг ----
+  var BANK_LOGOS = {
+    'Хаан банк': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm04x1xkg2lDXhI0HwzKEUTuCLLUuCTBhpLOITrGlyXw&s=10',
+    'Худалдаа хөгжлийн банк': 'https://play-lh.googleusercontent.com/d8ayLze9qciUv6Sx6CJIWYY8l__wKcvNSe1NyoAOc0brf4yoXpgvGxujJVbvsTqHRj2xhxCmUxSZxJfZKIuA'
+  };
+
+  // QPay tab-ийн доор харагдах, дэмжигдэх бүх банкны жагсаалт (зөвхөн мэдээлэл, сонголт биш)
+  var QPAY_BANKS = [
+    { name:'Хаан банк',                 color:'#0a5f38', logo:BANK_LOGOS['Хаан банк'] },
+    { name:'Голомт банк',                color:'#1462b0' },
+    { name:'Худалдаа хөгжлийн банк',      color:'#7c1f2b', logo:BANK_LOGOS['Худалдаа хөгжлийн банк'] },
+    { name:'Төрийн банк',                color:'#0d6e3f' },
+    { name:'Хас банк',                   color:'#f5821f' },
+    { name:'Ариг банк',                  color:'#5b3aa0' },
+    { name:'Богд банк',                  color:'#8a1c2e' },
+    { name:'Капитрон банк',              color:'#1f3c88' }
+  ];
+
+  // Шилжүүлэг tab-т ашиглах жинхэнэ дансны мэдээлэл
   var BANK_APPS = [
-    { name:'Хаан банк',         color:'#0a5f38', account:'5001234567' },
-    { name:'Голомт банк',       color:'#1462b0', account:'1234567890' },
-    { name:'Төрийн банк',       color:'#0d6e3f', account:'4001122334' },
-    { name:'Худалдаа хөгжлийн банк', color:'#7c1f2b', account:'4402213345' },
-    { name:'Хас банк',          color:'#f5821f', account:'5502213345' },
-    { name:'Ариг банк',         color:'#5b3aa0', account:'6402213345' }
+    { name:'Хаан банк',                 color:'#0a5f38', account:'5221957701', recipient:'Цэрэндорж Баасанбат', logo:BANK_LOGOS['Хаан банк'] },
+    { name:'Худалдаа хөгжлийн банк',     color:'#7c1f2b', account:'445017037',  recipient:'Цэрэндорж Баасанбат', logo:BANK_LOGOS['Худалдаа хөгжлийн банк'] }
   ];
 
   var paymentModalOverlay = document.getElementById('paymentModalOverlay');
@@ -2426,6 +2440,7 @@
   var transferBankChips = document.getElementById('transferBankChips');
   var transferBankName = document.getElementById('transferBankName');
   var transferAccNumber = document.getElementById('transferAccNumber');
+  var transferRecipient = document.getElementById('transferRecipient');
   var transferAmount = document.getElementById('transferAmount');
   var transferCopyBtn = document.getElementById('transferCopyBtn');
   var paymentConfirmBtn = document.getElementById('paymentConfirmBtn');
@@ -2436,15 +2451,21 @@
     return name.trim().split(' ').map(function(w){ return w[0]; }).join('').slice(0,2);
   }
 
-  // QPay tab-ийн доор харагдах, зөвхөн мэдээлэл өгөх зорилготой дэмжигдэх банкуудын жагсаалт
-  qpayBanksRow.innerHTML = BANK_APPS.map(function(bank){
-    return '<div class="qpay-bank-badge" style="background:' + bank.color + '" title="' + bank.name + '">' + bankInitials(bank.name) + '</div>';
+  function bankIconInner(bank){
+    return bank.logo
+      ? '<img src="' + bank.logo + '" alt="' + bank.name + '" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;">'
+      : bankInitials(bank.name);
+  }
+
+  // QPay tab-ийн доор харагдах, дэмжигдэх бүх банкны жагсаалт
+  qpayBanksRow.innerHTML = QPAY_BANKS.map(function(bank){
+    return '<div class="qpay-bank-badge" style="background:' + (bank.logo ? '#fff' : bank.color) + '" title="' + bank.name + '">' + bankIconInner(bank) + '</div>';
   }).join('');
 
   // Шилжүүлэг tab-ийн банк сонгох chip-үүд
   transferBankChips.innerHTML = BANK_APPS.map(function(bank, i){
     return '<div class="transfer-chip" data-bank-index="' + i + '">' +
-        '<div class="transfer-chip-icon" style="background:' + bank.color + '">' + bankInitials(bank.name) + '</div>' +
+        '<div class="transfer-chip-icon" style="background:' + (bank.logo ? '#fff' : bank.color) + '">' + bankIconInner(bank) + '</div>' +
         '<div class="transfer-chip-name">' + bank.name + '</div>' +
       '</div>';
   }).join('');
@@ -2455,6 +2476,7 @@
     if(chipEl) chipEl.classList.add('selected');
     transferBankName.textContent = bank.name;
     transferAccNumber.textContent = bank.account;
+    transferRecipient.textContent = bank.recipient;
     transferCopyBtn.classList.remove('copied');
     transferCopyBtn.textContent = 'Хуулах';
   }
