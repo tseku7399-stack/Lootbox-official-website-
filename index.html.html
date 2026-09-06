@@ -504,8 +504,20 @@
   }
   @keyframes btnSpin{ to{ transform:rotate(360deg); } }
   .verify-result{ font-size:12px; margin-top:8px; min-height:15px; }
-  .verify-result.success{ color:#4ade80; }
   .verify-result.error{ color:var(--red); }
+  .verify-result.success{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(74,222,128,0.12);
+    border:1px solid rgba(74,222,128,0.35);
+    border-radius:14px; padding:10px 12px; min-height:0;
+  }
+  .verify-result.success .vr-check{
+    width:22px; height:22px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(145deg,#4ade80,#16a34a);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .verify-result.success .vr-check svg{ width:12px; height:12px; stroke:#fff; }
+  .verify-result.success .vr-name{ font-weight:700; color:var(--text-hi); font-size:12.5px; }
 
   .package-card{
     background:var(--bg-panel-2); border:1px solid var(--line); border-radius:16px;
@@ -2376,7 +2388,9 @@
         btn.style.width = '';
         result.className = 'verify-result success';
         var account = generateMockAccount(currentRechargeGame, val);
-        result.innerHTML = '✓ Тоглогч олдлоо: <b>' + account.name + '</b> · Lv.' + account.level;
+        result.innerHTML =
+          '<span class="vr-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>' +
+          '<span class="vr-name">' + account.name + '</span>';
       }, 900);
     });
   }
@@ -2385,14 +2399,23 @@
     var container = document.getElementById('idFieldsContainer');
     if(ZONE_ID_GAMES.indexOf(game) !== -1){
       container.innerHTML =
-        '<div class="id-field">' +
-          '<label>ID оруулах</label>' +
-          '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
-        '</div>' +
-        '<div class="id-field">' +
-          '<label>Zone ID оруулах</label>' +
-          '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001" id="zoneIdInput">' +
+        '<div class="id-field id-field-wide">' +
+          '<div style="display:flex; gap:10px;">' +
+            '<div class="id-field">' +
+              '<label>ID оруулах</label>' +
+              '<div class="id-verify-row">' +
+                '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 123456789" id="playerIdInput">' +
+                '<button type="button" class="verify-btn" id="verifyIdBtn">ID шалгах</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="id-field">' +
+              '<label>Zone ID оруулах</label>' +
+              '<input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Жишээ: 2001" id="zoneIdInput">' +
+            '</div>' +
+          '</div>' +
+          '<div class="verify-result" id="verifyResult"></div>' +
         '</div>';
+      attachVerifyHandler();
     } else {
       container.innerHTML =
         '<div class="id-field id-field-wide">' +
