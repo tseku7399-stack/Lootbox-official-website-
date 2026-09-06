@@ -2254,6 +2254,13 @@
     GOLD: '<img src="GOLD.png" alt="GOLD">'
   };
 
+  var CURRENCY_LABELS = {
+    DIAMOND: 'Diamonds',
+    UC: 'UC',
+    ROBUX: 'Robux',
+    GOLD: 'Gold'
+  };
+
   var GAME_CURRENCY = {
     'PUBG Mobile': 'UC',
     'Roblox': 'ROBUX',
@@ -2302,7 +2309,7 @@
       if(t.badge === 'best'){ cardClass += ' best'; badgeHtml = '<span class="badge best-badge">' + t.badgeLabel + '</span>'; }
       if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
       var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
-      var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : ''));
+      var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : '') + ' ' + (CURRENCY_LABELS[currency] || ''));
       var iconHtml = ((currency === 'DIAMOND' || currency === 'GOLD') && t.img)
         ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
         : CURRENCY_ICONS[currency];
