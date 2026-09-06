@@ -24,6 +24,9 @@
     --text-lo:#9a9aa2;
     --text-faint:#65656b;
     --red:#ff5d5d;
+    --dot-idle:rgba(255,255,255,0.35);
+    --hover-tint:rgba(255,255,255,0.04);
+    --hover-tint-strong:rgba(255,255,255,0.1);
   }
   /* Цагаан (light) загвар — Тохиргоо цэснээс сонгогдоход body дээр нэмэгдэнэ */
   body.theme-light{
@@ -42,6 +45,9 @@
     --text-lo:#5b5b64;
     --text-faint:#8c8c94;
     --red:#e0393f;
+    --dot-idle:rgba(20,20,30,0.25);
+    --hover-tint:rgba(20,20,30,0.045);
+    --hover-tint-strong:rgba(20,20,30,0.09);
   }
   body.theme-light{
     background:
@@ -236,7 +242,7 @@
   .notif-clear{ font-size:10.5px; font-weight:600; color:var(--gold-300); cursor:pointer; }
   .notif-item{ padding:10px 6px; border-bottom:1px solid var(--line); cursor:default; }
   .notif-item:last-child{ border-bottom:none; }
-  .notif-item:hover{ background:rgba(255,255,255,0.04); }
+  .notif-item:hover{ background:var(--hover-tint); }
   .notif-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .notif-title{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--text-hi); min-width:0; }
   .notif-title span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -309,7 +315,7 @@
   }
   .balance-dots .dot{
     width:6px; height:6px; border-radius:50%;
-    background:rgba(255,255,255,0.35);
+    background:var(--dot-idle);
     transition: background .25s ease, transform .25s ease, width .25s ease;
     cursor:default;
   }
@@ -408,7 +414,7 @@
     background:#161616; color:var(--gold-100); border:0; font-family:'Poppins',sans-serif;
     font-weight:600; font-size:12.5px; padding:9px 18px; border-radius:20px; cursor:pointer;
   }
-  .claim-btn.done{ background:#2a2a2a; color:var(--text-lo); cursor:default; }
+  .claim-btn.done{ background:var(--bg-elevated); color:var(--text-lo); cursor:default; }
   .badge-icon{ width:54px; height:54px; flex-shrink:0; }
 
   .games-page-head{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
@@ -595,6 +601,37 @@
   .theme-swatch .ts-dot svg{ width:9px; height:9px; stroke:#fff; }
   .theme-option.active .ts-dot{ opacity:1; transform:scale(1); }
   .theme-option-label{ font-size:12.5px; font-weight:600; color:var(--text-hi); font-family:'Inter',sans-serif; }
+
+  .settings-section-label.mt{ margin-top:20px; }
+  .settings-switch-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:11px 2px; border-top:1px solid var(--line);
+  }
+  .settings-switch-row:first-of-type{ border-top:0; }
+  .settings-switch-text .t{ font-size:13px; font-weight:500; color:var(--text-hi); font-family:'Inter',sans-serif; }
+  .settings-switch-text .s{ font-size:11px; color:var(--text-faint); margin-top:2px; line-height:1.4; }
+  .toggle-switch{ position:relative; width:42px; height:25px; flex-shrink:0; display:inline-block; cursor:pointer; }
+  .toggle-switch input{ position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+  .toggle-switch .track{
+    position:absolute; inset:0; background:var(--bg-elevated); border:1px solid var(--line-strong);
+    border-radius:20px; transition:background .2s ease, border-color .2s ease; pointer-events:none;
+  }
+  .toggle-switch .track::before{
+    content:""; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%;
+    background:var(--text-faint); transition:transform .2s cubic-bezier(.4,0,.2,1), background .2s ease;
+  }
+  .toggle-switch input:checked ~ .track{ background:linear-gradient(135deg, var(--gold-300), var(--gold-700)); border-color:transparent; }
+  .toggle-switch input:checked ~ .track::before{ transform:translateX(17px); background:#fff; }
+
+  .lang-tabs{ display:flex; gap:8px; background:var(--bg-elevated); border-radius:14px; padding:4px; margin-top:2px; }
+  .lang-tab{
+    flex:1; text-align:center; padding:9px 0; border-radius:11px; font-size:12.5px; font-weight:600;
+    color:var(--text-lo); cursor:pointer; font-family:'Poppins',sans-serif;
+    transition:background .2s ease, color .2s ease;
+  }
+  .lang-tab.active{ background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#fff; }
+
+  .settings-modal-foot{ margin-top:20px; font-size:11px; color:var(--text-faint); text-align:center; }
   .payment-modal-summary{
     background:linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple));
     border-radius:16px; padding:14px 16px; margin-bottom:16px;
@@ -659,13 +696,13 @@
     flex-shrink:0; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#fff; border:0;
     font-family:'Poppins',sans-serif; font-weight:600; font-size:11px; padding:6px 11px; border-radius:9px; cursor:pointer;
   }
-  .transfer-copy-btn.copied{ background:#2a2a2a; color:var(--text-lo); }
+  .transfer-copy-btn.copied{ background:var(--bg-elevated); color:var(--text-lo); }
   .payment-confirm-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#fff;
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
     padding:14px; border-radius:16px; cursor:pointer;
   }
-  .payment-confirm-btn.success{ background:#2a2a2a; color:var(--text-lo); cursor:default; }
+  .payment-confirm-btn.success{ background:var(--bg-elevated); color:var(--text-lo); cursor:default; }
   .all-games-grid{
     display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;
     -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
@@ -750,8 +787,8 @@
     display:flex; align-items:center; justify-content:center; border-radius:10px;
     z-index:5; -webkit-tap-highlight-color:transparent;
   }
-  .password-toggle-btn:hover{ background:rgba(255,255,255,0.06); }
-  .password-toggle-btn:active{ background:rgba(255,255,255,0.1); }
+  .password-toggle-btn:hover{ background:var(--hover-tint); }
+  .password-toggle-btn:active{ background:var(--hover-tint-strong); }
   .password-eye{ width:19px; height:19px; position:relative; }
   .password-eye svg{
     position:absolute; inset:0; width:19px; height:19px;
@@ -861,7 +898,7 @@
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
     padding:14px; border-radius:16px; cursor:pointer; margin-top:8px;
   }
-  .profile-save-btn.saved{ background:#2a2a2a; color:var(--text-lo); }
+  .profile-save-btn.saved{ background:var(--bg-elevated); color:var(--text-lo); }
   .profile-logout-btn{
     width:100%; background:transparent; color:var(--red); border:1px solid rgba(255,93,93,0.3);
     font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
@@ -1424,7 +1461,7 @@
         <div class="theme-swatch swatch-dark">
           <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
         </div>
-        <div class="theme-option-label">Одоогийн өнгө</div>
+        <div class="theme-option-label">Саарал өнгө</div>
       </div>
       <div class="theme-option" id="themeOptionLight" data-theme="light">
         <div class="theme-swatch swatch-light">
@@ -1433,6 +1470,46 @@
         <div class="theme-option-label">Цагаан өнгө</div>
       </div>
     </div>
+
+    <div class="settings-section-label mt">Мэдэгдэл</div>
+    <div class="settings-switch-row">
+      <div class="settings-switch-text">
+        <div class="t">Push мэдэгдэл</div>
+        <div class="s">Урамшуулал, цэнэглэлтийн шинэ мэдээлэл</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleNotif" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="settings-switch-row">
+      <div class="settings-switch-text">
+        <div class="t">Дууны эффект</div>
+        <div class="s">Товч дарах, шагнал авах үеийн дуу</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleSound" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="settings-switch-row">
+      <div class="settings-switch-text">
+        <div class="t">Нүүр хуудасны видео тоглуулах</div>
+        <div class="s">Баннер, урамшууллын видеог автоматаар эхлүүлэх</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleAutoplay" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div class="settings-section-label mt">Хэл</div>
+    <div class="lang-tabs" id="langTabs">
+      <div class="lang-tab active" data-lang="mn">Монгол</div>
+      <div class="lang-tab" data-lang="en">English</div>
+    </div>
+
+    <div class="settings-modal-foot">LootBox • Хувилбар 1.2.0</div>
   </div>
 </div>
 
@@ -2982,6 +3059,14 @@
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
+
+    var langTabs = document.querySelectorAll('#langTabs .lang-tab');
+    langTabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        langTabs.forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+      });
+    });
   })();
 </script>
 
