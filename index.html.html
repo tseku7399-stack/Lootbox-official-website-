@@ -812,6 +812,11 @@
   .password-toggle-btn.is-visible .password-eye .icon-open{ opacity:0; transform:scale(0.7); }
   .password-toggle-btn.is-visible .password-eye .icon-closed{ opacity:1; transform:scale(1); stroke:var(--gold-300); }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
+  .login-success{
+    font-size:12.5px; color:var(--text-hi); font-weight:600;
+    background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35);
+    border-radius:14px; padding:11px 13px; margin-bottom:16px; text-align:center;
+  }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#ffffff;
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
@@ -1001,6 +1006,7 @@
 
       <!-- Нэвтрэх хэсэг -->
       <div id="loginPanel">
+        <div class="login-success" id="registerSuccessMsg" style="display:none;">Бүртгэл амжилттай үүслээ! Имэйл болон нууц үгээрээ нэвтэрнэ үү.</div>
         <button type="button" class="google-btn" id="googleLoginBtn">
           <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
           Google-ээр нэвтрэх
@@ -1695,6 +1701,7 @@
   var loginUsername = document.getElementById('loginUsername');
   var loginPassword = document.getElementById('loginPassword');
   var loginError = document.getElementById('loginError');
+  var registerSuccessMsg = document.getElementById('registerSuccessMsg');
   var loginBtn = document.getElementById('loginBtn');
   var loginReturnTo = 'main'; // 'main' эсвэл 'profile' - нэвтэрсний дараа хаашаа буцахыг заана
 
@@ -1777,6 +1784,7 @@
     loginUsername.value = '';
     loginPassword.value = '';
     loginError.style.display = 'none';
+    registerSuccessMsg.style.display = 'none';
     registerUsername.value = '';
     registerEmail.value = '';
     registerPassword.value = '';
@@ -1853,6 +1861,7 @@
   function doLogin(){
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
+    registerSuccessMsg.style.display = 'none';
     if(!email || !p){
       setLoginError('Имэйл хаяг эсвэл нууц үгээ оруулна уу');
       highlightInvalidField(!email ? loginUsername : loginPassword);
@@ -1887,6 +1896,18 @@
       });
   }
 
+  // ---- Хэрэглэгчийн нэр (username) давхцаж байгаа эсэхийг шалгах ----
+  function isUsernameTaken(username){
+    var users = loadUsers();
+    var normalized = username.trim().toLowerCase();
+    for(var key in users){
+      if(users.hasOwnProperty(key) && users[key].displayName && users[key].displayName.trim().toLowerCase() === normalized){
+        return true;
+      }
+    }
+    return false;
+  }
+
   function doRegister(){
     var u = registerUsername.value.trim();
     var email = registerEmail.value.trim();
@@ -1895,6 +1916,11 @@
     if(!u || !email || !p || !p2){
       setRegisterError('Талбаруудыг зөв бөглөнө үү');
       highlightInvalidField(!u ? registerUsername : !email ? registerEmail : !p ? registerPassword : registerPassword2);
+      return;
+    }
+    if(isUsernameTaken(u)){
+      setRegisterError('Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна');
+      highlightInvalidField(registerUsername);
       return;
     }
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -1921,13 +1947,27 @@
         return cred.user.updateProfile({ displayName: u }).then(function(){ return cred.user; });
       })
       .then(function(user){
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Бүртгүүлэх';
         var users = loadUsers();
         var record = { displayName: u, email: email, avatarImg: null, provider: 'password', purchases: [] };
         users[user.uid] = record;
         saveUsers(users);
-        completeAuth(user.uid, record);
+        // Бүртгүүлмэгц шууд нэвтрүүлэхгүй: Firebase өөрөө автоматаар нэвтрүүлдэг тул
+        // гарган, хэрэглэгчийг Нэвтрэх хэсэг рүү шилжүүлж, өөрөө имэйл/нууц үгээ
+        // дахин оруулж нэвтрэхийг шаардана.
+        return firebase.auth().signOut().catch(function(){}).then(function(){
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Бүртгүүлэх';
+          registerUsername.value = '';
+          registerEmail.value = '';
+          registerPassword.value = '';
+          registerPassword2.value = '';
+          registerError.style.display = 'none';
+          showAuthPanel('login');
+          loginUsername.value = email;
+          loginPassword.value = '';
+          loginError.style.display = 'none';
+          registerSuccessMsg.style.display = 'block';
+        });
       })
       .catch(function(err){
         registerBtn.disabled = false;
@@ -2014,7 +2054,7 @@
   });
 
   tabLogin.addEventListener('click', function(){ showAuthPanel('login'); });
-  tabRegister.addEventListener('click', function(){ showAuthPanel('register'); });
+  tabRegister.addEventListener('click', function(){ registerSuccessMsg.style.display = 'none'; showAuthPanel('register'); });
   forgotLink.addEventListener('click', function(){ showAuthPanel('forgot'); });
   backToLoginLink.addEventListener('click', function(){ showAuthPanel('login'); });
 
