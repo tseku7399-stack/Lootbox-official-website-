@@ -1582,23 +1582,40 @@
     }
   }
 
+  // ---- Firebase хэрэглэгчийн обьект/OAuth үр дүнгээс имэйлийг хамгийн
+  // найдвартай эх сурвалжаас олж авах. user.email заримдаа хоосон гарч ирдэг
+  // тул providerData болон OAuth-ийн profile мэдээллээс нөөц эх сурвалж хайна.
+  function pickEmail(user, result){
+    if(user && user.email) return user.email;
+    if(user && user.providerData){
+      for(var i=0;i<user.providerData.length;i++){
+        if(user.providerData[i] && user.providerData[i].email) return user.providerData[i].email;
+      }
+    }
+    if(result && result.additionalUserInfo && result.additionalUserInfo.profile && result.additionalUserInfo.profile.email){
+      return result.additionalUserInfo.profile.email;
+    }
+    return '';
+  }
+
   // ---- Firebase хэрэглэгчийг локал профайл (avatar/purchases г.м) руу тааруулж, currentUser-ийг шинэчлэх ----
-  function getOrCreateLocalRecord(user){
+  function getOrCreateLocalRecord(user, result){
     var users = loadUsers();
     var key = user.uid;
     var record = users[key];
+    var bestEmail = pickEmail(user, result);
     if(!record){
       record = {
-        displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Хэрэглэгч'),
-        email: user.email || '',
+        displayName: user.displayName || (bestEmail ? bestEmail.split('@')[0] : 'Хэрэглэгч'),
+        email: bestEmail || '',
         avatarImg: user.photoURL || null,
         provider: (user.providerData[0] && user.providerData[0].providerId) || 'password',
         purchases: []
       };
       users[key] = record;
       saveUsers(users);
-    } else if(user.email && record.email !== user.email){
-      record.email = user.email;
+    } else if(bestEmail && record.email !== bestEmail){
+      record.email = bestEmail;
       users[key] = record;
       saveUsers(users);
     }
@@ -1616,7 +1633,7 @@
     // үед ч тухайн жинхэнэ gmail хаяг профайлд яг зөв харагдана.
     var liveEmail = '';
     try{
-      liveEmail = (firebase.auth().currentUser && firebase.auth().currentUser.email) || '';
+      liveEmail = pickEmail(firebase.auth().currentUser);
     }catch(e){}
     currentUser.email = liveEmail || record.email || '';
     // Локал бичлэг Firebase-ийн бодит имэйлтэй зөрж байвал (хоосон эсвэл
@@ -1704,33 +1721,26 @@
   var loginOpenedFrom = null;
 
   // ---- Нууц үг харуулах/нуух товч ----
-  function togglePasswordVisibility(btn){
-    var wrap = btn.closest('.password-wrap');
-    var input = wrap ? wrap.querySelector('input') : null;
-    if(!input) return;
-    var willShow = input.type === 'password';
-    input.type = willShow ? 'text' : 'password';
-    btn.classList.toggle('is-visible', willShow);
-    // input.type солиход зарим хөтчид focus салж, гар (keyboard) хаагдаж болно
-    // тул шууд буцааж focus өгнө.
-    input.focus();
-    var pos = input.value.length;
-    try{ input.setSelectionRange(pos, pos); }catch(e){}
+  // Тус бүрийг өөрийн input-той нь шууд ID-гаар холбож, найдвартай ажиллуулна.
+  function setupPasswordToggle(btnId, inputId){
+    var btn = document.getElementById(btnId);
+    var input = document.getElementById(inputId);
+    if(!btn || !input) return;
+    // Товч дарах мөчид input-ээс focus огт салдаггүй тул утасны гар (keyboard) хаагдахгүй.
+    btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    btn.addEventListener('touchstart', function(e){ e.preventDefault(); }, { passive:false });
+    btn.addEventListener('click', function(){
+      var willShow = input.type === 'password';
+      input.type = willShow ? 'text' : 'password';
+      btn.classList.toggle('is-visible', willShow);
+      input.focus();
+      var pos = input.value.length;
+      try{ input.setSelectionRange(pos, pos); }catch(e){}
+    });
   }
-  // Бие даасан event listener бүр дээр биш, бүх .password-toggle-btn товчийг
-  // нэг дор барьдаг delegated listener ашигласнаар илүү найдвартай ажиллана.
-  // mousedown/touchstart дээр preventDefault хийснээр товч дарах мөчид input-ээс
-  // focus огт салдаггүй тул утасны гар (keyboard) огт хаагдахгүй.
-  function preventFocusLoss(e){
-    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
-    if(btn) e.preventDefault();
-  }
-  document.addEventListener('mousedown', preventFocusLoss);
-  document.addEventListener('touchstart', preventFocusLoss, { passive:false });
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest ? e.target.closest('.password-toggle-btn') : null;
-    if(btn) togglePasswordVisibility(btn);
-  });
+  setupPasswordToggle('loginPasswordToggle', 'loginPassword');
+  setupPasswordToggle('registerPasswordToggle', 'registerPassword');
+  setupPasswordToggle('registerPassword2Toggle', 'registerPassword2');
 
   function showAllPagesHidden(){
     document.getElementById('mainView').style.display = 'none';
@@ -1978,9 +1988,12 @@
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
   function doGoogleAuth(){
     var provider = new firebase.auth.GoogleAuthProvider();
+    // Имэйл хаягийг Google-ээс баталгаатай авахын тулд шаардлагатай scope-уудыг тодорхой хүснэ.
+    provider.addScope('email');
+    provider.addScope('profile');
     firebase.auth().signInWithPopup(provider)
       .then(function(result){
-        var kr = getOrCreateLocalRecord(result.user);
+        var kr = getOrCreateLocalRecord(result.user, result);
         completeAuth(kr.key, kr.record);
       })
       .catch(function(err){
