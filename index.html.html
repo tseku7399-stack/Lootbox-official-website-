@@ -1831,6 +1831,8 @@
     loginView.style.display = 'none';
     if(loginReturnTo === 'profile'){
       openProfile();
+    } else if(loginReturnTo === 'recharge'){
+      rechargeView.style.display = 'block';
     } else {
       document.getElementById('mainView').style.display = 'block';
     }
@@ -2577,6 +2579,10 @@
 
   var rechargeBuyBtn = document.getElementById('rechargeBuyBtn');
   rechargeBuyBtn.addEventListener('click', function(){
+    if(!currentUser.loggedIn){
+      openLogin('recharge');
+      return;
+    }
     var playerIdEl = document.getElementById('playerIdInput');
     if(playerIdEl && !playerIdEl.value.trim()){
       highlightInvalidField(playerIdEl);
