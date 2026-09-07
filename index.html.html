@@ -812,6 +812,7 @@
   .password-toggle-btn.is-visible .password-eye .icon-open{ opacity:0; transform:scale(0.7); }
   .password-toggle-btn.is-visible .password-eye .icon-closed{ opacity:1; transform:scale(1); stroke:var(--gold-300); }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
+  .field-error{ font-size:11.5px; color:var(--red); margin:6px 2px 0; display:none; }
   .login-success{
     font-size:12.5px; color:var(--text-hi); font-weight:600;
     background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35);
@@ -1015,6 +1016,7 @@
         <div class="login-field">
           <label>Имэйл хаяг</label>
           <input type="email" id="loginUsername" placeholder="Жишээ: name@gmail.com">
+          <div class="field-error" id="loginUsernameError"></div>
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
@@ -1027,9 +1029,10 @@
               </span>
             </button>
           </div>
+          <div class="field-error" id="loginPasswordError"></div>
         </div>
         <a class="forgot-link" id="forgotLink">Нууц үгээ мартсан уу?</a>
-        <div class="login-error" id="loginError">Имэйл хаяг эсвэл нууц үгээ оруулна уу</div>
+        <div class="login-error" id="loginError"></div>
         <button class="login-btn" id="loginBtn">Нэвтрэх</button>
       </div>
 
@@ -1043,10 +1046,12 @@
         <div class="login-field">
           <label>Хэрэглэгчийн нэр</label>
           <input type="text" id="registerUsername" placeholder="Хэрэглэгчийн нэрээ оруулах">
+          <div class="field-error" id="registerUsernameError"></div>
         </div>
         <div class="login-field">
           <label>Имэйл хаяг</label>
           <input type="email" id="registerEmail" placeholder="Жишээ: name@gmail.com">
+          <div class="field-error" id="registerEmailError"></div>
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
@@ -1059,6 +1064,7 @@
               </span>
             </button>
           </div>
+          <div class="field-error" id="registerPasswordError"></div>
         </div>
         <div class="login-field">
           <label>Нууц үг давтах</label>
@@ -1071,8 +1077,9 @@
               </span>
             </button>
           </div>
+          <div class="field-error" id="registerPassword2Error"></div>
         </div>
-        <div class="login-error" id="registerError">Талбаруудыг зөв бөглөнө үү</div>
+        <div class="login-error" id="registerError"></div>
         <button class="login-btn" id="registerBtn">Бүртгүүлэх</button>
       </div>
 
@@ -1701,6 +1708,8 @@
   var loginUsername = document.getElementById('loginUsername');
   var loginPassword = document.getElementById('loginPassword');
   var loginError = document.getElementById('loginError');
+  var loginUsernameError = document.getElementById('loginUsernameError');
+  var loginPasswordError = document.getElementById('loginPasswordError');
   var registerSuccessMsg = document.getElementById('registerSuccessMsg');
   var loginBtn = document.getElementById('loginBtn');
   var loginReturnTo = 'main'; // 'main' эсвэл 'profile' - нэвтэрсний дараа хаашаа буцахыг заана
@@ -1713,9 +1722,13 @@
   var forgotLink = document.getElementById('forgotLink');
   var backToLoginLink = document.getElementById('backToLoginLink');
   var registerUsername = document.getElementById('registerUsername');
+  var registerUsernameError = document.getElementById('registerUsernameError');
   var registerEmail = document.getElementById('registerEmail');
+  var registerEmailError = document.getElementById('registerEmailError');
   var registerPassword = document.getElementById('registerPassword');
+  var registerPasswordError = document.getElementById('registerPasswordError');
   var registerPassword2 = document.getElementById('registerPassword2');
+  var registerPassword2Error = document.getElementById('registerPassword2Error');
   var registerError = document.getElementById('registerError');
   var registerBtn = document.getElementById('registerBtn');
   var forgotInput = document.getElementById('forgotInput');
@@ -1784,12 +1797,18 @@
     loginUsername.value = '';
     loginPassword.value = '';
     loginError.style.display = 'none';
+    clearFieldError(loginUsernameError);
+    clearFieldError(loginPasswordError);
     registerSuccessMsg.style.display = 'none';
     registerUsername.value = '';
     registerEmail.value = '';
     registerPassword.value = '';
     registerPassword2.value = '';
     registerError.style.display = 'none';
+    clearFieldError(registerUsernameError);
+    clearFieldError(registerEmailError);
+    clearFieldError(registerPasswordError);
+    clearFieldError(registerPassword2Error);
     forgotInput.value = '';
     forgotError.style.display = 'none';
     forgotSent.style.display = 'none';
@@ -1816,8 +1835,22 @@
     registerError.style.display = 'block';
   }
 
+  // ---- Тухайн талбарынхаа яг доор нь харагдах сануулга (field-error) ----
+  function setFieldError(el, msg){
+    if(!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function clearFieldError(el){
+    if(!el) return;
+    el.style.display = 'none';
+    el.textContent = '';
+  }
+
   // ---- Буруу бөглөсөн талбар руу шилжиж, улайлган анхааруулах ----
-  function highlightInvalidField(input){
+  // errorEl дамжуулбал тухайн input дахин бичигдэх мөчид харгалзах сануулга
+  // мессежийг ч мөн автоматаар нуух болно.
+  function highlightInvalidField(input, errorEl){
     if(!input) return;
     input.classList.add('field-invalid');
     input.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -1826,10 +1859,14 @@
     input._fieldInvalidTimer = setTimeout(function(){
       input.classList.remove('field-invalid');
     }, 2200);
+    input._currentFieldError = errorEl || null;
     if(!input._fieldInvalidBound){
       input._fieldInvalidBound = true;
       input.addEventListener('input', function(){
         input.classList.remove('field-invalid');
+        if(input._currentFieldError){
+          clearFieldError(input._currentFieldError);
+        }
       });
     }
   }
@@ -1862,18 +1899,25 @@
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
     registerSuccessMsg.style.display = 'none';
-    if(!email || !p){
-      setLoginError('Имэйл хаяг эсвэл нууц үгээ оруулна уу');
-      highlightInvalidField(!email ? loginUsername : loginPassword);
+    loginError.style.display = 'none';
+    clearFieldError(loginUsernameError);
+    clearFieldError(loginPasswordError);
+    if(!email){
+      setFieldError(loginUsernameError, 'Имэйл хаягаа оруулна уу');
+      highlightInvalidField(loginUsername, loginUsernameError);
       return;
     }
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if(!emailOk){
-      setLoginError('Зөв имэйл хаяг оруулна уу');
-      highlightInvalidField(loginUsername);
+      setFieldError(loginUsernameError, 'Зөв имэйл хаяг оруулна уу');
+      highlightInvalidField(loginUsername, loginUsernameError);
       return;
     }
-    loginError.style.display = 'none';
+    if(!p){
+      setFieldError(loginPasswordError, 'Нууц үгээ оруулна уу');
+      highlightInvalidField(loginPassword, loginPasswordError);
+      return;
+    }
     loginBtn.disabled = true;
     loginBtn.textContent = 'Түр хүлээнэ үү...';
     firebase.auth().signInWithEmailAndPassword(email, p)
@@ -1886,12 +1930,16 @@
       .catch(function(err){
         loginBtn.disabled = false;
         loginBtn.textContent = 'Нэвтрэх';
-        setLoginError(firebaseErrorMessage(err));
         var code = err && err.code;
+        var msg = firebaseErrorMessage(err);
         if(code === 'auth/user-not-found' || code === 'auth/invalid-email'){
-          highlightInvalidField(loginUsername);
+          setFieldError(loginUsernameError, msg);
+          highlightInvalidField(loginUsername, loginUsernameError);
         } else if(code === 'auth/wrong-password' || code === 'auth/invalid-credential'){
-          highlightInvalidField(loginPassword);
+          setFieldError(loginPasswordError, msg);
+          highlightInvalidField(loginPassword, loginPasswordError);
+        } else {
+          setLoginError(msg);
         }
       });
   }
@@ -1913,33 +1961,52 @@
     var email = registerEmail.value.trim();
     var p = registerPassword.value;
     var p2 = registerPassword2.value;
-    if(!u || !email || !p || !p2){
-      setRegisterError('Талбаруудыг зөв бөглөнө үү');
-      highlightInvalidField(!u ? registerUsername : !email ? registerEmail : !p ? registerPassword : registerPassword2);
+    registerError.style.display = 'none';
+    clearFieldError(registerUsernameError);
+    clearFieldError(registerEmailError);
+    clearFieldError(registerPasswordError);
+    clearFieldError(registerPassword2Error);
+    if(!u){
+      setFieldError(registerUsernameError, 'Хэрэглэгчийн нэрээ оруулна уу');
+      highlightInvalidField(registerUsername, registerUsernameError);
       return;
     }
     if(isUsernameTaken(u)){
-      setRegisterError('Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна');
-      highlightInvalidField(registerUsername);
+      setFieldError(registerUsernameError, 'Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна');
+      highlightInvalidField(registerUsername, registerUsernameError);
+      return;
+    }
+    if(!email){
+      setFieldError(registerEmailError, 'Имэйл хаягаа оруулна уу');
+      highlightInvalidField(registerEmail, registerEmailError);
       return;
     }
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if(!emailOk){
-      setRegisterError('Зөв имэйл хаяг оруулна уу');
-      highlightInvalidField(registerEmail);
+      setFieldError(registerEmailError, 'Зөв имэйл хаяг оруулна уу');
+      highlightInvalidField(registerEmail, registerEmailError);
+      return;
+    }
+    if(!p){
+      setFieldError(registerPasswordError, 'Нууц үгээ оруулна уу');
+      highlightInvalidField(registerPassword, registerPasswordError);
       return;
     }
     if(p.length < 6){
-      setRegisterError('Нууц үг дор хаяж 6 тэмдэгт байх ёстой');
-      highlightInvalidField(registerPassword);
+      setFieldError(registerPasswordError, 'Нууц үг дор хаяж 6 тэмдэгт байх ёстой');
+      highlightInvalidField(registerPassword, registerPasswordError);
+      return;
+    }
+    if(!p2){
+      setFieldError(registerPassword2Error, 'Нууц үгээ давтан оруулна уу');
+      highlightInvalidField(registerPassword2, registerPassword2Error);
       return;
     }
     if(p !== p2){
-      setRegisterError('Нууц үг таарахгүй байна');
-      highlightInvalidField(registerPassword2);
+      setFieldError(registerPassword2Error, 'Нууц үг таарахгүй байна');
+      highlightInvalidField(registerPassword2, registerPassword2Error);
       return;
     }
-    registerError.style.display = 'none';
     registerBtn.disabled = true;
     registerBtn.textContent = 'Түр хүлээнэ үү...';
     firebase.auth().createUserWithEmailAndPassword(email, p)
@@ -1972,12 +2039,16 @@
       .catch(function(err){
         registerBtn.disabled = false;
         registerBtn.textContent = 'Бүртгүүлэх';
-        setRegisterError(firebaseErrorMessage(err));
         var code = err && err.code;
+        var msg = firebaseErrorMessage(err);
         if(code === 'auth/email-already-in-use' || code === 'auth/invalid-email'){
-          highlightInvalidField(registerEmail);
+          setFieldError(registerEmailError, msg);
+          highlightInvalidField(registerEmail, registerEmailError);
         } else if(code === 'auth/weak-password'){
-          highlightInvalidField(registerPassword);
+          setFieldError(registerPasswordError, msg);
+          highlightInvalidField(registerPassword, registerPasswordError);
+        } else {
+          setRegisterError(msg);
         }
       });
   }
