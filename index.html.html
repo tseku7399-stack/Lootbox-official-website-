@@ -6,6 +6,9 @@
 <title>LootBox — Дашбоард</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://apis.google.com">
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -852,6 +855,7 @@
     transition:opacity .15s ease;
   }
   .google-btn:hover{ opacity:0.9; }
+  .google-btn:disabled{ opacity:0.55; cursor:not-allowed; }
   .google-btn svg{ width:18px; height:18px; flex-shrink:0; }
   .auth-divider{
     display:flex; align-items:center; gap:10px; margin:0 0 18px;
@@ -1257,7 +1261,7 @@
     <div class="all-games-grid">
       <div class="offer-card" data-game="PUBG Mobile">
         <div class="offer-cover a">
-          <img class="full-img" src="https://www.pubgmobile.com/common/images/icon_logo.jpg" alt="PUBG Mobile">
+          <img class="full-img" src="https://www.pubgmobile.com/common/images/icon_logo.jpg" alt="PUBG Mobile" loading="lazy" decoding="async">
         </div>
         <div class="offer-body">
           <div class="title">PUBG Mobile</div>
@@ -1266,7 +1270,7 @@
 </div>
       <div class="offer-card" data-game="MLBB" data-display-name="Mobile Legends">
         <div class="offer-cover c">
-          <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
+          <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB" loading="lazy" decoding="async">
         </div>
         <div class="offer-body">
           <div class="title">MLBB</div>
@@ -1275,7 +1279,7 @@
 </div>
       <div class="offer-card" data-game="Standoff 2">
         <div class="offer-cover d">
-          <img class="full-img" src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2">
+          <img class="full-img" src="https://downloadr2.apkmirror.com/wp-content/uploads/2025/10/55/6900b17c046c1_com.axlebolt.standoff2.png" alt="Standoff 2" loading="lazy" decoding="async">
         </div>
         <div class="offer-body">
           <div class="title">Standoff 2</div>
@@ -1284,7 +1288,7 @@
 </div>
       <div class="offer-card" data-game="Roblox">
         <div class="offer-cover e">
-          <img class="full-img" src="https://img.samsungapps.com/productNew/000008248552/ENG/IconImage_20260827194225217_NEW_WAP_ICON_512_512.png" alt="Roblox">
+          <img class="full-img" src="https://img.samsungapps.com/productNew/000008248552/ENG/IconImage_20260827194225217_NEW_WAP_ICON_512_512.png" alt="Roblox" loading="lazy" decoding="async">
         </div>
         <div class="offer-body">
           <div class="title">Roblox</div>
@@ -2103,7 +2107,16 @@
   });
 
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
+  // googleAuthInProgress хамгаалалт: попап нээгдэж байх зуур товчийг дахин
+  // дарахад Firebase "auth/cancelled-popup-request" алдаа шиднэ (хуучин
+  // хүсэлт цуцлагдана). Товчийг түр идэвхгүй болгосноор энэ алдаа гарахгүй
+  // бөгөөд хэрэглэгчид ачаалж буйг нь мэдэгдэнэ (илүү хурдан мэт мэдрэгдэнэ).
+  var googleAuthInProgress = false;
   function doGoogleAuth(){
+    if(googleAuthInProgress) return;
+    googleAuthInProgress = true;
+    if(googleLoginBtn) googleLoginBtn.disabled = true;
+    if(googleRegisterBtn) googleRegisterBtn.disabled = true;
     var provider = new firebase.auth.GoogleAuthProvider();
     // Имэйл хаягийг Google-ээс баталгаатай авахын тулд шаардлагатай scope-уудыг тодорхой хүснэ.
     provider.addScope('email');
@@ -2120,6 +2133,11 @@
         } else {
           setLoginError(msg);
         }
+      })
+      .finally(function(){
+        googleAuthInProgress = false;
+        if(googleLoginBtn) googleLoginBtn.disabled = false;
+        if(googleRegisterBtn) googleRegisterBtn.disabled = false;
       });
   }
   if(googleLoginBtn) googleLoginBtn.addEventListener('click', doGoogleAuth);
