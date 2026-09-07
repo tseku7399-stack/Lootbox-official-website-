@@ -1610,16 +1610,18 @@
     currentUser.username = record.displayName;
     currentUser.avatarText = getInitials(record.displayName);
     currentUser.avatarImg = record.avatarImg || null;
-    // Локал бичлэг дэх имэйл хоосон/хуучирсан байж болзошгүй тул Firebase-ийн
-    // бодит нэвтэрсэн хэрэглэгчийн имэйлийг нөөц эх сурвалж болгон ашиглана.
+    // Firebase-ийн бодит нэвтэрсэн хэрэглэгчийн имэйлийг үнэн зөв эх сурвалж
+    // болгож, локал бичлэг дэх (хуучирсан/дутуу байж болзошгүй) имэйлээс
+    // ЯМАГТ илүү дээгүүр тавина. Ингэснээр Google-ээр нэвтрэх/бүртгүүлэх
+    // үед ч тухайн жинхэнэ gmail хаяг профайлд яг зөв харагдана.
     var liveEmail = '';
     try{
       liveEmail = (firebase.auth().currentUser && firebase.auth().currentUser.email) || '';
     }catch(e){}
-    currentUser.email = record.email || liveEmail || '';
-    // Хэрэв локал бичлэгт имэйл дутуу байсан бол Firebase-с ирсэн жинхэнэ
-    // имэйлээр нэн даруй сэргээж, дараагийн удаа дахин алдахгүй байхаар хадгална.
-    if(!record.email && liveEmail && key){
+    currentUser.email = liveEmail || record.email || '';
+    // Локал бичлэг Firebase-ийн бодит имэйлтэй зөрж байвал (хоосон эсвэл
+    // өөр байвал) нэн даруй сэргээж, дараагийн удаа дахин алдахгүй байхаар хадгална.
+    if(liveEmail && record.email !== liveEmail && key){
       var usersToFix = loadUsers();
       if(usersToFix[key]){
         usersToFix[key].email = liveEmail;
