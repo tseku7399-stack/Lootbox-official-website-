@@ -2355,7 +2355,7 @@
   });
 
   var avatarUploadError = document.getElementById('avatarUploadError');
-  var AVATAR_MAX_BYTES = 3 * 1024 * 1024; // 3MB (сонгож болох файлын дээд хэмжээ)
+  var AVATAR_MAX_BYTES = 100 * 1024 * 1024; // 100MB (сонгож болох файлын дээд хэмжээ; хадгалахын өмнө 256px болгож шахдаг тул эх файл том байсан ч болно)
 
   // Профайлын зургийг localStorage-д хадгалахаас өмнө жижигрүүлж, JPEG болгон
   // шахна. localStorage-ийн нийт хэмжээ ихэвчлэн 5-10MB байдаг тул камерын
@@ -2398,7 +2398,7 @@
       return;
     }
     if(file.size > AVATAR_MAX_BYTES){
-      if(avatarUploadError) setFieldError(avatarUploadError, 'Зургийн хэмжээ 3MB-с хэтэрсэн байна. Жижиг зураг сонгоно уу');
+      if(avatarUploadError) setFieldError(avatarUploadError, 'Зургийн хэмжээ 100MB-с хэтэрсэн байна. Жижиг зураг сонгоно уу');
       avatarFileInput.value = '';
       return;
     }
