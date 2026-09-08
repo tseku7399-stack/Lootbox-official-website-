@@ -962,19 +962,30 @@
     width:100%; max-width:360px;
     display:flex; flex-direction:column; align-items:flex-end; gap:10px;
   }
+  @keyframes entrancePopupPop{
+    from{ transform:scale(0.85); opacity:0; }
+    to{ transform:scale(1); opacity:1; }
+  }
   .entrance-popup{
     position:relative; width:100%;
-    border-radius:22px; overflow:hidden;
+    border-radius:40px; overflow:hidden;
     box-shadow:0 30px 80px -20px rgba(0,0,0,0.8);
     background:var(--bg-panel-2);
+    border:1px solid rgba(255,255,255,0.1);
+    animation:entrancePopupPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
   }
   .entrance-popup img{ width:100%; display:block; }
   .entrance-popup-close{
-    width:34px; height:34px; border-radius:50%;
-    background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.25);
+    width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
     display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;
     -webkit-tap-highlight-color:transparent; flex-shrink:0;
+    transition:background .15s ease, transform .12s ease;
   }
+  .entrance-popup-close:hover{ background:rgba(255,255,255,0.2); }
+  .entrance-popup-close:active{ transform:scale(0.75); }
   .entrance-popup-close svg{ width:16px; height:16px; stroke:#fff; }
 </style>
 </head>
