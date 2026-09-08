@@ -67,6 +67,41 @@
       var(--bg-void);
   }
   body.theme-light .blinds{ opacity:0.35; }
+
+  /* Неон (тоглоомын) загвар — Тохиргоо цэснээс сонгогдоход body дээр нэмэгдэнэ.
+     :root-тэй яг ижил хувьсагчийн жагсаалтыг бүрэн бүрхэж, --text-hi/--text-lo зэрэг
+     текстийн өнгийг хэвээр (цайвар) үлдээснээр дэвсгэр хэдий чинээ бараан ч
+     текст/дүрс огт харагдахгүй болох эрсдэлгүй. */
+  body.theme-neon{
+    --bg-void:#0a0a14;
+    --bg-panel:#0d0d1a;
+    --bg-panel-2:#12121f;
+    --bg-elevated:#181828;
+    --line:rgba(124,58,237,0.18);
+    --line-strong:rgba(124,58,237,0.30);
+    --gold-100:#e3f6fb;
+    --gold-300:#7c3aed;
+    --gold-500:#4178e0;
+    --gold-700:#06b6d4;
+    --gold-900:#0a4a57;
+    --text-hi:#f5f5f7;
+    --text-lo:#9a9aa2;
+    --text-faint:#65656b;
+    --red:#ff5d5d;
+    --dot-idle:rgba(255,255,255,0.35);
+    --hover-tint:rgba(124,58,237,0.08);
+    --hover-tint-strong:rgba(124,58,237,0.16);
+    --navbar-border:rgba(6,182,212,0.35);
+    --navbar-shadow:rgba(0,0,0,0.7);
+    --continue-shadow-1:rgba(0,0,0,0.35);
+    --continue-shadow-2:rgba(0,0,0,0.1);
+  }
+  body.theme-neon{
+    background:
+      radial-gradient(65% 50% at 12% -5%, rgba(124,58,237,0.22), transparent 60%),
+      radial-gradient(55% 45% at 90% 105%, rgba(6,182,212,0.18), transparent 65%),
+      var(--bg-void);
+  }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{ scroll-behavior:auto; }
   html,body{height:100%;}
@@ -614,6 +649,7 @@
   }
   .theme-swatch.swatch-dark::before{ background:linear-gradient(160deg,#18181b 0%, #202024 55%, #2c1c78 130%); }
   .theme-swatch.swatch-light::before{ background:linear-gradient(160deg,#ffffff 0%, #f0f0f4 55%, #efe8ff 130%); }
+  .theme-swatch.swatch-neon::before{ background:linear-gradient(160deg,#0d0d1a 0%, #12121f 55%, #06b6d4 130%); }
   .theme-swatch .ts-dot{
     position:absolute; top:8px; right:8px; width:16px; height:16px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
@@ -1494,6 +1530,12 @@
           <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
         </div>
         <div class="theme-option-label">Цагаан өнгө</div>
+      </div>
+      <div class="theme-option" id="themeOptionNeon" data-theme="neon">
+        <div class="theme-swatch swatch-neon">
+          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        </div>
+        <div class="theme-option-label">Неон өнгө</div>
       </div>
     </div>
 
@@ -3281,6 +3323,7 @@
     var closeBtn = document.getElementById('settingsModalClose');
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
+    var optionNeon = document.getElementById('themeOptionNeon');
     if(!overlay) return;
 
     function closeSettings(){ overlay.classList.remove('open'); }
@@ -3291,17 +3334,20 @@
     });
 
     function applyTheme(theme){
+      document.body.classList.remove('theme-light', 'theme-neon');
       if(theme === 'light'){
         document.body.classList.add('theme-light');
-      } else {
-        document.body.classList.remove('theme-light');
+      } else if(theme === 'neon'){
+        document.body.classList.add('theme-neon');
       }
       optionDark.classList.toggle('active', theme === 'dark');
       optionLight.classList.toggle('active', theme === 'light');
+      if(optionNeon) optionNeon.classList.toggle('active', theme === 'neon');
     }
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
+    if(optionNeon) optionNeon.addEventListener('click', function(){ applyTheme('neon'); });
   })();
 </script>
 
