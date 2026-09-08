@@ -2355,7 +2355,37 @@
   });
 
   var avatarUploadError = document.getElementById('avatarUploadError');
-  var AVATAR_MAX_BYTES = 3 * 1024 * 1024; // 3MB
+  var AVATAR_MAX_BYTES = 3 * 1024 * 1024; // 3MB (сонгож болох файлын дээд хэмжээ)
+
+  // Профайлын зургийг localStorage-д хадгалахаас өмнө жижигрүүлж, JPEG болгон
+  // шахна. localStorage-ийн нийт хэмжээ ихэвчлэн 5-10MB байдаг тул камерын
+  // 2-3MB-тай анхны зургийг шахалтгүйгээр шууд хадгалахыг оролдвол хэмжээ
+  // амархан хэтэрч, "Хадгалж чадсангүй" алдаа гардаг байсан. Одоо хамгийн ихдээ
+  // 256px, JPEG 85% чанартайгаар хадгалснаар зураг ихэвчлэн ердөө хэдхэн
+  // арван KB болж, энэ алдаа бараг гарахгүй болно.
+  var AVATAR_MAX_DIM = 256;
+  function resizeAvatarDataUrl(sourceDataUrl, onDone, onFail){
+    var img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if(!w || !h){ onFail(); return; }
+      var scale = Math.min(1, AVATAR_MAX_DIM / Math.max(w, h));
+      var outW = Math.max(1, Math.round(w * scale));
+      var outH = Math.max(1, Math.round(h * scale));
+      try{
+        var canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, outW, outH);
+        onDone(canvas.toDataURL('image/jpeg', 0.85));
+      }catch(e){
+        onFail();
+      }
+    };
+    img.onerror = onFail;
+    img.src = sourceDataUrl;
+  }
 
   avatarFileInput.addEventListener('change', function(){
     if(!currentUser.loggedIn) return;
@@ -2374,14 +2404,22 @@
     }
     var reader = new FileReader();
     reader.onload = function(e){
-      pendingAvatarImg = e.target.result;
-      renderProfilePreview();
+      resizeAvatarDataUrl(e.target.result, function(smallDataUrl){
+        pendingAvatarImg = smallDataUrl;
+        renderProfilePreview();
+        avatarFileInput.value = '';
+      }, function(){
+        if(avatarUploadError) setFieldError(avatarUploadError, 'Зургийг уншиж чадсангүй. Дахин оролдоно уу');
+        avatarFileInput.value = '';
+      });
     };
     reader.onerror = function(){
       if(avatarUploadError) setFieldError(avatarUploadError, 'Зургийг уншиж чадсангүй. Дахин оролдоно уу');
+      avatarFileInput.value = '';
     };
     reader.readAsDataURL(file);
   });
+
 
   profileUsernameInput.addEventListener('input', function(){
     if(!currentUser.loggedIn) return;
