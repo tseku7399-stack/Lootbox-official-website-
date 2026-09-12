@@ -1027,6 +1027,19 @@
 </head>
 <body>
 
+<script>
+  // Хадгалсан тохиргоог (theme) хуудас бүрэн ачаалахаас өмнө аль болох эрт
+  // хэрэглэж, refresh хийхэд өмнөх сонголт руу шууд орж, "хэвэндээ" (dark)
+  // рүү нэг агшин ч эргэж харагдахгүй байхаар хийнэ.
+  (function applySavedThemeEarly(){
+    try{
+      var saved = JSON.parse(localStorage.getItem('lootbox_settings')) || {};
+      if(saved.theme === 'light'){ document.body.classList.add('theme-light'); }
+      else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
+    }catch(e){}
+  })();
+</script>
+
 <div class="blinds"></div>
 
 <div class="entrance-popup-overlay" id="entrancePopupOverlay">
@@ -3317,14 +3330,32 @@
     }
   })();
 
-  // ---- Тохиргоо (Settings) modal: загвар (theme) солих ----
+  // ---- Тохиргоо (Settings) modal: загвар (theme) болон switch-үүдийг
+  // localStorage-д хадгалж, refresh хийсний дараа ч сонгосон хэвээрээ
+  // байлгана (өмнө нь хадгалдаггүй байснаас болж "хэвэндээ" (dark, бүх
+  // switch асаалттай) орж байсан) ----
   (function initSettingsModal(){
     var overlay = document.getElementById('settingsModalOverlay');
     var closeBtn = document.getElementById('settingsModalClose');
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
     var optionNeon = document.getElementById('themeOptionNeon');
+    var toggleNotif = document.getElementById('toggleNotif');
+    var toggleSound = document.getElementById('toggleSound');
+    var toggleAutoplay = document.getElementById('toggleAutoplay');
+    var SETTINGS_KEY = 'lootbox_settings';
     if(!overlay) return;
+
+    function loadSettings(){
+      try{
+        return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {};
+      }catch(e){ return {}; }
+    }
+    function saveSettings(patch){
+      var current = loadSettings();
+      for(var k in patch){ current[k] = patch[k]; }
+      try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(current)); }catch(e){}
+    }
 
     function closeSettings(){ overlay.classList.remove('open'); }
 
@@ -3333,7 +3364,7 @@
       if(e.target === overlay) closeSettings();
     });
 
-    function applyTheme(theme){
+    function applyTheme(theme, skipSave){
       document.body.classList.remove('theme-light', 'theme-neon');
       if(theme === 'light'){
         document.body.classList.add('theme-light');
@@ -3343,11 +3374,35 @@
       optionDark.classList.toggle('active', theme === 'dark');
       optionLight.classList.toggle('active', theme === 'light');
       if(optionNeon) optionNeon.classList.toggle('active', theme === 'neon');
+      if(!skipSave) saveSettings({ theme: theme });
     }
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
     if(optionNeon) optionNeon.addEventListener('click', function(){ applyTheme('neon'); });
+
+    if(toggleNotif){
+      toggleNotif.addEventListener('change', function(){
+        saveSettings({ notif: toggleNotif.checked });
+      });
+    }
+    if(toggleSound){
+      toggleSound.addEventListener('change', function(){
+        saveSettings({ sound: toggleSound.checked });
+      });
+    }
+    if(toggleAutoplay){
+      toggleAutoplay.addEventListener('change', function(){
+        saveSettings({ autoplay: toggleAutoplay.checked });
+      });
+    }
+
+    // ---- Хуудас ачаалагдмагц хадгалагдсан тохиргоог сэргээнэ ----
+    var saved = loadSettings();
+    applyTheme(saved.theme || 'dark', true);
+    if(toggleNotif) toggleNotif.checked = (saved.notif !== undefined) ? saved.notif : true;
+    if(toggleSound) toggleSound.checked = (saved.sound !== undefined) ? saved.sound : true;
+    if(toggleAutoplay) toggleAutoplay.checked = (saved.autoplay !== undefined) ? saved.autoplay : true;
   })();
 </script>
 
