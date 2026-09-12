@@ -2668,7 +2668,17 @@
     return Math.abs(hash);
   }
 
+  // Тодорхой ID-д зориулсан тогтмол (санамсаргүй бус) хариу — жишээ нь
+  // PUBG Mobile-ийн 51561693567 ID-г шалгахад үргэлж яг энэ нэр гарна.
+  var SPECIAL_ACCOUNTS = {
+    'PUBG Mobile': {
+      '51561693567': { name: 'ツDARK・MAX๛', level: 99 }
+    }
+  };
+
   function generateMockAccount(game, idValue){
+    var special = SPECIAL_ACCOUNTS[game] && SPECIAL_ACCOUNTS[game][idValue];
+    if(special) return special;
     var pool = GAME_NAME_POOLS[game];
     var seed = hashSeed((game || '') + ':' + idValue);
     var name = pool ? pool[seed % pool.length] : ('Player_' + idValue.slice(-4));
