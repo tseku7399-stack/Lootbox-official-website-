@@ -103,8 +103,8 @@
       var(--bg-void);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{ scroll-behavior:auto; }
-  html,body{height:100%;}
+  html{ scroll-behavior:auto; overflow-x:hidden; overscroll-behavior-x:none; }
+  html,body{height:100%; max-width:100%;}
   body{
     font-family:'Inter',sans-serif;
     color:var(--text-hi);
@@ -119,6 +119,7 @@
       radial-gradient(55% 45% at 90% 105%, rgba(150,38,38,0.20), transparent 65%),
       var(--bg-void);
     overflow-x:hidden;
+    overscroll-behavior-x:none;
     position:relative;
   }
   .blinds{
@@ -456,9 +457,10 @@
     position:sticky; top:0; z-index:40;
     margin:-22px -18px 18px; padding:16px 18px 14px;
     background:var(--bg-panel);
-    border-radius:36px 36px 0 0;
+    border-radius:0;
     border-bottom:1px solid var(--line);
   }
+  .games-page-head.at-top{ border-radius:36px 36px 0 0; }
   .back-btn{
     width:38px; height:38px; border-radius:12px; background:var(--bg-elevated);
     border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
@@ -3251,6 +3253,21 @@
     setPosition(false);
     updateDots();
     restartAutoTimer();
+  })();
+
+  // ---- games-page-head (буцах товч+гарчиг): зөвхөн хуудасны хамгийн дээд
+  // цэгт (scroll=0) байхад л дугуй булантай (app-ын хүрээтэй тохирно),
+  // доош гүйсэн даруйд шулуун ирмэгтэй болгож, доор гүйж буй тоглоомын
+  // зургууд булангийн "цооронхоор" харагдахаас сэргийлнэ ----
+  (function initGamesPageHeadStick(){
+    var heads = document.querySelectorAll('.games-page-head');
+    if(!heads.length) return;
+    function syncTop(){
+      var atTop = (window.scrollY || window.pageYOffset || 0) <= 0;
+      heads.forEach(function(el){ el.classList.toggle('at-top', atTop); });
+    }
+    window.addEventListener('scroll', syncTop, {passive:true});
+    syncTop();
   })();
 
   // ---- Hamburger цэс (side drawer): гурван зураас X болж хувирна, зүүнээс гулсаж гарна ----
