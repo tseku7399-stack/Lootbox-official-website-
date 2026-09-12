@@ -3269,18 +3269,37 @@
     restartAutoTimer();
   })();
 
-  // ---- games-page-head (буцах товч+гарчиг): зөвхөн хуудасны хамгийн дээд
-  // цэгт (scroll=0) байхад л дугуй булантай (app-ын хүрээтэй тохирно),
+  // ---- games-page-head (буцах товч+гарчиг) болон navbar: зөвхөн хуудасны
+  // хамгийн дээд цэгт байхад л дугуй булантай (app-ын хүрээтэй тохирно),
   // доош гүйсэн даруйд шулуун ирмэгтэй болгож, доор гүйж буй тоглоомын
-  // зургууд булангийн "цооронхоор" харагдахаас сэргийлнэ ----
+  // зургууд/багц карт булангийн "цооронхоор" харагдахаас сэргийлнэ.
+  //
+  // Анхаарах зүйл: body{height:100%} + доторх .app контентын өндөр
+  // viewport-оос их байх үед зарим тохиолдолд (жишээ нь Цэнэглэх хуудас
+  // дээр өргөн жагсаалттай үед) хуудас өөрөө биш харин <body> элемент
+  // дотооддоо scroll хийдэг (body.scrollTop өөрчлөгддөг), харин
+  // window.scrollY 0 хэвээрээ үлддэг. Зөвхөн window.scrollY-г шалгавал
+  // энэ тохиолдолд at-top класс хэзээ ч арилахгүй, улмаар sticky толгойн
+  // дугуй булангаар доор гүйж буй ягаан өнгийн контент "цооронхоор"
+  // харагддаг байсан тул доор бүх боломжит scroll эх үүсвэрийг шалгаж,
+  // scroll listener-ийг document дээр capture горимоор сонсдог болгов
+  // (capture нь bubble хийдэггүй scroll event-ийг ч барьж авна).
   (function initGamesPageHeadStick(){
     var heads = document.querySelectorAll('.games-page-head, .navbar');
     if(!heads.length) return;
+    function currentScrollTop(){
+      return Math.max(
+        window.scrollY || window.pageYOffset || 0,
+        (document.documentElement && document.documentElement.scrollTop) || 0,
+        (document.body && document.body.scrollTop) || 0
+      );
+    }
     function syncTop(){
-      var atTop = (window.scrollY || window.pageYOffset || 0) <= 0;
+      var atTop = currentScrollTop() <= 0;
       heads.forEach(function(el){ el.classList.toggle('at-top', atTop); });
     }
     window.addEventListener('scroll', syncTop, {passive:true});
+    document.addEventListener('scroll', syncTop, {passive:true, capture:true});
     syncTop();
   })();
 
