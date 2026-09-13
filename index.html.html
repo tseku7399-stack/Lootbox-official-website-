@@ -1622,7 +1622,9 @@
     messagingSenderId: "354129416005",
     appId: "1:354129416005:web:4afd095a83d3cc7a5cf82c"
   };
-  firebase.initializeApp(firebaseConfig);
+  try{
+    firebase.initializeApp(firebaseConfig);
+  }catch(e){}
 </script>
 
 <script>
@@ -3480,4 +3482,3 @@
 
 </body>
 </html>
-
