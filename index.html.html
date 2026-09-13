@@ -10,7 +10,6 @@
 <link rel="preconnect" href="https://apis.google.com">
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root{
     --bg-void:#25262f;
@@ -1111,7 +1110,10 @@
           <div class="password-wrap">
             <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах">
             <button type="button" class="password-toggle-btn" id="loginPasswordToggle" aria-label="Нууц үг харуулах/нуух">
-              <i class="fa-solid fa-eye-slash" id="loginPasswordIcon" style="font-size:15px;color:rgba(255,255,255,0.4);"></i>
+              <span class="password-eye">
+                <svg class="icon-open" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-closed" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.7 19.7 0 0 1 4.22-5.19M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a19.65 19.65 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+              </span>
             </button>
           </div>
           <div class="field-error" id="loginPasswordError"></div>
@@ -1855,21 +1857,7 @@
       try{ input.setSelectionRange(pos, pos); }catch(e){}
     });
   }
-  (function(){
-    var btn = document.getElementById('loginPasswordToggle');
-    var input = document.getElementById('loginPassword');
-    var icon = document.getElementById('loginPasswordIcon');
-    if(!btn || !input || !icon) return;
-    btn.addEventListener('mousedown', function(e){ e.preventDefault(); });
-    btn.addEventListener('touchstart', function(e){ e.preventDefault(); }, { passive:false });
-    btn.addEventListener('click', function(){
-      input.type = input.type === 'password' ? 'text' : 'password';
-      icon.className = input.type === 'password' ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
-      input.focus();
-      var pos = input.value.length;
-      try{ input.setSelectionRange(pos, pos); }catch(e){}
-    });
-  })();
+  setupPasswordToggle('loginPasswordToggle', 'loginPassword');
   setupPasswordToggle('registerPasswordToggle', 'registerPassword');
   setupPasswordToggle('registerPassword2Toggle', 'registerPassword2');
 
@@ -3492,3 +3480,4 @@
 
 </body>
 </html>
+
