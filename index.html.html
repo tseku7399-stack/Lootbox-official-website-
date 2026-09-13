@@ -885,6 +885,16 @@
     border:1px solid rgba(126,93,232,0.30); border-radius:14px; padding:11px 14px;
     margin-bottom:14px; text-align:center; line-height:1.5;
   }
+  #verifyPanel .forgot-link{ text-align:center; margin:14px 0 0; }
+  #verifyPanel .forgot-link.disabled-link{ color:var(--text-faint); pointer-events:none; cursor:default; }
+  .otp-row{ display:flex; gap:8px; margin-bottom:16px; }
+  .otp-row input{
+    width:100%; aspect-ratio:1; text-align:center; background:var(--bg-elevated);
+    border:1px solid var(--line); border-radius:14px; color:var(--text-hi);
+    font-size:20px; font-weight:700; font-family:'Inter',sans-serif; outline:0;
+    box-sizing:border-box;
+  }
+  .otp-row input:focus{ border-color:var(--gold-300); }
 
   .google-btn{
     width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
@@ -1137,6 +1147,24 @@
         <div class="forgot-sent" id="forgotSent">Сэргээх линк илгээгдлээ ✓ Имэйлээ шалгана уу.</div>
         <button class="login-btn" id="forgotBtn">Сэргээх линк илгээх</button>
         <a class="forgot-link" id="backToLoginLink">← Нэвтрэх хэсэг рүү буцах</a>
+      </div>
+
+      <!-- Имэйл баталгаажуулах хэсэг (бүртгүүлэхээс өмнө) -->
+      <div id="verifyPanel" style="display:none;">
+        <div class="login-sub" id="verifySub">Имэйл хаяг руу илгээсэн 6 оронтой кодыг оруулна уу</div>
+        <div class="otp-row" id="otpRow">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="0">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="1">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="2">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="3">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="4">
+          <input type="text" inputmode="numeric" maxlength="1" data-idx="5">
+        </div>
+        <div class="login-error" id="verifyError"></div>
+        <div class="forgot-sent" id="verifySent">Шинэ код илгээгдлээ ✓</div>
+        <button class="login-btn" id="verifyBtn">Баталгаажуулах</button>
+        <a class="forgot-link" id="resendCodeLink">Код дахин илгээх</a>
+        <a class="forgot-link" id="backToRegisterLink">← Буцаж мэдээллээ засах</a>
       </div>
     </div>
   </div>
@@ -1788,6 +1816,18 @@
   var registerPassword2Error = document.getElementById('registerPassword2Error');
   var registerError = document.getElementById('registerError');
   var registerBtn = document.getElementById('registerBtn');
+  var verifyPanel = document.getElementById('verifyPanel');
+  var verifySub = document.getElementById('verifySub');
+  var otpRow = document.getElementById('otpRow');
+  var otpInputs = Array.prototype.slice.call(otpRow.querySelectorAll('input'));
+  var verifyError = document.getElementById('verifyError');
+  var verifySent = document.getElementById('verifySent');
+  var verifyBtn = document.getElementById('verifyBtn');
+  var resendCodeLink = document.getElementById('resendCodeLink');
+  var backToRegisterLink = document.getElementById('backToRegisterLink');
+  var pendingRegistration = null; // {username, email, password} — код баталгаажих хүртэл түр хадгална
+  var resendCooldownTimer = null;
+
   var forgotInput = document.getElementById('forgotInput');
   var forgotError = document.getElementById('forgotError');
   var forgotSent = document.getElementById('forgotSent');
@@ -1821,10 +1861,11 @@
     loginPanel.style.display = which === 'login' ? 'block' : 'none';
     registerPanel.style.display = which === 'register' ? 'block' : 'none';
     forgotPanel.style.display = which === 'forgot' ? 'block' : 'none';
+    verifyPanel.style.display = which === 'verify' ? 'block' : 'none';
     tabLogin.classList.toggle('active', which === 'login');
     tabRegister.classList.toggle('active', which === 'register');
     var tabsRow = tabLogin.parentElement;
-    tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
+    tabsRow.style.display = (which === 'forgot' || which === 'verify') ? 'none' : 'flex';
   }
 
   function openLogin(returnTo){
@@ -1849,6 +1890,11 @@
     forgotInput.value = '';
     forgotError.style.display = 'none';
     forgotSent.style.display = 'none';
+    pendingRegistration = null;
+    clearInterval(resendCooldownTimer);
+    otpInputs.forEach(function(i){ i.value = ''; });
+    verifyError.style.display = 'none';
+    verifySent.style.display = 'none';
     showAuthPanel('login');
     loginView.style.display = 'block';
   }
@@ -2045,7 +2091,63 @@
       return;
     }
     registerBtn.disabled = true;
-    registerBtn.textContent = 'Түр хүлээнэ үү...';
+    registerBtn.textContent = 'Шалгаж байна...';
+
+    // Кодыг дэмий илгээхгүйн тулд эхлээд имэйл өмнө нь бүртгэлтэй эсэхийг
+    // Firebase-с шалгана. Зөвхөн чөлөөтэй имэйл дээр л баталгаажуулах код илгээнэ.
+    firebase.auth().fetchSignInMethodsForEmail(email)
+      .then(function(methods){
+        if(methods && methods.length > 0){
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Бүртгүүлэх';
+          setFieldError(registerEmailError, 'Энэ имэйл хаягаар өмнө нь бүртгүүлсэн байна');
+          highlightInvalidField(registerEmail, registerEmailError);
+          return;
+        }
+        return requestVerificationCode(email).then(function(){
+          pendingRegistration = { username: u, email: email, password: p };
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Бүртгүүлэх';
+          otpInputs.forEach(function(i){ i.value = ''; });
+          verifyError.style.display = 'none';
+          verifySent.style.display = 'none';
+          verifySub.textContent = email + ' хаяг руу илгээсэн 6 оронтой кодыг оруулна уу';
+          showAuthPanel('verify');
+          startResendCooldown(60);
+          otpInputs[0].focus();
+        }).catch(function(err){
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Бүртгүүлэх';
+          setRegisterError(err.message || 'Код илгээхэд алдаа гарлаа. Дахин оролдоно уу.');
+        });
+      })
+      .catch(function(err){
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Бүртгүүлэх';
+        setRegisterError(firebaseErrorMessage(err));
+      });
+  }
+
+  // ---- /api/send-code рүү хүсэлт илгээж, 6 оронтой кодыг имэйлээр явуулна ----
+  function requestVerificationCode(email){
+    return fetch('/api/send-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        if(!res.ok){ throw new Error(data.error || 'Код илгээхэд алдаа гарлаа'); }
+        return data;
+      });
+    });
+  }
+
+  // ---- Код зөв гэдгийг сервер баталгаажуулсны дараа Firebase дээр бодит бүртгэл үүсгэнэ ----
+  function finishRegisterAfterVerification(){
+    var u = pendingRegistration.username;
+    var email = pendingRegistration.email;
+    var p = pendingRegistration.password;
+
     firebase.auth().createUserWithEmailAndPassword(email, p)
       .then(function(cred){
         return cred.user.updateProfile({ displayName: u }).then(function(){ return cred.user; });
@@ -2059,8 +2161,9 @@
         // гарган, хэрэглэгчийг Нэвтрэх хэсэг рүү шилжүүлж, өөрөө имэйл/нууц үгээ
         // дахин оруулж нэвтрэхийг шаардана.
         return firebase.auth().signOut().catch(function(){}).then(function(){
-          registerBtn.disabled = false;
-          registerBtn.textContent = 'Бүртгүүлэх';
+          pendingRegistration = null;
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = 'Баталгаажуулах';
           registerUsername.value = '';
           registerEmail.value = '';
           registerPassword.value = '';
@@ -2074,21 +2177,123 @@
         });
       })
       .catch(function(err){
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Бүртгүүлэх';
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Баталгаажуулах';
         var code = err && err.code;
         var msg = firebaseErrorMessage(err);
         if(code === 'auth/email-already-in-use' || code === 'auth/invalid-email'){
+          // Маш ховор тохиолдол (жишээ нь өөр цонхоор зэрэг бүртгүүлсэн): register хэсэг рүү буцаана
+          pendingRegistration = null;
+          showAuthPanel('register');
           setFieldError(registerEmailError, msg);
           highlightInvalidField(registerEmail, registerEmailError);
         } else if(code === 'auth/weak-password'){
+          pendingRegistration = null;
+          showAuthPanel('register');
           setFieldError(registerPasswordError, msg);
           highlightInvalidField(registerPassword, registerPasswordError);
         } else {
-          setRegisterError(msg);
+          verifyError.textContent = msg;
+          verifyError.style.display = 'block';
         }
       });
   }
+
+  // ---- Оруулсан 6 оронтой кодыг /api/verify-code рүү илгээж шалгана ----
+  function doVerifyCode(){
+    if(!pendingRegistration) return;
+    var code = otpInputs.map(function(i){ return i.value; }).join('');
+    verifyError.style.display = 'none';
+    if(code.length !== 6){
+      verifyError.textContent = '6 оронтой кодоо бүтнээр нь оруулна уу';
+      verifyError.style.display = 'block';
+      return;
+    }
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Шалгаж байна...';
+    fetch('/api/verify-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingRegistration.email, code: code })
+    })
+      .then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(data){
+          if(!res.ok){ throw new Error(data.error || 'Код буруу байна'); }
+          return data;
+        });
+      })
+      .then(function(){
+        finishRegisterAfterVerification();
+      })
+      .catch(function(err){
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Баталгаажуулах';
+        verifyError.textContent = err.message || 'Код буруу байна';
+        verifyError.style.display = 'block';
+        otpInputs.forEach(function(i){ i.value = ''; });
+        otpInputs[0].focus();
+      });
+  }
+
+  // ---- "Код дахин илгээх" линкийг 60 секундын турш идэвхгүй болгоно ----
+  function startResendCooldown(seconds){
+    var remaining = seconds;
+    resendCodeLink.classList.add('disabled-link');
+    resendCodeLink.textContent = 'Код дахин илгээх (' + remaining + ')';
+    clearInterval(resendCooldownTimer);
+    resendCooldownTimer = setInterval(function(){
+      remaining -= 1;
+      if(remaining <= 0){
+        clearInterval(resendCooldownTimer);
+        resendCodeLink.classList.remove('disabled-link');
+        resendCodeLink.textContent = 'Код дахин илгээх';
+      } else {
+        resendCodeLink.textContent = 'Код дахин илгээх (' + remaining + ')';
+      }
+    }, 1000);
+  }
+
+  function doResendCode(){
+    if(!pendingRegistration || resendCodeLink.classList.contains('disabled-link')) return;
+    verifyError.style.display = 'none';
+    verifySent.style.display = 'none';
+    requestVerificationCode(pendingRegistration.email)
+      .then(function(){
+        verifySent.style.display = 'block';
+        startResendCooldown(60);
+      })
+      .catch(function(err){
+        verifyError.textContent = err.message || 'Код илгээхэд алдаа гарлаа';
+        verifyError.style.display = 'block';
+      });
+  }
+
+  // ---- Кодны нүд бүрт: тоо оруулах үед дараагийн нүд рүү авто шилжих,
+  // Backspace дарахад өмнөх нүд рүү буцах, бүтэн кодыг paste хийхэд бүх нүдэнд тарааж бичих ----
+  otpInputs.forEach(function(input, idx){
+    input.addEventListener('input', function(){
+      input.value = input.value.replace(/[^0-9]/g, '').slice(0, 1);
+      if(input.value && idx < otpInputs.length - 1){
+        otpInputs[idx + 1].focus();
+      }
+    });
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Backspace' && !input.value && idx > 0){
+        otpInputs[idx - 1].focus();
+      }
+      if(e.key === 'Enter'){ doVerifyCode(); }
+    });
+    input.addEventListener('paste', function(e){
+      e.preventDefault();
+      var digits = ((e.clipboardData && e.clipboardData.getData('text')) || '').replace(/[^0-9]/g, '').split('');
+      digits.slice(0, 6).forEach(function(d, i){
+        if(otpInputs[i]) otpInputs[i].value = d;
+      });
+      var nextEmpty = -1;
+      otpInputs.forEach(function(i, idx2){ if(nextEmpty === -1 && !i.value) nextEmpty = idx2; });
+      (nextEmpty === -1 ? otpInputs[5] : otpInputs[nextEmpty]).focus();
+    });
+  });
 
   function doForgot(){
     var v = forgotInput.value.trim();
@@ -2131,6 +2336,13 @@
   registerBtn.addEventListener('click', doRegister);
   registerPassword2.addEventListener('keydown', function(e){
     if(e.key === 'Enter') doRegister();
+  });
+
+  verifyBtn.addEventListener('click', doVerifyCode);
+  resendCodeLink.addEventListener('click', doResendCode);
+  backToRegisterLink.addEventListener('click', function(){
+    clearInterval(resendCooldownTimer);
+    showAuthPanel('register');
   });
 
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
