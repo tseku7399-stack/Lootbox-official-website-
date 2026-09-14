@@ -1674,6 +1674,19 @@
     return '';
   }
 
+  // ---- Google-ээр анх удаа нэвтрэхэд Google-ийн (эсвэл имэйлээс гаргаж
+  // авсан) нэр өөр хэрэглэгчийн username-тэй давхцаж болзошгүй тул (жишээ
+  // нь ижил нэртэй хоёр өөр хүн Google-ээр нэвтрэх) username хаана ч
+  // давхцахгүй байхын тулд шаардлагатай бол "Нэр2", "Нэр3" гэх мэт
+  // дугаар залгаж цор ганц болгоно. ----
+  function makeUniqueUsername(baseName){
+    var base = (baseName || 'Хэрэглэгч').trim() || 'Хэрэглэгч';
+    if(!isUsernameTaken(base)) return base;
+    var n = 2;
+    while(isUsernameTaken(base + n)){ n++; }
+    return base + n;
+  }
+
   // ---- Firebase хэрэглэгчийг локал профайл (avatar/purchases г.м) руу тааруулж, currentUser-ийг шинэчлэх ----
   function getOrCreateLocalRecord(user, result){
     var users = loadUsers();
@@ -1681,8 +1694,9 @@
     var record = users[key];
     var bestEmail = pickEmail(user, result);
     if(!record){
+      var baseName = user.displayName || (bestEmail ? bestEmail.split('@')[0] : 'Хэрэглэгч');
       record = {
-        displayName: user.displayName || (bestEmail ? bestEmail.split('@')[0] : 'Хэрэглэгч'),
+        displayName: makeUniqueUsername(baseName),
         email: bestEmail || '',
         avatarImg: user.photoURL || null,
         provider: (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password',
@@ -2158,6 +2172,12 @@
     // Имэйл хаягийг Google-ээс баталгаатай авахын тулд шаардлагатай scope-уудыг тодорхой хүснэ.
     provider.addScope('email');
     provider.addScope('profile');
+    // prompt:'select_account' байхгүй бол хэрэглэгчийн броузерт аль хэдийн
+    // нэвтэрсэн Google сесс байвал Google account сонгох дэлгэц огт
+    // харуулахгүй, шууд тухайн сессийн бүртгэлээр нэвтрүүлдэг. Энэ
+    // custom parameter-ийг зааж өгснөөр товч дарах бүрд account chooser
+    // ЯМАГТ гарч, хэрэглэгч бүртгэлээ сонгох боломжтой болно.
+    provider.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(provider)
       .then(function(result){
         var kr = getOrCreateLocalRecord(result.user, result);
@@ -2481,14 +2501,24 @@
 
   profileUsernameInput.addEventListener('input', function(){
     if(!currentUser.loggedIn) return;
+    if(profileUsernameError) clearFieldError(profileUsernameError);
     if(!pendingAvatarImg) renderProfilePreview();
   });
 
   profileSaveBtn.addEventListener('click', function(){
     if(!currentUser.loggedIn) return;
+    if(profileUsernameError) clearFieldError(profileUsernameError);
     var newName = profileUsernameInput.value.trim();
     if(!newName){
       highlightInvalidField(profileUsernameInput);
+      return;
+    }
+    // ---- Өөр хэрэглэгчийн нэртэй давхцаж байгаа эсэхийг шалгах (өөрийн
+    // одоогийн бичлэгийг excludeKey-ээр орхигдуулна, ингэснээр хэрэглэгч
+    // өөрийн хуучин нэрээ өөрчлөлгүй дахин хадгалж болно) ----
+    if(isUsernameTaken(newName, currentUserKey)){
+      if(profileUsernameError) setFieldError(profileUsernameError, 'Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна');
+      highlightInvalidField(profileUsernameInput, profileUsernameError);
       return;
     }
     var prevUsername = currentUser.username;
