@@ -1596,6 +1596,14 @@
           <span class="ps-value" id="psGameName">—</span>
         </div>
         <div class="ps-row">
+          <span class="ps-label">Акаунт ID</span>
+          <span class="ps-value" id="psAccId">—</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Нэр</span>
+          <span class="ps-value" id="psAccName">—</span>
+        </div>
+        <div class="ps-row">
           <span class="ps-label">Багц</span>
           <span class="ps-value" id="psItemName">—</span>
         </div>
@@ -3205,6 +3213,8 @@
   var paymentFormView = document.getElementById('paymentFormView');
   var paymentSuccessView = document.getElementById('paymentSuccessView');
   var psGameName = document.getElementById('psGameName');
+  var psAccId = document.getElementById('psAccId');
+  var psAccName = document.getElementById('psAccName');
   var psItemName = document.getElementById('psItemName');
   var psAmount = document.getElementById('psAmount');
   var psDate = document.getElementById('psDate');
@@ -3342,7 +3352,16 @@
       var now = new Date();
       var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
 
+      var playerIdEl = document.getElementById('playerIdInput');
+      var zoneIdEl = document.getElementById('zoneIdInput');
+      var idValue = playerIdEl ? playerIdEl.value.trim() : '';
+      var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
+      var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
+      var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '—';
+
       psGameName.textContent = gameName;
+      psAccId.textContent = idDisplay || '—';
+      psAccName.textContent = accountName;
       psItemName.textContent = itemText;
       psAmount.textContent = priceText;
       psDate.textContent = dateStr;
