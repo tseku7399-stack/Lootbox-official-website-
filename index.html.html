@@ -1638,8 +1638,6 @@
       'auth/invalid-credential': 'Имэйл эсвэл нууц үг буруу байна',
       'auth/email-already-in-use': 'Энэ имэйл хаягаар өмнө нь бүртгүүлсэн байна',
       'auth/weak-password': 'Нууц үг дор хаяж 6 тэмдэгт байх ёстой',
-      'auth/popup-closed-by-user': 'Google цонхыг хаасан байна',
-      'auth/cancelled-popup-request': 'Google цонхыг хаасан байна',
       'auth/network-request-failed': 'Сүлжээний алдаа гарлаа. Дахин оролдоно уу',
       'auth/too-many-requests': 'Хэт олон оролдлого хийсэн тул түр хүлээнэ үү',
       // Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser-үүдэд
@@ -2324,6 +2322,12 @@
         completeAuth(kr.key, kr.record);
       })
       .catch(function(err){
+        var code = err && err.code;
+        // Хэрэглэгч өөрөө Google цонхыг хааж цуцалсан бол энэ бодит алдаа
+        // биш тул ямар ч анхааруулга/мессеж бүү харуул — товчийг л дуулгавартай сэргээгээд болино.
+        if(code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled'){
+          return;
+        }
         var msg = firebaseErrorMessage(err);
         if(registerPanel.style.display !== 'none'){
           setRegisterError(msg);
