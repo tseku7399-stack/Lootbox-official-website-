@@ -168,11 +168,6 @@
     overflow:hidden;
     z-index:-1;
   }
-  /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
-     арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
-  body.theme-light .navbar::before{
-    background: var(--bg-panel-2);
-  }
   /* Зөвхөн хуудасны хамгийн дээд цэгт (scroll=0) байхад л navbar дугуй
      булантай (app-ын хүрээтэй тохирно), доош гүйсэн даруйд шулуун ирмэгтэй
      болгож, доор гүйж буй тоглоомын жагсаалт/зургууд булангийн
@@ -569,13 +564,13 @@
   .verify-result.error{ color:var(--red); }
   .verify-result.success{
     display:flex; align-items:center; gap:10px;
-    background:rgba(124,92,255,0.12);
-    border:1px solid rgba(124,92,255,0.35);
+    background:rgba(74,222,128,0.12);
+    border:1px solid rgba(74,222,128,0.35);
     border-radius:14px; padding:10px 12px; min-height:0;
   }
   .verify-result.success .vr-check{
     width:22px; height:22px; border-radius:50%; flex-shrink:0;
-    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    background:linear-gradient(145deg,#4ade80,#16a34a);
     display:flex; align-items:center; justify-content:center;
   }
   .verify-result.success .vr-check svg{ width:12px; height:12px; stroke:#fff; }
@@ -607,18 +602,6 @@
     background:var(--bg-elevated); border:1px solid var(--line); border-radius:16px;
     padding:12px 14px; margin-top:20px;
   }
-  .recharge-warning{
-    display:flex; align-items:flex-start; gap:10px;
-    background:rgba(255,93,93,0.08); border:1px solid rgba(255,93,93,0.3);
-    border-radius:14px; padding:12px 14px; margin-top:16px;
-  }
-  .recharge-warning .rw-icon{
-    width:22px; height:22px; border-radius:50%; flex-shrink:0; margin-top:1px;
-    background:rgba(255,93,93,0.16); display:flex; align-items:center; justify-content:center;
-  }
-  .recharge-warning .rw-icon svg{ width:13px; height:13px; stroke:var(--red); }
-  .recharge-warning .rw-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:12.5px; color:var(--red); margin-bottom:3px; }
-  .recharge-warning .rw-text{ font-size:11.5px; line-height:1.5; color:var(--text-lo); }
   .cb-label{ font-size:11px; color:var(--text-lo); }
   .cb-amount{ font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:var(--ml-purple); }
   .recharge-buy-btn{
@@ -723,7 +706,6 @@
   }
   .pm-game{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#fff; }
   .pm-item{ font-size:12px; color:rgba(255,255,255,0.8); margin-top:2px; }
-  .pm-acc{ font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:4px; }
   .pm-total-row{
     display:flex; align-items:center; justify-content:space-between; margin-top:10px;
     padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); font-size:12.5px; color:rgba(255,255,255,0.85);
@@ -789,26 +771,6 @@
     padding:14px; border-radius:16px; cursor:pointer;
   }
   .payment-confirm-btn.success{ background:var(--bg-elevated); color:var(--text-lo); cursor:default; }
-  .payment-confirm-btn.loading{ display:flex; align-items:center; justify-content:center; cursor:default; opacity:.85; }
-  .payment-confirm-btn.loading .btn-spinner{ border-color:rgba(255,255,255,0.4); border-top-color:#fff; }
-  .payment-success-view{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 2px; }
-  .ps-check-wrap{ margin-bottom:14px; }
-  .ps-check{
-    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
-    box-shadow:0 0 0 8px rgba(124,92,255,0.15);
-  }
-  .ps-check svg{ width:30px; height:30px; stroke:#fff; }
-  .ps-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:var(--text-hi); margin-bottom:4px; }
-  .ps-sub{ font-size:13px; color:var(--text-lo); margin-bottom:20px; }
-  .ps-card{
-    width:100%; background:var(--bg-elevated); border:1px solid var(--line); border-radius:18px;
-    padding:14px 16px; display:flex; flex-direction:column; gap:11px; text-align:left;
-  }
-  .ps-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .ps-label{ font-size:12.5px; color:var(--text-lo); flex-shrink:0; }
-  .ps-value{ font-size:13.5px; font-weight:600; color:var(--text-hi); text-align:right; }
-  .ps-amount{ color:var(--gold-300); }
   .all-games-grid{
     display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;
     -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
@@ -923,22 +885,6 @@
     border:1px solid rgba(126,93,232,0.30); border-radius:14px; padding:11px 14px;
     margin-bottom:14px; text-align:center; line-height:1.5;
   }
-  /* Facebook/Messenger/Instagram зэрэг апп-н дотоод browser дотор нээгдсэн
-     үед Google-ээр нэвтрэх боломжгүйг урьдчилан анхааруулах баннер */
-  .inapp-browser-notice{
-    display:none; font-size:12px; color:var(--text-hi); line-height:1.5;
-    background:rgba(255,93,93,0.10); border:1px solid rgba(255,93,93,0.32);
-    border-radius:14px; padding:12px 13px; margin-bottom:16px;
-  }
-  .inapp-browser-notice.show{ display:block; }
-  .inapp-browser-notice .iabn-title{ font-weight:700; margin-bottom:4px; }
-  .inapp-browser-notice .iabn-copy-btn{
-    margin-top:9px; display:inline-flex; align-items:center; gap:6px;
-    background:var(--bg-elevated); border:1px solid var(--line-strong); color:var(--text-hi);
-    font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
-    padding:7px 12px; border-radius:10px; cursor:pointer;
-  }
-  .inapp-browser-notice .iabn-copy-btn.copied{ color:var(--gold-300); border-color:var(--gold-300); }
 
   .google-btn{
     width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
@@ -1040,7 +986,6 @@
     padding:12px 14px; margin-bottom:8px;
   }
   .profile-history-item .ph-game{ font-family:'Poppins',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-hi); }
-  .profile-history-item .ph-acc{ font-size:11px; color:var(--text-lo); margin-top:2px; }
   .profile-history-item .ph-item{ font-size:11px; color:var(--text-lo); margin-top:2px; }
   .profile-history-item .ph-date{ font-size:10px; color:var(--text-faint); margin-top:4px; }
   .profile-history-item .ph-price{ font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:var(--gold-300); white-space:nowrap; flex-shrink:0; }
@@ -1096,39 +1041,6 @@
       else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
     }catch(e){}
   })();
-
-  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser
-  // дотор нээгдсэн бол Android дээр шууд системийн browser chooser луу
-  // (intent://) шилжүүлж, хэрэглэгч өөрийн дуртай browser-оо сонгож нээх
-  // боломжтой болгоно. Android-ийн энэ схем нь ЗӨВХӨН Android дээр л
-  // ажилладаг — Apple iOS дээр in-app browser-ээс гадуурх browser руу
-  // веб код (JS)-оор ЗААВАЛ шилжүүлэх боломжийг iOS зөвшөөрдөггүй тул
-  // iPhone дээр автомат шилжилт хийх боломжгүй (доор Нэвтрэх цонход
-  // харагдах "Холбоос хуулах" товч л тэдэнд үлдэнэ). ----
-  (function autoEscapeAndroidInAppBrowser(){
-    try{
-      var ua = navigator.userAgent || '';
-      var isInApp = /FBAN|FBAV|FB_IAB|FBSV|Messenger|Instagram|\bLine\/|MicroMessenger|TikTok|BytedanceWebview|musical_ly|Twitter|Snapchat/i.test(ua) || /; ?wv\)/i.test(ua);
-      var isAndroid = /Android/i.test(ua);
-      if(!isInApp || !isAndroid) return;
-      // Нэг сессэд нэг л удаа оролдоно — хэрэглэгч chooser-ийг цуцлаад буцаж
-      // ирэхэд дахин дахин "шидэгдэж" эвгүй мэдрэмж (redirect flicker/loop)
-      // үүсгэхгүй байхын тулд.
-      var already = false;
-      try{ already = sessionStorage.getItem('lootbox_androidEscapeTried') === '1'; }catch(e){}
-      if(already) return;
-      try{ sessionStorage.setItem('lootbox_androidEscapeTried', '1'); }catch(e){}
-      var full = location.href;
-      var withoutScheme = full.replace(/^https?:\/\//, '');
-      var scheme = full.indexOf('https://') === 0 ? 'https' : 'http';
-      // package= заагаагүй тул Android өөрөө "аль апп-аар нээх вэ" гэсэн
-      // сонголтын цэс (эсвэл тухайн хэрэглэгчийн өмнө сонгосон
-      // "үндсэн browser") руу шилжүүлнэ — өөрөөр хэлбэл Chrome-оор
-      // хатуу заагаад заавал биш, хэрэглэгчийн ДУРТАЙ browser-ыг сонгох
-      // боломжийг үлдээнэ.
-      location.href = 'intent://' + withoutScheme + '#Intent;scheme=' + scheme + ';end';
-    }catch(e){}
-  })();
 </script>
 
 <div class="blinds"></div>
@@ -1154,12 +1066,6 @@
         <img src="Logo.PNG" alt="Лого" style="width:100%;height:100%;object-fit:contain;">
       </div>
       <div class="login-title">LootBox</div>
-
-      <div class="inapp-browser-notice" id="inAppBrowserNotice">
-        <div class="iabn-title">⚠️ Google энд ажиллахгүй</div>
-        <div id="inAppBrowserNoticeText"></div>
-        <button type="button" class="iabn-copy-btn" id="iabnCopyBtn">Холбоос хуулах</button>
-      </div>
 
       <div class="auth-tabs">
         <div class="auth-tab active" id="tabLogin">Нэвтрэх</div>
@@ -1486,16 +1392,6 @@
     <div class="step-label"><div class="step-num">2</div><span>Diamond багц сонгох</span></div>
     <div class="package-grid" id="packageGrid"></div>
 
-    <div class="recharge-warning">
-      <div class="rw-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
-      </div>
-      <div>
-        <div class="rw-title">Заавал анхаарах зүйлс</div>
-        <div class="rw-text">Худалдан авалт амжилттай хийгдсэн тохиолдолд төлбөр буцаах ямар ч боломжгүй тул худалдан авалт хийхээсээ өмнө сонголтоо зөв хийж, оруулсан мэдээллээ сайтар нягтална уу.</div>
-      </div>
-    </div>
-
     <div class="recharge-checkout-bar">
       <div>
         <div class="cb-label">Нийт төлөх</div>
@@ -1527,7 +1423,6 @@
     <div class="profile-field" id="profileUsernameField">
       <label>Хэрэглэгчийн нэр</label>
       <input type="text" id="profileUsernameInput" placeholder="Хэрэглэгчийн нэрээ оруулах">
-      <div class="field-error" id="profileUsernameError"></div>
     </div>
 
     <div class="profile-field" id="profileEmailField">
@@ -1555,92 +1450,54 @@
       </div>
     </div>
 
-    <div id="paymentFormView">
-      <div class="payment-modal-summary">
-        <div class="pm-game" id="pmGameName">—</div>
-        <div class="pm-item" id="pmItemName">—</div>
-        <div class="pm-acc" id="pmAccInfo">—</div>
-        <div class="pm-total-row">
-          <span>Нийт дүн</span>
-          <span class="pm-total" id="pmTotalAmount">—</span>
-        </div>
-      </div>
-
-      <div class="payment-tabs">
-        <div class="payment-tab active" data-tab="qpay" id="pmTabQpay">QPay</div>
-        <div class="payment-tab" data-tab="bank" id="pmTabBank">Шилжүүлэг</div>
-      </div>
-
-      <div class="payment-tab-panel" id="pmPanelQpay">
-        <div class="qpay-qr-wrap">
-          <img class="qpay-qr-img" id="qpayQrImg" alt="QPay QR">
-        </div>
-        <div class="qpay-hint">QPay апп-аараа энэ QR кодыг уншуулж төлбөрөө баталгаажуулна уу</div>
-        <div class="qpay-banks-label">Дэмжигдэх банкууд</div>
-        <div class="qpay-banks-row" id="qpayBanksRow"></div>
-      </div>
-
-      <div class="payment-tab-panel" id="pmPanelBank" style="display:none;">
-        <div class="transfer-bank-chips" id="transferBankChips"></div>
-        <div class="transfer-card">
-          <div class="transfer-row">
-            <span class="tr-label">Банк</span>
-            <span class="tr-value" id="transferBankName">—</span>
-          </div>
-          <div class="transfer-row">
-            <span class="tr-label">Дансны дугаар</span>
-            <span class="tr-value" id="transferAccNumber">—</span>
-            <button type="button" class="transfer-copy-btn" id="transferCopyBtn">Хуулах</button>
-          </div>
-          <div class="transfer-row">
-            <span class="tr-label">Хүлээн авагч</span>
-            <span class="tr-value" id="transferRecipient">—</span>
-          </div>
-          <div class="transfer-row">
-            <span class="tr-label">Шилжүүлэх дүн</span>
-            <span class="tr-value tr-amount" id="transferAmount">—</span>
-          </div>
-        </div>
-        <div class="qpay-hint">Дээрх дансанд шилжүүлгээ хийгээд, доорх товч дээр дарж баталгаажуулна уу</div>
-      </div>
-
-      <button class="payment-confirm-btn" id="paymentConfirmBtn">Төлбөр баталгаажуулах</button>
-    </div>
-
-    <div class="payment-success-view" id="paymentSuccessView" style="display:none;">
-      <div class="ps-check-wrap">
-        <div class="ps-check">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>
-      </div>
-      <div class="ps-title">Худалдан авалт амжилттай</div>
-      <div class="ps-card">
-        <div class="ps-row">
-          <span class="ps-label">Тоглоом</span>
-          <span class="ps-value" id="psGameName">—</span>
-        </div>
-        <div class="ps-row">
-          <span class="ps-label">Акаунт ID</span>
-          <span class="ps-value" id="psAccId">—</span>
-        </div>
-        <div class="ps-row">
-          <span class="ps-label">Нэр</span>
-          <span class="ps-value" id="psAccName">—</span>
-        </div>
-        <div class="ps-row">
-          <span class="ps-label">Багц</span>
-          <span class="ps-value" id="psItemName">—</span>
-        </div>
-        <div class="ps-row">
-          <span class="ps-label">Дүн</span>
-          <span class="ps-value ps-amount" id="psAmount">—</span>
-        </div>
-        <div class="ps-row">
-          <span class="ps-label">Огноо, цаг</span>
-          <span class="ps-value" id="psDate">—</span>
-        </div>
+    <div class="payment-modal-summary">
+      <div class="pm-game" id="pmGameName">—</div>
+      <div class="pm-item" id="pmItemName">—</div>
+      <div class="pm-total-row">
+        <span>Нийт дүн</span>
+        <span class="pm-total" id="pmTotalAmount">—</span>
       </div>
     </div>
+
+    <div class="payment-tabs">
+      <div class="payment-tab active" data-tab="qpay" id="pmTabQpay">QPay</div>
+      <div class="payment-tab" data-tab="bank" id="pmTabBank">Шилжүүлэг</div>
+    </div>
+
+    <div class="payment-tab-panel" id="pmPanelQpay">
+      <div class="qpay-qr-wrap">
+        <img class="qpay-qr-img" id="qpayQrImg" alt="QPay QR">
+      </div>
+      <div class="qpay-hint">QPay апп-аараа энэ QR кодыг уншуулж төлбөрөө баталгаажуулна уу</div>
+      <div class="qpay-banks-label">Дэмжигдэх банкууд</div>
+      <div class="qpay-banks-row" id="qpayBanksRow"></div>
+    </div>
+
+    <div class="payment-tab-panel" id="pmPanelBank" style="display:none;">
+      <div class="transfer-bank-chips" id="transferBankChips"></div>
+      <div class="transfer-card">
+        <div class="transfer-row">
+          <span class="tr-label">Банк</span>
+          <span class="tr-value" id="transferBankName">—</span>
+        </div>
+        <div class="transfer-row">
+          <span class="tr-label">Дансны дугаар</span>
+          <span class="tr-value" id="transferAccNumber">—</span>
+          <button type="button" class="transfer-copy-btn" id="transferCopyBtn">Хуулах</button>
+        </div>
+        <div class="transfer-row">
+          <span class="tr-label">Хүлээн авагч</span>
+          <span class="tr-value" id="transferRecipient">—</span>
+        </div>
+        <div class="transfer-row">
+          <span class="tr-label">Шилжүүлэх дүн</span>
+          <span class="tr-value tr-amount" id="transferAmount">—</span>
+        </div>
+      </div>
+      <div class="qpay-hint">Дээрх дансанд шилжүүлгээ хийгээд, доорх товч дээр дарж баталгаажуулна уу</div>
+    </div>
+
+    <button class="payment-confirm-btn" id="paymentConfirmBtn">Төлбөр баталгаажуулах</button>
   </div>
 </div>
 
@@ -1753,15 +1610,10 @@
       'auth/invalid-credential': 'Имэйл эсвэл нууц үг буруу байна',
       'auth/email-already-in-use': 'Энэ имэйл хаягаар өмнө нь бүртгүүлсэн байна',
       'auth/weak-password': 'Нууц үг дор хаяж 6 тэмдэгт байх ёстой',
+      'auth/popup-closed-by-user': 'Google цонхыг хаасан байна',
+      'auth/cancelled-popup-request': 'Google цонхыг хаасан байна',
       'auth/network-request-failed': 'Сүлжээний алдаа гарлаа. Дахин оролдоно уу',
-      'auth/too-many-requests': 'Хэт олон оролдлого хийсэн тул түр хүлээнэ үү',
-      // Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser-үүдэд
-      // Google өөрөө OAuth нэвтрэлтийг блоклодог тул popup нээгдэхгүй эсвэл
-      // "энэ орчинд дэмжигдэхгүй" гэсэн доорх алдаанууд шидэгддэг.
-      'auth/operation-not-supported-in-this-environment': 'Google энд ажиллахгүй. Chrome/Safari-д нээгээрэй',
-      'auth/popup-blocked': 'Google цонх нээгдсэнгүй. Chrome/Safari-д нээгээрэй',
-      'auth/web-storage-unsupported': 'Энэ browser дэмжигдэхгүй. Chrome/Safari-д нээгээрэй',
-      'auth/unauthorized-domain': 'Энэ хаяг зөвшөөрөгдөөгүй байна'
+      'auth/too-many-requests': 'Хэт олон оролдлого хийсэн тул түр хүлээнэ үү'
     };
     return (code && map[code]) || (err && err.message) || 'Алдаа гарлаа. Дахин оролдоно уу';
   }
@@ -1816,19 +1668,6 @@
     return '';
   }
 
-  // ---- Google-ээр анх удаа нэвтрэхэд Google-ийн (эсвэл имэйлээс гаргаж
-  // авсан) нэр өөр хэрэглэгчийн username-тэй давхцаж болзошгүй тул (жишээ
-  // нь ижил нэртэй хоёр өөр хүн Google-ээр нэвтрэх) username хаана ч
-  // давхцахгүй байхын тулд шаардлагатай бол "Нэр2", "Нэр3" гэх мэт
-  // дугаар залгаж цор ганц болгоно. ----
-  function makeUniqueUsername(baseName){
-    var base = (baseName || 'Хэрэглэгч').trim() || 'Хэрэглэгч';
-    if(!isUsernameTaken(base)) return base;
-    var n = 2;
-    while(isUsernameTaken(base + n)){ n++; }
-    return base + n;
-  }
-
   // ---- Firebase хэрэглэгчийг локал профайл (avatar/purchases г.м) руу тааруулж, currentUser-ийг шинэчлэх ----
   function getOrCreateLocalRecord(user, result){
     var users = loadUsers();
@@ -1836,9 +1675,8 @@
     var record = users[key];
     var bestEmail = pickEmail(user, result);
     if(!record){
-      var baseName = user.displayName || (bestEmail ? bestEmail.split('@')[0] : 'Хэрэглэгч');
       record = {
-        displayName: makeUniqueUsername(baseName),
+        displayName: user.displayName || (bestEmail ? bestEmail.split('@')[0] : 'Хэрэглэгч'),
         email: bestEmail || '',
         avatarImg: user.photoURL || null,
         provider: (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password',
@@ -1957,9 +1795,6 @@
   var googleLoginBtn = document.getElementById('googleLoginBtn');
   var googleRegisterBtn = document.getElementById('googleRegisterBtn');
   var loginCloseBtn = document.getElementById('loginCloseBtn');
-  var inAppBrowserNotice = document.getElementById('inAppBrowserNotice');
-  var inAppBrowserNoticeText = document.getElementById('inAppBrowserNoticeText');
-  var iabnCopyBtn = document.getElementById('iabnCopyBtn');
   var loginOpenedFrom = null;
 
   // ---- Нууц үгийн товч устгагдсан тул текст талбар шууд харагдана ----
@@ -1992,57 +1827,6 @@
     tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
   }
 
-  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод browser дотор
-  // нээгдсэн бол Google-ээр нэвтрэх товч дарагдахаас өмнө нь Нэвтрэх цонх
-  // нээгдэх дор дороо анхааруулга харуулна (зөвхөн товч дарсны дараа
-  // алдаа харуулахаас илүү, эрт мэдэгдэх нь ойлгомжтой) ----
-  function updateInAppBrowserNotice(){
-    if(!inAppBrowserNotice) return;
-    var name = detectInAppBrowser();
-    if(name){
-      inAppBrowserNoticeText.textContent = 'Холбоосоо хуулж Chrome/Safari-д нээгээрэй, эсвэл доор и-мэйлээр бүртгүүлээрэй.';
-      inAppBrowserNotice.classList.add('show');
-    } else {
-      inAppBrowserNotice.classList.remove('show');
-    }
-  }
-  if(iabnCopyBtn){
-    iabnCopyBtn.addEventListener('click', function(){
-      var url = location.href;
-      function showCopied(){
-        iabnCopyBtn.textContent = 'Хуулагдлаа ✓';
-        iabnCopyBtn.classList.add('copied');
-        setTimeout(function(){
-          iabnCopyBtn.textContent = 'Холбоос хуулах';
-          iabnCopyBtn.classList.remove('copied');
-        }, 1800);
-      }
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(url).then(showCopied).catch(function(){
-          fallbackCopy(url, showCopied);
-        });
-      } else {
-        fallbackCopy(url, showCopied);
-      }
-    });
-  }
-  // ---- Clipboard API дэмжигдэхгүй (зарим хуучин in-app webview) орчинд
-  // зориулсан нөөц арга: түр textarea үүсгэж, сонгоод хуулна ----
-  function fallbackCopy(text, onDone){
-    try{
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      if(onDone) onDone();
-    }catch(e){}
-  }
-
   function openLogin(returnTo){
     loginReturnTo = returnTo || 'main';
     loginOpenedFrom = getCurrentVisiblePage();
@@ -2067,7 +1851,6 @@
     forgotSent.style.display = 'none';
     showAuthPanel('login');
     loginView.style.display = 'block';
-    updateInAppBrowserNotice();
   }
 
   function closeLogin(){
@@ -2150,7 +1933,6 @@
   }
 
   function doLogin(){
-    if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
     registerSuccessMsg.style.display = 'none';
@@ -2200,14 +1982,10 @@
   }
 
   // ---- Хэрэглэгчийн нэр (username) давхцаж байгаа эсэхийг шалгах ----
-  // excludeKey дамжуулбал (жишээ нь: профайлаа засаж буй одоогийн
-  // хэрэглэгчийн key) тухайн хэрэглэгчийн өөрийнх нь бичлэгийг харгалзахгүй
-  // тул хэрэглэгч өөрийн хуучин нэрээ өөрчлөлгүй дахин хадгалж болно.
-  function isUsernameTaken(username, excludeKey){
+  function isUsernameTaken(username){
     var users = loadUsers();
     var normalized = username.trim().toLowerCase();
     for(var key in users){
-      if(excludeKey && key === excludeKey) continue;
       if(users.hasOwnProperty(key) && users[key].displayName && users[key].displayName.trim().toLowerCase() === normalized){
         return true;
       }
@@ -2216,7 +1994,6 @@
   }
 
   function doRegister(){
-    if(registerBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол давхар бүү илгээ
     var u = registerUsername.value.trim();
     var email = registerEmail.value.trim();
     var p = registerPassword.value;
@@ -2314,7 +2091,6 @@
   }
 
   function doForgot(){
-    if(forgotBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол давхар бүү илгээ
     var v = forgotInput.value.trim();
     if(!v){
       forgotError.textContent = 'Талбарыг бөглөнө үү';
@@ -2357,63 +2133,14 @@
     if(e.key === 'Enter') doRegister();
   });
 
-  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser
-  // (webview) илрүүлэх. Google эдгээр webview-үүдээс ирэх OAuth хүсэлтийг
-  // өөрөө (аюулгүй байдлын үүднээс) блоклодог тул popup нээгдэх ч алдааны
-  // хуудас гараад "цонхыг хаасан" мэт л харагддаг — иймд Firebase-ийг
-  // дуудахаас ӨМНӨ нь илрүүлж, ойлгомжтой заавар өгвөл илүү найдвартай. ----
-  function detectInAppBrowser(){
-    var ua = navigator.userAgent || '';
-    if(/FBAN|FBAV|FB_IAB|FBSV|Messenger/i.test(ua)) return 'Facebook/Messenger';
-    if(/Instagram/i.test(ua)) return 'Instagram';
-    if(/\bLine\//i.test(ua)) return 'LINE';
-    if(/MicroMessenger/i.test(ua)) return 'WeChat';
-    if(/TikTok|BytedanceWebview|musical_ly/i.test(ua)) return 'TikTok';
-    if(/Twitter/i.test(ua)) return 'Twitter/X';
-    if(/Snapchat/i.test(ua)) return 'Snapchat';
-    // Android-ийн ерөнхий WebView (жишээ нь iOS-той адил тодорхой апп нэргүй
-    // ч, Chrome биш webview дотор нээгдсэн үед UA-д "; wv)" гэж тэмдэглэгддэг)
-    if(/; ?wv\)/i.test(ua)) return 'апп доторх';
-    return null;
-  }
-  function inAppBrowserMessage(name){
-    return 'Google энд ажиллахгүй. Холбоосоо Chrome/Safari-д нээгээрэй.';
-  }
-
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
   // googleAuthInProgress хамгаалалт: попап нээгдэж байх зуур товчийг дахин
   // дарахад Firebase "auth/cancelled-popup-request" алдаа шиднэ (хуучин
   // хүсэлт цуцлагдана). Товчийг түр идэвхгүй болгосноор энэ алдаа гарахгүй
   // бөгөөд хэрэглэгчид ачаалж буйг нь мэдэгдэнэ (илүү хурдан мэт мэдрэгдэнэ).
   var googleAuthInProgress = false;
-  var googleAuthTimeoutId = null;
-  // Товчийг дахин ажиллагаанд оруулах цорын ганц газар (хаанаас ч дуудаж болно)
-  function resetGoogleButtons(){
-    googleAuthInProgress = false;
-    if(googleAuthTimeoutId){ clearTimeout(googleAuthTimeoutId); googleAuthTimeoutId = null; }
-    if(googleLoginBtn) googleLoginBtn.disabled = false;
-    if(googleRegisterBtn) googleRegisterBtn.disabled = false;
-  }
-  // Mobile дээр Google account сонгох цонх руу шилжээд буцаад гарахад
-  // заримдаа Firebase-ийн promise хэзээ ч resolve/reject хийгдэлгүй
-  // "зогсчихдог" тул товч мөнхөд харлаад (disabled) үлддэг байсан.
-  // Хуудас дахин харагдмагц (буцаж ирмэгц) бага зэрэг хүлээгээд хариу
-  // ирээгүй л байвал товчийг хүчээр сэргээнэ.
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'visible' && googleAuthInProgress){
-      setTimeout(function(){
-        if(googleAuthInProgress) resetGoogleButtons();
-      }, 1200);
-    }
-  });
   function doGoogleAuth(){
     if(googleAuthInProgress) return;
-    var inAppName = detectInAppBrowser();
-    if(inAppName){
-      var msg = inAppBrowserMessage(inAppName);
-      if(registerPanel.style.display !== 'none'){ setRegisterError(msg); } else { setLoginError(msg); }
-      return;
-    }
     googleAuthInProgress = true;
     if(googleLoginBtn) googleLoginBtn.disabled = true;
     if(googleRegisterBtn) googleRegisterBtn.disabled = true;
@@ -2421,28 +2148,12 @@
     // Имэйл хаягийг Google-ээс баталгаатай авахын тулд шаардлагатай scope-уудыг тодорхой хүснэ.
     provider.addScope('email');
     provider.addScope('profile');
-    // prompt:'select_account' байхгүй бол хэрэглэгчийн броузерт аль хэдийн
-    // нэвтэрсэн Google сесс байвал Google account сонгох дэлгэц огт
-    // харуулахгүй, шууд тухайн сессийн бүртгэлээр нэвтрүүлдэг. Энэ
-    // custom parameter-ийг зааж өгснөөр товч дарах бүрд account chooser
-    // ЯМАГТ гарч, хэрэглэгч бүртгэлээ сонгох боломжтой болно.
-    provider.setCustomParameters({ prompt: 'select_account' });
-    // Нөөц хамгаалалт: ямар ч шалтгаанаар Firebase-ийн хариу 25 секундэд
-    // ирэхгүй бол товчийг хүчээр идэвхжүүлж, хэрэглэгчийг мөнхөд
-    // түгжигдэхээс сэргийлнэ.
-    googleAuthTimeoutId = setTimeout(resetGoogleButtons, 25000);
     firebase.auth().signInWithPopup(provider)
       .then(function(result){
         var kr = getOrCreateLocalRecord(result.user, result);
         completeAuth(kr.key, kr.record);
       })
       .catch(function(err){
-        var code = err && err.code;
-        // Хэрэглэгч өөрөө Google цонхыг хааж цуцалсан бол энэ бодит алдаа
-        // биш тул ямар ч анхааруулга/мессеж бүү харуул — товчийг л дуулгавартай сэргээгээд болино.
-        if(code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled'){
-          return;
-        }
         var msg = firebaseErrorMessage(err);
         if(registerPanel.style.display !== 'none'){
           setRegisterError(msg);
@@ -2451,7 +2162,9 @@
         }
       })
       .finally(function(){
-        resetGoogleButtons();
+        googleAuthInProgress = false;
+        if(googleLoginBtn) googleLoginBtn.disabled = false;
+        if(googleRegisterBtn) googleRegisterBtn.disabled = false;
       });
   }
   if(googleLoginBtn) googleLoginBtn.addEventListener('click', doGoogleAuth);
@@ -2473,7 +2186,6 @@
   var profileBackBtn = document.getElementById('profileBackBtn');
   var profileUsernameInput = document.getElementById('profileUsernameInput');
   var profileUsernameField = document.getElementById('profileUsernameField');
-  var profileUsernameError = document.getElementById('profileUsernameError');
   var profileEmailInput = document.getElementById('profileEmailInput');
   var profileEmailField = document.getElementById('profileEmailField');
   var profileHistorySection = document.getElementById('profileHistorySection');
@@ -2540,9 +2252,8 @@
       return;
     }
     profileHistoryList.innerHTML = purchases.map(function(p){
-      var accLine = p.accId ? ('<div class="ph-acc">ID: ' + p.accId + (p.accName ? (' · ' + p.accName) : '') + '</div>') : '';
       return '<div class="profile-history-item">' +
-        '<div class="ph-left"><div class="ph-game">' + p.game + '</div>' + accLine + '<div class="ph-item">' + p.item + '</div><div class="ph-date">' + p.date + '</div></div>' +
+        '<div class="ph-left"><div class="ph-game">' + p.game + '</div><div class="ph-item">' + p.item + '</div><div class="ph-date">' + p.date + '</div></div>' +
         '<div class="ph-price">' + p.price + '</div>' +
       '</div>';
     }).join('');
@@ -2561,7 +2272,6 @@
     profileEmailInput.value = currentUser.email || '';
     pendingAvatarImg = currentUser.avatarImg;
     if(avatarUploadError) clearFieldError(avatarUploadError);
-    if(profileUsernameError) clearFieldError(profileUsernameError);
     renderProfilePreview();
     profileSaveBtn.textContent = 'Хадгалах';
     profileSaveBtn.classList.remove('saved');
@@ -2679,42 +2389,12 @@
       var outW = Math.max(1, Math.round(w * scale));
       var outH = Math.max(1, Math.round(h * scale));
       try{
-        // Эх зураг том байхад (жишээ нь дэвсгэр камерын 4000px зураг) нэг
-        // алхмаар шууд 256px рүү багасгахад canvas сайн чанартайгаар ч
-        // сорвижиж бүрсэлздэг (downscale artifact) тул хагасаар нь
-        // дараалан багасгаж, эцэст нь high-quality smoothing ашиглан эцсийн
-        // хэмжээнд оруулна — ингэснээр profile зураг эрс тодорхой болно.
-        var curCanvas = document.createElement('canvas');
-        curCanvas.width = w;
-        curCanvas.height = h;
-        var curCtx = curCanvas.getContext('2d');
-        curCtx.imageSmoothingEnabled = true;
-        if('imageSmoothingQuality' in curCtx) curCtx.imageSmoothingQuality = 'high';
-        curCtx.drawImage(img, 0, 0, w, h);
-
-        var curW = w, curH = h;
-        while(curW * 0.5 > outW && curH * 0.5 > outH){
-          var nextW = Math.max(outW, Math.round(curW * 0.5));
-          var nextH = Math.max(outH, Math.round(curH * 0.5));
-          var stepCanvas = document.createElement('canvas');
-          stepCanvas.width = nextW;
-          stepCanvas.height = nextH;
-          var stepCtx = stepCanvas.getContext('2d');
-          stepCtx.imageSmoothingEnabled = true;
-          if('imageSmoothingQuality' in stepCtx) stepCtx.imageSmoothingQuality = 'high';
-          stepCtx.drawImage(curCanvas, 0, 0, curW, curH, 0, 0, nextW, nextH);
-          curCanvas = stepCanvas;
-          curW = nextW; curH = nextH;
-        }
-
         var canvas = document.createElement('canvas');
         canvas.width = outW;
         canvas.height = outH;
         var ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        if('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(curCanvas, 0, 0, curW, curH, 0, 0, outW, outH);
-        onDone(canvas.toDataURL('image/jpeg', 0.92));
+        ctx.drawImage(img, 0, 0, outW, outH);
+        onDone(canvas.toDataURL('image/jpeg', 0.85));
       }catch(e){
         onFail();
       }
@@ -2759,24 +2439,14 @@
 
   profileUsernameInput.addEventListener('input', function(){
     if(!currentUser.loggedIn) return;
-    if(profileUsernameError) clearFieldError(profileUsernameError);
     if(!pendingAvatarImg) renderProfilePreview();
   });
 
   profileSaveBtn.addEventListener('click', function(){
     if(!currentUser.loggedIn) return;
-    if(profileUsernameError) clearFieldError(profileUsernameError);
     var newName = profileUsernameInput.value.trim();
     if(!newName){
       highlightInvalidField(profileUsernameInput);
-      return;
-    }
-    // ---- Өөр хэрэглэгчийн нэртэй давхцаж байгаа эсэхийг шалгах (өөрийн
-    // одоогийн бичлэгийг excludeKey-ээр орхигдуулна, ингэснээр хэрэглэгч
-    // өөрийн хуучин нэрээ өөрчлөлгүй дахин хадгалж болно) ----
-    if(isUsernameTaken(newName, currentUserKey)){
-      if(profileUsernameError) setFieldError(profileUsernameError, 'Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна');
-      highlightInvalidField(profileUsernameInput, profileUsernameError);
       return;
     }
     var prevUsername = currentUser.username;
@@ -3221,7 +2891,6 @@
   var paymentModalClose = document.getElementById('paymentModalClose');
   var pmGameName = document.getElementById('pmGameName');
   var pmItemName = document.getElementById('pmItemName');
-  var pmAccInfo = document.getElementById('pmAccInfo');
   var pmTotalAmount = document.getElementById('pmTotalAmount');
   var pmTabQpay = document.getElementById('pmTabQpay');
   var pmTabBank = document.getElementById('pmTabBank');
@@ -3236,14 +2905,6 @@
   var transferAmount = document.getElementById('transferAmount');
   var transferCopyBtn = document.getElementById('transferCopyBtn');
   var paymentConfirmBtn = document.getElementById('paymentConfirmBtn');
-  var paymentFormView = document.getElementById('paymentFormView');
-  var paymentSuccessView = document.getElementById('paymentSuccessView');
-  var psGameName = document.getElementById('psGameName');
-  var psAccId = document.getElementById('psAccId');
-  var psAccName = document.getElementById('psAccName');
-  var psItemName = document.getElementById('psItemName');
-  var psAmount = document.getElementById('psAmount');
-  var psDate = document.getElementById('psDate');
   var pendingSelectedPackage = null;
   var selectedTransferBank = null;
 
@@ -3324,15 +2985,6 @@
     var priceText = selectedPackageEl.getAttribute('data-price') || '';
     pmGameName.textContent = gameName;
     pmItemName.textContent = itemText;
-
-    var playerIdEl = document.getElementById('playerIdInput');
-    var zoneIdEl = document.getElementById('zoneIdInput');
-    var idValue = playerIdEl ? playerIdEl.value.trim() : '';
-    var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
-    var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
-    var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '';
-    pmAccInfo.textContent = idValue ? ('ID: ' + idDisplay + (accountName ? (' · ' + accountName) : '')) : '—';
-
     pmTotalAmount.textContent = priceText;
     transferAmount.textContent = priceText;
 
@@ -3342,12 +2994,8 @@
     var qrData = encodeURIComponent('QPay|' + gameName + '|' + itemText + '|' + priceText);
     qpayQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=' + qrData;
 
-    paymentConfirmBtn.classList.remove('success', 'loading');
-    paymentConfirmBtn.disabled = false;
-    paymentConfirmBtn.style.width = '';
+    paymentConfirmBtn.classList.remove('success');
     paymentConfirmBtn.textContent = 'Төлбөр баталгаажуулах';
-    paymentFormView.style.display = '';
-    paymentSuccessView.style.display = 'none';
     paymentModalOverlay.classList.add('open');
   }
 
@@ -3361,67 +3009,29 @@
 
   paymentConfirmBtn.addEventListener('click', function(){
     if(!pendingSelectedPackage) return;
-    // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, loading үзүүлж
-    // байх хугацаанд товчийг дахин дарвал (double-tap) худалдан авалт хоёр
-    // удаа бичигдэхээс сэргийлнэ.
-    var pkg = pendingSelectedPackage;
-    pendingSelectedPackage = null;
 
-    // 1) Эхлээд loading (spinner) төлөвийг үзүүлнэ.
-    paymentConfirmBtn.classList.remove('success');
-    paymentConfirmBtn.classList.add('loading');
-    paymentConfirmBtn.disabled = true;
-    paymentConfirmBtn.style.width = paymentConfirmBtn.offsetWidth + 'px';
-    paymentConfirmBtn.innerHTML = '<span class="btn-spinner"></span>';
+    paymentConfirmBtn.classList.add('success');
+    paymentConfirmBtn.textContent = 'Төлбөр баталгаажлаа ✓';
 
-    setTimeout(function(){
-      // 2) Loading дууссаны дараа дэлгэрэнгүй мэдээлэлтэй амжилтын дэлгэц рүү шилжинэ.
-      paymentConfirmBtn.classList.remove('loading');
-      paymentConfirmBtn.disabled = false;
-      paymentConfirmBtn.style.width = '';
-      paymentConfirmBtn.textContent = 'Төлбөр баталгаажуулах';
-
-      var gameName = rechargeTitle.textContent || '';
-      var itemText = pkg.getAttribute('data-item') || '';
-      var priceText = pkg.getAttribute('data-price') || '';
-      var now = new Date();
-      var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
-
-      var playerIdEl = document.getElementById('playerIdInput');
-      var zoneIdEl = document.getElementById('zoneIdInput');
-      var idValue = playerIdEl ? playerIdEl.value.trim() : '';
-      var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
-      var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
-      var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '—';
-
-      psGameName.textContent = gameName;
-      psAccId.textContent = idDisplay || '—';
-      psAccName.textContent = accountName;
-      psItemName.textContent = itemText;
-      psAmount.textContent = priceText;
-      psDate.textContent = dateStr;
-
-      paymentFormView.style.display = 'none';
-      paymentSuccessView.style.display = 'flex';
-
-      if(currentUser.loggedIn && currentUserKey){
-        var users = loadUsers();
-        var record = users[currentUserKey];
-        if(record){
-          if(!record.purchases) record.purchases = [];
-          record.purchases.unshift({
-            game: gameName,
-            accId: idDisplay,
-            accName: accountName,
-            item: itemText,
-            price: priceText,
-            date: dateStr
-          });
-          users[currentUserKey] = record;
-          saveUsers(users);
-        }
+    if(currentUser.loggedIn && currentUserKey){
+      var users = loadUsers();
+      var record = users[currentUserKey];
+      if(record){
+        if(!record.purchases) record.purchases = [];
+        var now = new Date();
+        var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
+        record.purchases.unshift({
+          game: rechargeTitle.textContent,
+          item: pendingSelectedPackage.getAttribute('data-item') || '',
+          price: pendingSelectedPackage.getAttribute('data-price') || '',
+          date: dateStr
+        });
+        users[currentUserKey] = record;
+        saveUsers(users);
       }
-    }, 1200);
+    }
+
+    setTimeout(closePaymentModal, 900);
   });
 
   // ---- Banner: гараар хоёр тийш чөлөөтэй swipe хийж, төгсгөлгүй эргэлддэг (infinite loop) болгох ----
@@ -3808,3 +3418,5 @@
 
 </body>
 </html>
+
+
