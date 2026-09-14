@@ -1483,7 +1483,7 @@
       </div>
     </div>
 
-    <div class="step-label"><div class="step-num">2</div><span>Diamond багц сонгох</span></div>
+    <div class="step-label"><div class="step-num">2</div><span id="step2CurrencyLabel">Diamond багц сонгох</span></div>
     <div class="package-grid" id="packageGrid"></div>
 
     <div class="recharge-warning">
@@ -3088,6 +3088,8 @@
   function renderPackages(game){
     var currency = GAME_CURRENCY[game] || 'DIAMOND';
     var tiers = GAME_PACKAGE_TIERS[game] || DEFAULT_PACKAGE_TIERS;
+    var step2Label = document.getElementById('step2CurrencyLabel');
+    if(step2Label) step2Label.textContent = (CURRENCY_LABELS[currency] || 'Diamond') + ' багц сонгох';
     var grid = document.getElementById('packageGrid');
     if(!grid) return;
     grid.innerHTML = tiers.map(function(t){
