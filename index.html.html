@@ -1089,7 +1089,7 @@
       <div class="login-title">LootBox</div>
 
       <div class="inapp-browser-notice" id="inAppBrowserNotice">
-        <div class="iabn-title">⚠️ Google-ээр нэвтрэх ажиллахгүй орчинд байна</div>
+        <div class="iabn-title">⚠️ Google энд ажиллахгүй</div>
         <div id="inAppBrowserNoticeText"></div>
         <button type="button" class="iabn-copy-btn" id="iabnCopyBtn">Холбоос хуулах</button>
       </div>
@@ -1645,10 +1645,10 @@
       // Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser-үүдэд
       // Google өөрөө OAuth нэвтрэлтийг блоклодог тул popup нээгдэхгүй эсвэл
       // "энэ орчинд дэмжигдэхгүй" гэсэн доорх алдаанууд шидэгддэг.
-      'auth/operation-not-supported-in-this-environment': 'Энэ апп-н дотоод browser (жишээ нь Messenger, Facebook, Instagram) дээр Google-ээр нэвтрэх ажиллахгүй. Холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
-      'auth/popup-blocked': 'Google цонх нээгдсэнгүй. Энэ апп-н дотоод browser дээр байгаа бол холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
-      'auth/web-storage-unsupported': 'Энэ browser дээр шаардлагатай тохиргоо (cookie/storage) хаалттай байна. Холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
-      'auth/unauthorized-domain': 'Энэ сайтын хаяг зөвшөөрөгдөөгүй байна. Дахин оролдоно уу'
+      'auth/operation-not-supported-in-this-environment': 'Google энд ажиллахгүй. Chrome/Safari-д нээгээрэй',
+      'auth/popup-blocked': 'Google цонх нээгдсэнгүй. Chrome/Safari-д нээгээрэй',
+      'auth/web-storage-unsupported': 'Энэ browser дэмжигдэхгүй. Chrome/Safari-д нээгээрэй',
+      'auth/unauthorized-domain': 'Энэ хаяг зөвшөөрөгдөөгүй байна'
     };
     return (code && map[code]) || (err && err.message) || 'Алдаа гарлаа. Дахин оролдоно уу';
   }
@@ -1887,7 +1887,7 @@
     if(!inAppBrowserNotice) return;
     var name = detectInAppBrowser();
     if(name){
-      inAppBrowserNoticeText.textContent = name + '-ийн дотоод browser Google-ийн нэвтрэлтийг блоклодог (энэ бол сайтын алдаа биш, Google-ийн өөрийнх нь аюулгүй байдлын хязгаарлалт). Доорх товчоор холбоосоо хуулж аваад Chrome эсвэл Safari-д нээж орно уу — эсвэл доорх и-мэйлээр шууд бүртгүүлж/нэвтэрч болно.';
+      inAppBrowserNoticeText.textContent = 'Холбоосоо хуулж Chrome/Safari-д нээгээрэй, эсвэл доор и-мэйлээр бүртгүүлээрэй.';
       inAppBrowserNotice.classList.add('show');
     } else {
       inAppBrowserNotice.classList.remove('show');
@@ -2264,7 +2264,7 @@
     return null;
   }
   function inAppBrowserMessage(name){
-    return 'Google-ээр нэвтрэх ' + name + '-ийн дотоод browser дээр ажилладаггүй (Google-ийн хязгаарлалт). Дээрх "Холбоос хуулах" товчоор холбоосоо Chrome/Safari-д нээгээд дахин оролдоно уу, эсвэл доорх и-мэйлээр бүртгүүлж болно';
+    return 'Google энд ажиллахгүй. Холбоосоо Chrome/Safari-д нээгээрэй.';
   }
 
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
@@ -2273,6 +2273,26 @@
   // хүсэлт цуцлагдана). Товчийг түр идэвхгүй болгосноор энэ алдаа гарахгүй
   // бөгөөд хэрэглэгчид ачаалж буйг нь мэдэгдэнэ (илүү хурдан мэт мэдрэгдэнэ).
   var googleAuthInProgress = false;
+  var googleAuthTimeoutId = null;
+  // Товчийг дахин ажиллагаанд оруулах цорын ганц газар (хаанаас ч дуудаж болно)
+  function resetGoogleButtons(){
+    googleAuthInProgress = false;
+    if(googleAuthTimeoutId){ clearTimeout(googleAuthTimeoutId); googleAuthTimeoutId = null; }
+    if(googleLoginBtn) googleLoginBtn.disabled = false;
+    if(googleRegisterBtn) googleRegisterBtn.disabled = false;
+  }
+  // Mobile дээр Google account сонгох цонх руу шилжээд буцаад гарахад
+  // заримдаа Firebase-ийн promise хэзээ ч resolve/reject хийгдэлгүй
+  // "зогсчихдог" тул товч мөнхөд харлаад (disabled) үлддэг байсан.
+  // Хуудас дахин харагдмагц (буцаж ирмэгц) бага зэрэг хүлээгээд хариу
+  // ирээгүй л байвал товчийг хүчээр сэргээнэ.
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible' && googleAuthInProgress){
+      setTimeout(function(){
+        if(googleAuthInProgress) resetGoogleButtons();
+      }, 1200);
+    }
+  });
   function doGoogleAuth(){
     if(googleAuthInProgress) return;
     var inAppName = detectInAppBrowser();
@@ -2294,6 +2314,10 @@
     // custom parameter-ийг зааж өгснөөр товч дарах бүрд account chooser
     // ЯМАГТ гарч, хэрэглэгч бүртгэлээ сонгох боломжтой болно.
     provider.setCustomParameters({ prompt: 'select_account' });
+    // Нөөц хамгаалалт: ямар ч шалтгаанаар Firebase-ийн хариу 25 секундэд
+    // ирэхгүй бол товчийг хүчээр идэвхжүүлж, хэрэглэгчийг мөнхөд
+    // түгжигдэхээс сэргийлнэ.
+    googleAuthTimeoutId = setTimeout(resetGoogleButtons, 25000);
     firebase.auth().signInWithPopup(provider)
       .then(function(result){
         var kr = getOrCreateLocalRecord(result.user, result);
@@ -2308,9 +2332,7 @@
         }
       })
       .finally(function(){
-        googleAuthInProgress = false;
-        if(googleLoginBtn) googleLoginBtn.disabled = false;
-        if(googleRegisterBtn) googleRegisterBtn.disabled = false;
+        resetGoogleButtons();
       });
   }
   if(googleLoginBtn) googleLoginBtn.addEventListener('click', doGoogleAuth);
