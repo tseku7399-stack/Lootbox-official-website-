@@ -168,6 +168,11 @@
     overflow:hidden;
     z-index:-1;
   }
+  /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
+     арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
+  body.theme-light .navbar::before{
+    background: var(--bg-panel-2);
+  }
   /* Зөвхөн хуудасны хамгийн дээд цэгт (scroll=0) байхад л navbar дугуй
      булантай (app-ын хүрээтэй тохирно), доош гүйсэн даруйд шулуун ирмэгтэй
      болгож, доор гүйж буй тоглоомын жагсаалт/зургууд булангийн
@@ -1423,6 +1428,7 @@
     <div class="profile-field" id="profileUsernameField">
       <label>Хэрэглэгчийн нэр</label>
       <input type="text" id="profileUsernameInput" placeholder="Хэрэглэгчийн нэрээ оруулах">
+      <div class="field-error" id="profileUsernameError"></div>
     </div>
 
     <div class="profile-field" id="profileEmailField">
@@ -1982,10 +1988,14 @@
   }
 
   // ---- Хэрэглэгчийн нэр (username) давхцаж байгаа эсэхийг шалгах ----
-  function isUsernameTaken(username){
+  // excludeKey дамжуулбал (жишээ нь: профайлаа засаж буй одоогийн
+  // хэрэглэгчийн key) тухайн хэрэглэгчийн өөрийнх нь бичлэгийг харгалзахгүй
+  // тул хэрэглэгч өөрийн хуучин нэрээ өөрчлөлгүй дахин хадгалж болно.
+  function isUsernameTaken(username, excludeKey){
     var users = loadUsers();
     var normalized = username.trim().toLowerCase();
     for(var key in users){
+      if(excludeKey && key === excludeKey) continue;
       if(users.hasOwnProperty(key) && users[key].displayName && users[key].displayName.trim().toLowerCase() === normalized){
         return true;
       }
@@ -2186,6 +2196,7 @@
   var profileBackBtn = document.getElementById('profileBackBtn');
   var profileUsernameInput = document.getElementById('profileUsernameInput');
   var profileUsernameField = document.getElementById('profileUsernameField');
+  var profileUsernameError = document.getElementById('profileUsernameError');
   var profileEmailInput = document.getElementById('profileEmailInput');
   var profileEmailField = document.getElementById('profileEmailField');
   var profileHistorySection = document.getElementById('profileHistorySection');
@@ -2272,6 +2283,7 @@
     profileEmailInput.value = currentUser.email || '';
     pendingAvatarImg = currentUser.avatarImg;
     if(avatarUploadError) clearFieldError(avatarUploadError);
+    if(profileUsernameError) clearFieldError(profileUsernameError);
     renderProfilePreview();
     profileSaveBtn.textContent = 'Хадгалах';
     profileSaveBtn.classList.remove('saved');
@@ -2389,12 +2401,42 @@
       var outW = Math.max(1, Math.round(w * scale));
       var outH = Math.max(1, Math.round(h * scale));
       try{
+        // Эх зураг том байхад (жишээ нь дэвсгэр камерын 4000px зураг) нэг
+        // алхмаар шууд 256px рүү багасгахад canvas сайн чанартайгаар ч
+        // сорвижиж бүрсэлздэг (downscale artifact) тул хагасаар нь
+        // дараалан багасгаж, эцэст нь high-quality smoothing ашиглан эцсийн
+        // хэмжээнд оруулна — ингэснээр profile зураг эрс тодорхой болно.
+        var curCanvas = document.createElement('canvas');
+        curCanvas.width = w;
+        curCanvas.height = h;
+        var curCtx = curCanvas.getContext('2d');
+        curCtx.imageSmoothingEnabled = true;
+        if('imageSmoothingQuality' in curCtx) curCtx.imageSmoothingQuality = 'high';
+        curCtx.drawImage(img, 0, 0, w, h);
+
+        var curW = w, curH = h;
+        while(curW * 0.5 > outW && curH * 0.5 > outH){
+          var nextW = Math.max(outW, Math.round(curW * 0.5));
+          var nextH = Math.max(outH, Math.round(curH * 0.5));
+          var stepCanvas = document.createElement('canvas');
+          stepCanvas.width = nextW;
+          stepCanvas.height = nextH;
+          var stepCtx = stepCanvas.getContext('2d');
+          stepCtx.imageSmoothingEnabled = true;
+          if('imageSmoothingQuality' in stepCtx) stepCtx.imageSmoothingQuality = 'high';
+          stepCtx.drawImage(curCanvas, 0, 0, curW, curH, 0, 0, nextW, nextH);
+          curCanvas = stepCanvas;
+          curW = nextW; curH = nextH;
+        }
+
         var canvas = document.createElement('canvas');
         canvas.width = outW;
         canvas.height = outH;
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, outW, outH);
-        onDone(canvas.toDataURL('image/jpeg', 0.85));
+        ctx.imageSmoothingEnabled = true;
+        if('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(curCanvas, 0, 0, curW, curH, 0, 0, outW, outH);
+        onDone(canvas.toDataURL('image/jpeg', 0.92));
       }catch(e){
         onFail();
       }
