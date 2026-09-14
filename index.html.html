@@ -890,6 +890,22 @@
     border:1px solid rgba(126,93,232,0.30); border-radius:14px; padding:11px 14px;
     margin-bottom:14px; text-align:center; line-height:1.5;
   }
+  /* Facebook/Messenger/Instagram зэрэг апп-н дотоод browser дотор нээгдсэн
+     үед Google-ээр нэвтрэх боломжгүйг урьдчилан анхааруулах баннер */
+  .inapp-browser-notice{
+    display:none; font-size:12px; color:var(--text-hi); line-height:1.5;
+    background:rgba(255,93,93,0.10); border:1px solid rgba(255,93,93,0.32);
+    border-radius:14px; padding:12px 13px; margin-bottom:16px;
+  }
+  .inapp-browser-notice.show{ display:block; }
+  .inapp-browser-notice .iabn-title{ font-weight:700; margin-bottom:4px; }
+  .inapp-browser-notice .iabn-copy-btn{
+    margin-top:9px; display:inline-flex; align-items:center; gap:6px;
+    background:var(--bg-elevated); border:1px solid var(--line-strong); color:var(--text-hi);
+    font-family:'Inter',sans-serif; font-weight:600; font-size:12px;
+    padding:7px 12px; border-radius:10px; cursor:pointer;
+  }
+  .inapp-browser-notice .iabn-copy-btn.copied{ color:var(--gold-300); border-color:var(--gold-300); }
 
   .google-btn{
     width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
@@ -1071,6 +1087,12 @@
         <img src="Logo.PNG" alt="Лого" style="width:100%;height:100%;object-fit:contain;">
       </div>
       <div class="login-title">LootBox</div>
+
+      <div class="inapp-browser-notice" id="inAppBrowserNotice">
+        <div class="iabn-title">⚠️ Google-ээр нэвтрэх ажиллахгүй орчинд байна</div>
+        <div id="inAppBrowserNoticeText"></div>
+        <button type="button" class="iabn-copy-btn" id="iabnCopyBtn">Холбоос хуулах</button>
+      </div>
 
       <div class="auth-tabs">
         <div class="auth-tab active" id="tabLogin">Нэвтрэх</div>
@@ -1822,6 +1844,9 @@
   var googleLoginBtn = document.getElementById('googleLoginBtn');
   var googleRegisterBtn = document.getElementById('googleRegisterBtn');
   var loginCloseBtn = document.getElementById('loginCloseBtn');
+  var inAppBrowserNotice = document.getElementById('inAppBrowserNotice');
+  var inAppBrowserNoticeText = document.getElementById('inAppBrowserNoticeText');
+  var iabnCopyBtn = document.getElementById('iabnCopyBtn');
   var loginOpenedFrom = null;
 
   // ---- Нууц үгийн товч устгагдсан тул текст талбар шууд харагдана ----
@@ -1854,6 +1879,57 @@
     tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
   }
 
+  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод browser дотор
+  // нээгдсэн бол Google-ээр нэвтрэх товч дарагдахаас өмнө нь Нэвтрэх цонх
+  // нээгдэх дор дороо анхааруулга харуулна (зөвхөн товч дарсны дараа
+  // алдаа харуулахаас илүү, эрт мэдэгдэх нь ойлгомжтой) ----
+  function updateInAppBrowserNotice(){
+    if(!inAppBrowserNotice) return;
+    var name = detectInAppBrowser();
+    if(name){
+      inAppBrowserNoticeText.textContent = name + '-ийн дотоод browser Google-ийн нэвтрэлтийг блоклодог (энэ бол сайтын алдаа биш, Google-ийн өөрийнх нь аюулгүй байдлын хязгаарлалт). Доорх товчоор холбоосоо хуулж аваад Chrome эсвэл Safari-д нээж орно уу — эсвэл доорх и-мэйлээр шууд бүртгүүлж/нэвтэрч болно.';
+      inAppBrowserNotice.classList.add('show');
+    } else {
+      inAppBrowserNotice.classList.remove('show');
+    }
+  }
+  if(iabnCopyBtn){
+    iabnCopyBtn.addEventListener('click', function(){
+      var url = location.href;
+      function showCopied(){
+        iabnCopyBtn.textContent = 'Хуулагдлаа ✓';
+        iabnCopyBtn.classList.add('copied');
+        setTimeout(function(){
+          iabnCopyBtn.textContent = 'Холбоос хуулах';
+          iabnCopyBtn.classList.remove('copied');
+        }, 1800);
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(showCopied).catch(function(){
+          fallbackCopy(url, showCopied);
+        });
+      } else {
+        fallbackCopy(url, showCopied);
+      }
+    });
+  }
+  // ---- Clipboard API дэмжигдэхгүй (зарим хуучин in-app webview) орчинд
+  // зориулсан нөөц арга: түр textarea үүсгэж, сонгоод хуулна ----
+  function fallbackCopy(text, onDone){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(onDone) onDone();
+    }catch(e){}
+  }
+
   function openLogin(returnTo){
     loginReturnTo = returnTo || 'main';
     loginOpenedFrom = getCurrentVisiblePage();
@@ -1878,6 +1954,7 @@
     forgotSent.style.display = 'none';
     showAuthPanel('login');
     loginView.style.display = 'block';
+    updateInAppBrowserNotice();
   }
 
   function closeLogin(){
@@ -2187,7 +2264,7 @@
     return null;
   }
   function inAppBrowserMessage(name){
-    return 'Google-ээр нэвтрэх ' + name + '-ийн дотоод browser дээр ажилладаггүй. Баруун дээд буланд буй "⋮" эсвэл "···" цэснээс "Open in Browser" / "Chrome-оор нээх"-г сонгоод дахин оролдоно уу';
+    return 'Google-ээр нэвтрэх ' + name + '-ийн дотоод browser дээр ажилладаггүй (Google-ийн хязгаарлалт). Дээрх "Холбоос хуулах" товчоор холбоосоо Chrome/Safari-д нээгээд дахин оролдоно уу, эсвэл доорх и-мэйлээр бүртгүүлж болно';
   }
 
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
