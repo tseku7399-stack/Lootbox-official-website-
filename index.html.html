@@ -778,6 +778,24 @@
   .payment-confirm-btn.success{ background:var(--bg-elevated); color:var(--text-lo); cursor:default; }
   .payment-confirm-btn.loading{ display:flex; align-items:center; justify-content:center; cursor:default; opacity:.85; }
   .payment-confirm-btn.loading .btn-spinner{ border-color:rgba(255,255,255,0.4); border-top-color:#fff; }
+  .payment-success-view{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 2px; }
+  .ps-check-wrap{ margin-bottom:14px; }
+  .ps-check{
+    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(145deg,#4ade80,#16a34a);
+    box-shadow:0 0 0 8px rgba(74,222,128,0.12);
+  }
+  .ps-check svg{ width:30px; height:30px; stroke:#fff; }
+  .ps-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:var(--text-hi); margin-bottom:4px; }
+  .ps-sub{ font-size:13px; color:var(--text-lo); margin-bottom:20px; }
+  .ps-card{
+    width:100%; background:var(--bg-elevated); border:1px solid var(--line); border-radius:18px;
+    padding:14px 16px; display:flex; flex-direction:column; gap:11px; text-align:left;
+  }
+  .ps-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .ps-label{ font-size:12.5px; color:var(--text-lo); flex-shrink:0; }
+  .ps-value{ font-size:13.5px; font-weight:600; color:var(--text-hi); text-align:right; }
+  .ps-amount{ color:var(--gold-300); }
   .all-games-grid{
     display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;
     -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
@@ -1513,54 +1531,84 @@
       </div>
     </div>
 
-    <div class="payment-modal-summary">
-      <div class="pm-game" id="pmGameName">—</div>
-      <div class="pm-item" id="pmItemName">—</div>
-      <div class="pm-total-row">
-        <span>Нийт дүн</span>
-        <span class="pm-total" id="pmTotalAmount">—</span>
-      </div>
-    </div>
-
-    <div class="payment-tabs">
-      <div class="payment-tab active" data-tab="qpay" id="pmTabQpay">QPay</div>
-      <div class="payment-tab" data-tab="bank" id="pmTabBank">Шилжүүлэг</div>
-    </div>
-
-    <div class="payment-tab-panel" id="pmPanelQpay">
-      <div class="qpay-qr-wrap">
-        <img class="qpay-qr-img" id="qpayQrImg" alt="QPay QR">
-      </div>
-      <div class="qpay-hint">QPay апп-аараа энэ QR кодыг уншуулж төлбөрөө баталгаажуулна уу</div>
-      <div class="qpay-banks-label">Дэмжигдэх банкууд</div>
-      <div class="qpay-banks-row" id="qpayBanksRow"></div>
-    </div>
-
-    <div class="payment-tab-panel" id="pmPanelBank" style="display:none;">
-      <div class="transfer-bank-chips" id="transferBankChips"></div>
-      <div class="transfer-card">
-        <div class="transfer-row">
-          <span class="tr-label">Банк</span>
-          <span class="tr-value" id="transferBankName">—</span>
-        </div>
-        <div class="transfer-row">
-          <span class="tr-label">Дансны дугаар</span>
-          <span class="tr-value" id="transferAccNumber">—</span>
-          <button type="button" class="transfer-copy-btn" id="transferCopyBtn">Хуулах</button>
-        </div>
-        <div class="transfer-row">
-          <span class="tr-label">Хүлээн авагч</span>
-          <span class="tr-value" id="transferRecipient">—</span>
-        </div>
-        <div class="transfer-row">
-          <span class="tr-label">Шилжүүлэх дүн</span>
-          <span class="tr-value tr-amount" id="transferAmount">—</span>
+    <div id="paymentFormView">
+      <div class="payment-modal-summary">
+        <div class="pm-game" id="pmGameName">—</div>
+        <div class="pm-item" id="pmItemName">—</div>
+        <div class="pm-total-row">
+          <span>Нийт дүн</span>
+          <span class="pm-total" id="pmTotalAmount">—</span>
         </div>
       </div>
-      <div class="qpay-hint">Дээрх дансанд шилжүүлгээ хийгээд, доорх товч дээр дарж баталгаажуулна уу</div>
+
+      <div class="payment-tabs">
+        <div class="payment-tab active" data-tab="qpay" id="pmTabQpay">QPay</div>
+        <div class="payment-tab" data-tab="bank" id="pmTabBank">Шилжүүлэг</div>
+      </div>
+
+      <div class="payment-tab-panel" id="pmPanelQpay">
+        <div class="qpay-qr-wrap">
+          <img class="qpay-qr-img" id="qpayQrImg" alt="QPay QR">
+        </div>
+        <div class="qpay-hint">QPay апп-аараа энэ QR кодыг уншуулж төлбөрөө баталгаажуулна уу</div>
+        <div class="qpay-banks-label">Дэмжигдэх банкууд</div>
+        <div class="qpay-banks-row" id="qpayBanksRow"></div>
+      </div>
+
+      <div class="payment-tab-panel" id="pmPanelBank" style="display:none;">
+        <div class="transfer-bank-chips" id="transferBankChips"></div>
+        <div class="transfer-card">
+          <div class="transfer-row">
+            <span class="tr-label">Банк</span>
+            <span class="tr-value" id="transferBankName">—</span>
+          </div>
+          <div class="transfer-row">
+            <span class="tr-label">Дансны дугаар</span>
+            <span class="tr-value" id="transferAccNumber">—</span>
+            <button type="button" class="transfer-copy-btn" id="transferCopyBtn">Хуулах</button>
+          </div>
+          <div class="transfer-row">
+            <span class="tr-label">Хүлээн авагч</span>
+            <span class="tr-value" id="transferRecipient">—</span>
+          </div>
+          <div class="transfer-row">
+            <span class="tr-label">Шилжүүлэх дүн</span>
+            <span class="tr-value tr-amount" id="transferAmount">—</span>
+          </div>
+        </div>
+        <div class="qpay-hint">Дээрх дансанд шилжүүлгээ хийгээд, доорх товч дээр дарж баталгаажуулна уу</div>
+      </div>
+
+      <button class="payment-confirm-btn" id="paymentConfirmBtn">Төлбөр баталгаажуулах</button>
     </div>
 
-    <button class="payment-confirm-btn" id="paymentConfirmBtn">Төлбөр баталгаажуулах</button>
+    <div class="payment-success-view" id="paymentSuccessView" style="display:none;">
+      <div class="ps-check-wrap">
+        <div class="ps-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+      </div>
+      <div class="ps-title">Амжилттай цэнэглэгдлээ</div>
+      <div class="ps-sub">Таны худалдан авалт баталгаажлаа</div>
+      <div class="ps-card">
+        <div class="ps-row">
+          <span class="ps-label">Тоглоом</span>
+          <span class="ps-value" id="psGameName">—</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Багц</span>
+          <span class="ps-value" id="psItemName">—</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Дүн</span>
+          <span class="ps-value ps-amount" id="psAmount">—</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Огноо, цаг</span>
+          <span class="ps-value" id="psDate">—</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3154,6 +3202,12 @@
   var transferAmount = document.getElementById('transferAmount');
   var transferCopyBtn = document.getElementById('transferCopyBtn');
   var paymentConfirmBtn = document.getElementById('paymentConfirmBtn');
+  var paymentFormView = document.getElementById('paymentFormView');
+  var paymentSuccessView = document.getElementById('paymentSuccessView');
+  var psGameName = document.getElementById('psGameName');
+  var psItemName = document.getElementById('psItemName');
+  var psAmount = document.getElementById('psAmount');
+  var psDate = document.getElementById('psDate');
   var pendingSelectedPackage = null;
   var selectedTransferBank = null;
 
@@ -3247,6 +3301,8 @@
     paymentConfirmBtn.disabled = false;
     paymentConfirmBtn.style.width = '';
     paymentConfirmBtn.textContent = 'Төлбөр баталгаажуулах';
+    paymentFormView.style.display = '';
+    paymentSuccessView.style.display = 'none';
     paymentModalOverlay.classList.add('open');
   }
 
@@ -3274,31 +3330,41 @@
     paymentConfirmBtn.innerHTML = '<span class="btn-spinner"></span>';
 
     setTimeout(function(){
-      // 2) Loading дууссаны дараа амжилттай болсныг ✓ тэмдгээр харуулна.
+      // 2) Loading дууссаны дараа дэлгэрэнгүй мэдээлэлтэй амжилтын дэлгэц рүү шилжинэ.
       paymentConfirmBtn.classList.remove('loading');
-      paymentConfirmBtn.classList.add('success');
+      paymentConfirmBtn.disabled = false;
       paymentConfirmBtn.style.width = '';
-      paymentConfirmBtn.textContent = 'Амжилттай цэнэглэгдлээ ✓';
+      paymentConfirmBtn.textContent = 'Төлбөр баталгаажуулах';
+
+      var gameName = rechargeTitle.textContent || '';
+      var itemText = pkg.getAttribute('data-item') || '';
+      var priceText = pkg.getAttribute('data-price') || '';
+      var now = new Date();
+      var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
+
+      psGameName.textContent = gameName;
+      psItemName.textContent = itemText;
+      psAmount.textContent = priceText;
+      psDate.textContent = dateStr;
+
+      paymentFormView.style.display = 'none';
+      paymentSuccessView.style.display = 'flex';
 
       if(currentUser.loggedIn && currentUserKey){
         var users = loadUsers();
         var record = users[currentUserKey];
         if(record){
           if(!record.purchases) record.purchases = [];
-          var now = new Date();
-          var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
           record.purchases.unshift({
-            game: rechargeTitle.textContent,
-            item: pkg.getAttribute('data-item') || '',
-            price: pkg.getAttribute('data-price') || '',
+            game: gameName,
+            item: itemText,
+            price: priceText,
             date: dateStr
           });
           users[currentUserKey] = record;
           saveUsers(users);
         }
       }
-
-      setTimeout(closePaymentModal, 900);
     }, 1200);
   });
 
