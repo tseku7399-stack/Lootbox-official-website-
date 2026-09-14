@@ -1062,6 +1062,39 @@
       else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
     }catch(e){}
   })();
+
+  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser
+  // дотор нээгдсэн бол Android дээр шууд системийн browser chooser луу
+  // (intent://) шилжүүлж, хэрэглэгч өөрийн дуртай browser-оо сонгож нээх
+  // боломжтой болгоно. Android-ийн энэ схем нь ЗӨВХӨН Android дээр л
+  // ажилладаг — Apple iOS дээр in-app browser-ээс гадуурх browser руу
+  // веб код (JS)-оор ЗААВАЛ шилжүүлэх боломжийг iOS зөвшөөрдөггүй тул
+  // iPhone дээр автомат шилжилт хийх боломжгүй (доор Нэвтрэх цонход
+  // харагдах "Холбоос хуулах" товч л тэдэнд үлдэнэ). ----
+  (function autoEscapeAndroidInAppBrowser(){
+    try{
+      var ua = navigator.userAgent || '';
+      var isInApp = /FBAN|FBAV|FB_IAB|FBSV|Messenger|Instagram|\bLine\/|MicroMessenger|TikTok|BytedanceWebview|musical_ly|Twitter|Snapchat/i.test(ua) || /; ?wv\)/i.test(ua);
+      var isAndroid = /Android/i.test(ua);
+      if(!isInApp || !isAndroid) return;
+      // Нэг сессэд нэг л удаа оролдоно — хэрэглэгч chooser-ийг цуцлаад буцаж
+      // ирэхэд дахин дахин "шидэгдэж" эвгүй мэдрэмж (redirect flicker/loop)
+      // үүсгэхгүй байхын тулд.
+      var already = false;
+      try{ already = sessionStorage.getItem('lootbox_androidEscapeTried') === '1'; }catch(e){}
+      if(already) return;
+      try{ sessionStorage.setItem('lootbox_androidEscapeTried', '1'); }catch(e){}
+      var full = location.href;
+      var withoutScheme = full.replace(/^https?:\/\//, '');
+      var scheme = full.indexOf('https://') === 0 ? 'https' : 'http';
+      // package= заагаагүй тул Android өөрөө "аль апп-аар нээх вэ" гэсэн
+      // сонголтын цэс (эсвэл тухайн хэрэглэгчийн өмнө сонгосон
+      // "үндсэн browser") руу шилжүүлнэ — өөрөөр хэлбэл Chrome-оор
+      // хатуу заагаад заавал биш, хэрэглэгчийн ДУРТАЙ browser-ыг сонгох
+      // боломжийг үлдээнэ.
+      location.href = 'intent://' + withoutScheme + '#Intent;scheme=' + scheme + ';end';
+    }catch(e){}
+  })();
 </script>
 
 <div class="blinds"></div>
