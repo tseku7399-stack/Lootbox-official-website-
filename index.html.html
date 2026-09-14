@@ -776,6 +776,8 @@
     padding:14px; border-radius:16px; cursor:pointer;
   }
   .payment-confirm-btn.success{ background:var(--bg-elevated); color:var(--text-lo); cursor:default; }
+  .payment-confirm-btn.loading{ display:flex; align-items:center; justify-content:center; cursor:default; opacity:.85; }
+  .payment-confirm-btn.loading .btn-spinner{ border-color:rgba(255,255,255,0.4); border-top-color:#fff; }
   .all-games-grid{
     display:flex; gap:10px; overflow-x:auto; margin-bottom:20px;
     -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;
@@ -3241,7 +3243,9 @@
     var qrData = encodeURIComponent('QPay|' + gameName + '|' + itemText + '|' + priceText);
     qpayQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=' + qrData;
 
-    paymentConfirmBtn.classList.remove('success');
+    paymentConfirmBtn.classList.remove('success', 'loading');
+    paymentConfirmBtn.disabled = false;
+    paymentConfirmBtn.style.width = '';
     paymentConfirmBtn.textContent = 'Төлбөр баталгаажуулах';
     paymentModalOverlay.classList.add('open');
   }
@@ -3256,34 +3260,46 @@
 
   paymentConfirmBtn.addEventListener('click', function(){
     if(!pendingSelectedPackage) return;
-    // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, модал 900мс-ийн
-    // дараа хаагдах хүртэлх хугацаанд товчийг дахин дарвал (double-tap)
-    // худалдан авалт хоёр удаа бичигдэхээс сэргийлнэ.
+    // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, loading үзүүлж
+    // байх хугацаанд товчийг дахин дарвал (double-tap) худалдан авалт хоёр
+    // удаа бичигдэхээс сэргийлнэ.
     var pkg = pendingSelectedPackage;
     pendingSelectedPackage = null;
 
-    paymentConfirmBtn.classList.add('success');
-    paymentConfirmBtn.textContent = 'Төлбөр баталгаажлаа ✓';
+    // 1) Эхлээд loading (spinner) төлөвийг үзүүлнэ.
+    paymentConfirmBtn.classList.remove('success');
+    paymentConfirmBtn.classList.add('loading');
+    paymentConfirmBtn.disabled = true;
+    paymentConfirmBtn.style.width = paymentConfirmBtn.offsetWidth + 'px';
+    paymentConfirmBtn.innerHTML = '<span class="btn-spinner"></span>';
 
-    if(currentUser.loggedIn && currentUserKey){
-      var users = loadUsers();
-      var record = users[currentUserKey];
-      if(record){
-        if(!record.purchases) record.purchases = [];
-        var now = new Date();
-        var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
-        record.purchases.unshift({
-          game: rechargeTitle.textContent,
-          item: pkg.getAttribute('data-item') || '',
-          price: pkg.getAttribute('data-price') || '',
-          date: dateStr
-        });
-        users[currentUserKey] = record;
-        saveUsers(users);
+    setTimeout(function(){
+      // 2) Loading дууссаны дараа амжилттай болсныг ✓ тэмдгээр харуулна.
+      paymentConfirmBtn.classList.remove('loading');
+      paymentConfirmBtn.classList.add('success');
+      paymentConfirmBtn.style.width = '';
+      paymentConfirmBtn.textContent = 'Амжилттай цэнэглэгдлээ ✓';
+
+      if(currentUser.loggedIn && currentUserKey){
+        var users = loadUsers();
+        var record = users[currentUserKey];
+        if(record){
+          if(!record.purchases) record.purchases = [];
+          var now = new Date();
+          var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
+          record.purchases.unshift({
+            game: rechargeTitle.textContent,
+            item: pkg.getAttribute('data-item') || '',
+            price: pkg.getAttribute('data-price') || '',
+            date: dateStr
+          });
+          users[currentUserKey] = record;
+          saveUsers(users);
+        }
       }
-    }
 
-    setTimeout(closePaymentModal, 900);
+      setTimeout(closePaymentModal, 900);
+    }, 1200);
   });
 
   // ---- Banner: гараар хоёр тийш чөлөөтэй swipe хийж, төгсгөлгүй эргэлддэг (infinite loop) болгох ----
