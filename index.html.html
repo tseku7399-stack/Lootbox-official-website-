@@ -1960,6 +1960,7 @@
   }
 
   function doLogin(){
+    if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
     registerSuccessMsg.style.display = 'none';
@@ -2025,6 +2026,7 @@
   }
 
   function doRegister(){
+    if(registerBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол давхар бүү илгээ
     var u = registerUsername.value.trim();
     var email = registerEmail.value.trim();
     var p = registerPassword.value;
@@ -2122,6 +2124,7 @@
   }
 
   function doForgot(){
+    if(forgotBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол давхар бүү илгээ
     var v = forgotInput.value.trim();
     if(!v){
       forgotError.textContent = 'Талбарыг бөглөнө үү';
@@ -3117,6 +3120,11 @@
 
   paymentConfirmBtn.addEventListener('click', function(){
     if(!pendingSelectedPackage) return;
+    // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, модал 900мс-ийн
+    // дараа хаагдах хүртэлх хугацаанд товчийг дахин дарвал (double-tap)
+    // худалдан авалт хоёр удаа бичигдэхээс сэргийлнэ.
+    var pkg = pendingSelectedPackage;
+    pendingSelectedPackage = null;
 
     paymentConfirmBtn.classList.add('success');
     paymentConfirmBtn.textContent = 'Төлбөр баталгаажлаа ✓';
@@ -3130,8 +3138,8 @@
         var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
         record.purchases.unshift({
           game: rechargeTitle.textContent,
-          item: pendingSelectedPackage.getAttribute('data-item') || '',
-          price: pendingSelectedPackage.getAttribute('data-price') || '',
+          item: pkg.getAttribute('data-item') || '',
+          price: pkg.getAttribute('data-price') || '',
           date: dateStr
         });
         users[currentUserKey] = record;
