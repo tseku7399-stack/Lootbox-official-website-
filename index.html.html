@@ -1619,7 +1619,14 @@
       'auth/popup-closed-by-user': 'Google цонхыг хаасан байна',
       'auth/cancelled-popup-request': 'Google цонхыг хаасан байна',
       'auth/network-request-failed': 'Сүлжээний алдаа гарлаа. Дахин оролдоно уу',
-      'auth/too-many-requests': 'Хэт олон оролдлого хийсэн тул түр хүлээнэ үү'
+      'auth/too-many-requests': 'Хэт олон оролдлого хийсэн тул түр хүлээнэ үү',
+      // Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser-үүдэд
+      // Google өөрөө OAuth нэвтрэлтийг блоклодог тул popup нээгдэхгүй эсвэл
+      // "энэ орчинд дэмжигдэхгүй" гэсэн доорх алдаанууд шидэгддэг.
+      'auth/operation-not-supported-in-this-environment': 'Энэ апп-н дотоод browser (жишээ нь Messenger, Facebook, Instagram) дээр Google-ээр нэвтрэх ажиллахгүй. Холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
+      'auth/popup-blocked': 'Google цонх нээгдсэнгүй. Энэ апп-н дотоод browser дээр байгаа бол холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
+      'auth/web-storage-unsupported': 'Энэ browser дээр шаардлагатай тохиргоо (cookie/storage) хаалттай байна. Холбоосыг Chrome эсвэл Safari дээр нээгээд дахин оролдоно уу',
+      'auth/unauthorized-domain': 'Энэ сайтын хаяг зөвшөөрөгдөөгүй байна. Дахин оролдоно уу'
     };
     return (code && map[code]) || (err && err.message) || 'Алдаа гарлаа. Дахин оролдоно уу';
   }
@@ -2157,6 +2164,29 @@
     if(e.key === 'Enter') doRegister();
   });
 
+  // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser
+  // (webview) илрүүлэх. Google эдгээр webview-үүдээс ирэх OAuth хүсэлтийг
+  // өөрөө (аюулгүй байдлын үүднээс) блоклодог тул popup нээгдэх ч алдааны
+  // хуудас гараад "цонхыг хаасан" мэт л харагддаг — иймд Firebase-ийг
+  // дуудахаас ӨМНӨ нь илрүүлж, ойлгомжтой заавар өгвөл илүү найдвартай. ----
+  function detectInAppBrowser(){
+    var ua = navigator.userAgent || '';
+    if(/FBAN|FBAV|FB_IAB|FBSV|Messenger/i.test(ua)) return 'Facebook/Messenger';
+    if(/Instagram/i.test(ua)) return 'Instagram';
+    if(/\bLine\//i.test(ua)) return 'LINE';
+    if(/MicroMessenger/i.test(ua)) return 'WeChat';
+    if(/TikTok|BytedanceWebview|musical_ly/i.test(ua)) return 'TikTok';
+    if(/Twitter/i.test(ua)) return 'Twitter/X';
+    if(/Snapchat/i.test(ua)) return 'Snapchat';
+    // Android-ийн ерөнхий WebView (жишээ нь iOS-той адил тодорхой апп нэргүй
+    // ч, Chrome биш webview дотор нээгдсэн үед UA-д "; wv)" гэж тэмдэглэгддэг)
+    if(/; ?wv\)/i.test(ua)) return 'апп доторх';
+    return null;
+  }
+  function inAppBrowserMessage(name){
+    return 'Google-ээр нэвтрэх ' + name + '-ийн дотоод browser дээр ажилладаггүй. Баруун дээд буланд буй "⋮" эсвэл "···" цэснээс "Open in Browser" / "Chrome-оор нээх"-г сонгоод дахин оролдоно уу';
+  }
+
   // ---- Google-ээр нэвтрэх / бүртгүүлэх: Firebase-ийн жинхэнэ Google OAuth popup ашиглана ----
   // googleAuthInProgress хамгаалалт: попап нээгдэж байх зуур товчийг дахин
   // дарахад Firebase "auth/cancelled-popup-request" алдаа шиднэ (хуучин
@@ -2165,6 +2195,12 @@
   var googleAuthInProgress = false;
   function doGoogleAuth(){
     if(googleAuthInProgress) return;
+    var inAppName = detectInAppBrowser();
+    if(inAppName){
+      var msg = inAppBrowserMessage(inAppName);
+      if(registerPanel.style.display !== 'none'){ setRegisterError(msg); } else { setLoginError(msg); }
+      return;
+    }
     googleAuthInProgress = true;
     if(googleLoginBtn) googleLoginBtn.disabled = true;
     if(googleRegisterBtn) googleRegisterBtn.disabled = true;
