@@ -711,6 +711,7 @@
   }
   .pm-game{ font-family:'Poppins',sans-serif; font-weight:700; font-size:14px; color:#fff; }
   .pm-item{ font-size:12px; color:rgba(255,255,255,0.8); margin-top:2px; }
+  .pm-acc{ font-size:11.5px; color:rgba(255,255,255,0.65); margin-top:4px; }
   .pm-total-row{
     display:flex; align-items:center; justify-content:space-between; margin-top:10px;
     padding-top:10px; border-top:1px solid rgba(255,255,255,0.15); font-size:12.5px; color:rgba(255,255,255,0.85);
@@ -1536,6 +1537,7 @@
       <div class="payment-modal-summary">
         <div class="pm-game" id="pmGameName">—</div>
         <div class="pm-item" id="pmItemName">—</div>
+        <div class="pm-acc" id="pmAccInfo">—</div>
         <div class="pm-total-row">
           <span>Нийт дүн</span>
           <span class="pm-total" id="pmTotalAmount">—</span>
@@ -3197,6 +3199,7 @@
   var paymentModalClose = document.getElementById('paymentModalClose');
   var pmGameName = document.getElementById('pmGameName');
   var pmItemName = document.getElementById('pmItemName');
+  var pmAccInfo = document.getElementById('pmAccInfo');
   var pmTotalAmount = document.getElementById('pmTotalAmount');
   var pmTabQpay = document.getElementById('pmTabQpay');
   var pmTabBank = document.getElementById('pmTabBank');
@@ -3299,6 +3302,15 @@
     var priceText = selectedPackageEl.getAttribute('data-price') || '';
     pmGameName.textContent = gameName;
     pmItemName.textContent = itemText;
+
+    var playerIdEl = document.getElementById('playerIdInput');
+    var zoneIdEl = document.getElementById('zoneIdInput');
+    var idValue = playerIdEl ? playerIdEl.value.trim() : '';
+    var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
+    var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
+    var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '';
+    pmAccInfo.textContent = idValue ? ('ID: ' + idDisplay + (accountName ? (' · ' + accountName) : '')) : '—';
+
     pmTotalAmount.textContent = priceText;
     transferAmount.textContent = priceText;
 
