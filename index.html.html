@@ -1370,6 +1370,76 @@
       <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
 </div>
   </div>
+
+  <div class="section-head">
+    <h2>Аппликейшн</h2>
+  </div>
+  <div class="all-games-grid" id="mainAppsGrid">
+    <div class="offer-card" data-game="Netflix">
+      <div class="offer-cover d">
+        <img src="https://cdn.simpleicons.org/netflix" alt="Netflix">
+      </div>
+      <div class="offer-body">
+        <div class="title">Netflix</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="Apple TV+">
+      <div class="offer-cover e">
+        <img src="https://cdn.simpleicons.org/appletv" alt="Apple TV+">
+      </div>
+      <div class="offer-body">
+        <div class="title">Apple TV+</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="Prime Video">
+      <div class="offer-cover b">
+        <img src="https://cdn.simpleicons.org/primevideo" alt="Prime Video">
+      </div>
+      <div class="offer-body">
+        <div class="title">Prime Video</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="CapCut Pro">
+      <div class="offer-cover a">
+        <img class="full-img" src="https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ=s256" alt="CapCut Pro">
+      </div>
+      <div class="offer-body">
+        <div class="title">CapCut Pro</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="Photoshop">
+      <div class="offer-cover c">
+        <img class="full-img" src="https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/photoshop-64.svg" alt="Photoshop">
+      </div>
+      <div class="offer-body">
+        <div class="title">Photoshop</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="Premiere Pro">
+      <div class="offer-cover c">
+        <img class="full-img" src="https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/premiere-pro-64.svg" alt="Premiere Pro">
+      </div>
+      <div class="offer-body">
+        <div class="title">Premiere Pro</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+    <div class="offer-card" data-game="Canva Pro">
+      <div class="offer-cover a">
+        <img class="full-img" src="https://play-lh.googleusercontent.com/52fzAlhKzDyZV8ttyQ_DHB-jOeLZAZEdKlgXnWL__YNMZuvsoRCshJX5mr_ArFZjK7rte4hqEJ4ucjtuKJK5=s256" alt="Canva Pro">
+      </div>
+      <div class="offer-body">
+        <div class="title">Canva Pro</div>
+      </div>
+      <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
+</div>
+  </div>
+
   <div class="footer-contact">
     <div class="label">Холбоо барих</div>
     <div class="footer-social">
@@ -1471,7 +1541,7 @@
       </div>
     </div>
 
-    <div class="step-label"><div class="step-num">1</div><span>Тоглогчийн ID оруулах</span></div>
+    <div class="step-label"><div class="step-num">1</div><span id="step1Label">Тоглогчийн ID оруулах</span></div>
     <div class="id-fields" id="idFieldsContainer">
       <div class="id-field id-field-wide">
         <label>ID оруулах</label>
@@ -3003,7 +3073,9 @@
 
   function renderIdFields(game){
     var container = document.getElementById('idFieldsContainer');
+    var step1Label = document.getElementById('step1Label');
     if(ZONE_ID_GAMES.indexOf(game) !== -1){
+      if(step1Label) step1Label.textContent = 'Тоглогчийн ID оруулах';
       container.innerHTML =
         '<div class="id-field id-field-wide">' +
           '<div style="display:flex; gap:10px;">' +
@@ -3020,7 +3092,15 @@
           '<div class="verify-result" id="verifyResult"></div>' +
         '</div>';
       attachVerifyHandler();
+    } else if(SUBSCRIPTION_APPS.indexOf(game) !== -1){
+      if(step1Label) step1Label.textContent = 'Бүртгэлийн и-мэйл хаяг оруулах';
+      container.innerHTML =
+        '<div class="id-field id-field-wide">' +
+          '<label>И-мэйл хаяг</label>' +
+          '<input type="email" placeholder="Жишээ: name@gmail.com" id="playerIdInput">' +
+        '</div>';
     } else {
+      if(step1Label) step1Label.textContent = 'Тоглогчийн ID оруулах';
       container.innerHTML =
         '<div class="id-field id-field-wide">' +
           '<label>ID оруулах</label>' +
@@ -3045,13 +3125,23 @@
     DIAMOND: 'Diamonds',
     UC: 'UC',
     ROBUX: 'Robux',
-    GOLD: 'Gold'
+    GOLD: 'Gold',
+    SUBSCRIPTION: 'Хугацаа'
   };
+
+  var SUBSCRIPTION_APPS = ['Netflix', 'Apple TV+', 'Prime Video', 'CapCut Pro', 'Photoshop', 'Premiere Pro', 'Canva Pro'];
 
   var GAME_CURRENCY = {
     'PUBG Mobile': 'UC',
     'Roblox': 'ROBUX',
-    'Standoff 2': 'GOLD'
+    'Standoff 2': 'GOLD',
+    'Netflix': 'SUBSCRIPTION',
+    'Apple TV+': 'SUBSCRIPTION',
+    'Prime Video': 'SUBSCRIPTION',
+    'CapCut Pro': 'SUBSCRIPTION',
+    'Photoshop': 'SUBSCRIPTION',
+    'Premiere Pro': 'SUBSCRIPTION',
+    'Canva Pro': 'SUBSCRIPTION'
   };
 
   var DEFAULT_PACKAGE_TIERS = [
@@ -3082,6 +3172,44 @@
       { amount:500,  bonus:0, price:'28,000₮',  img:'Gold2.PNG' },
       { amount:1000, bonus:0, price:'48,000₮',  img:'Gold3.PNG' },
       { amount:3000, bonus:0, price:'104,000₮', img:'Gold4.PNG' }
+    ],
+    'Netflix': [
+      { duration:'1 сар',  price:'12,000₮',  img:'https://cdn.simpleicons.org/netflix' },
+      { duration:'3 сар',  price:'33,000₮',  img:'https://cdn.simpleicons.org/netflix' },
+      { duration:'6 сар',  price:'62,000₮',  img:'https://cdn.simpleicons.org/netflix' },
+      { duration:'12 сар', price:'115,000₮', img:'https://cdn.simpleicons.org/netflix' }
+    ],
+    'Apple TV+': [
+      { duration:'1 сар',  price:'9,000₮',  img:'https://cdn.simpleicons.org/appletv' },
+      { duration:'3 сар',  price:'25,000₮', img:'https://cdn.simpleicons.org/appletv' },
+      { duration:'6 сар',  price:'47,000₮', img:'https://cdn.simpleicons.org/appletv' },
+      { duration:'12 сар', price:'89,000₮', img:'https://cdn.simpleicons.org/appletv' }
+    ],
+    'Prime Video': [
+      { duration:'1 сар',  price:'8,000₮',  img:'https://cdn.simpleicons.org/primevideo' },
+      { duration:'3 сар',  price:'22,000₮', img:'https://cdn.simpleicons.org/primevideo' },
+      { duration:'6 сар',  price:'42,000₮', img:'https://cdn.simpleicons.org/primevideo' },
+      { duration:'12 сар', price:'78,000₮', img:'https://cdn.simpleicons.org/primevideo' }
+    ],
+    'CapCut Pro': [
+      { duration:'1 сар',  price:'15,000₮',  img:'https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ=s256' },
+      { duration:'3 сар',  price:'40,000₮',  img:'https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ=s256' },
+      { duration:'12 сар', price:'135,000₮', img:'https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ=s256' }
+    ],
+    'Photoshop': [
+      { duration:'1 сар',  price:'25,000₮',  img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/photoshop-64.svg' },
+      { duration:'3 сар',  price:'68,000₮',  img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/photoshop-64.svg' },
+      { duration:'12 сар', price:'240,000₮', img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/photoshop-64.svg' }
+    ],
+    'Premiere Pro': [
+      { duration:'1 сар',  price:'25,000₮',  img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/premiere-pro-64.svg' },
+      { duration:'3 сар',  price:'68,000₮',  img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/premiere-pro-64.svg' },
+      { duration:'12 сар', price:'240,000₮', img:'https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/premiere-pro-64.svg' }
+    ],
+    'Canva Pro': [
+      { duration:'1 сар',  price:'10,000₮', img:'https://play-lh.googleusercontent.com/52fzAlhKzDyZV8ttyQ_DHB-jOeLZAZEdKlgXnWL__YNMZuvsoRCshJX5mr_ArFZjK7rte4hqEJ4ucjtuKJK5=s256' },
+      { duration:'3 сар',  price:'27,000₮', img:'https://play-lh.googleusercontent.com/52fzAlhKzDyZV8ttyQ_DHB-jOeLZAZEdKlgXnWL__YNMZuvsoRCshJX5mr_ArFZjK7rte4hqEJ4ucjtuKJK5=s256' },
+      { duration:'12 сар', price:'95,000₮', img:'https://play-lh.googleusercontent.com/52fzAlhKzDyZV8ttyQ_DHB-jOeLZAZEdKlgXnWL__YNMZuvsoRCshJX5mr_ArFZjK7rte4hqEJ4ucjtuKJK5=s256' }
     ]
   };
 
@@ -3097,9 +3225,9 @@
       var badgeHtml = '';
       if(t.badge === 'best'){ cardClass += ' best'; badgeHtml = '<span class="badge best-badge">' + t.badgeLabel + '</span>'; }
       if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
-      var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
-      var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : '') + ' ' + (CURRENCY_LABELS[currency] || ''));
-      var iconHtml = ((currency === 'DIAMOND' || currency === 'GOLD') && t.img)
+      var mainLine = t.special ? t.label : (t.duration ? t.duration : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : '')));
+      var itemText = t.special ? t.label : (t.duration ? t.duration : (t.amount + (t.bonus ? ' +' + t.bonus : '') + ' ' + (CURRENCY_LABELS[currency] || '')));
+      var iconHtml = t.img
         ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
         : CURRENCY_ICONS[currency];
       return '<div class="' + cardClass + '" data-item="' + itemText + '" data-price="' + t.price + '">' + badgeHtml +
@@ -3142,7 +3270,7 @@
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       var rechargeHeadTitle = document.getElementById('rechargeHeadTitle');
       if(rechargeHeadTitle) rechargeHeadTitle.textContent = card.getAttribute('data-display-name') || game;
-      rechargeSub.textContent = 'Шууд цэнэглэлт';
+      rechargeSub.textContent = (SUBSCRIPTION_APPS.indexOf(game) !== -1) ? 'Захиалгын сунгалт' : 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
 
@@ -3332,8 +3460,9 @@
     var idValue = playerIdEl ? playerIdEl.value.trim() : '';
     var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
     var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
-    var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '';
-    pmAccInfo.textContent = idValue ? ('ID: ' + idDisplay + (accountName ? (' · ' + accountName) : '')) : '—';
+    var isSubApp = SUBSCRIPTION_APPS.indexOf(currentRechargeGame) !== -1;
+    var accountName = (!isSubApp && idValue) ? generateMockAccount(currentRechargeGame, idValue).name : '';
+    pmAccInfo.textContent = idValue ? (isSubApp ? ('И-мэйл: ' + idValue) : ('ID: ' + idDisplay + (accountName ? (' · ' + accountName) : ''))) : '—';
 
     pmTotalAmount.textContent = priceText;
     transferAmount.textContent = priceText;
@@ -3394,7 +3523,8 @@
       var idValue = playerIdEl ? playerIdEl.value.trim() : '';
       var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
       var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
-      var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '—';
+      var isSubApp = SUBSCRIPTION_APPS.indexOf(currentRechargeGame) !== -1;
+      var accountName = (!isSubApp && idValue) ? generateMockAccount(currentRechargeGame, idValue).name : '—';
 
       psGameName.textContent = gameName;
       psAccId.textContent = idDisplay || '—';
