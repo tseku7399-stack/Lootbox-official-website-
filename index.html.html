@@ -529,27 +529,6 @@
   .rb-name{ font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:#fff; }
   .rb-sub{ font-size:12px; color:rgba(255,255,255,0.85); margin-top:2px; }
 
-  /* Аппуудын багц сонголтын банер: лого харуулахгүй, оронд нь тухайн
-     аппын өнгөтэй gradient дэвсгэр + чимэглэлийн зурагт тэмдэг ашиглана */
-  .recharge-banner.sub-banner .recharge-banner-icon{ display:none; }
-  .recharge-banner.sub-banner{ padding-left:22px; }
-  .recharge-banner.sub-banner .rb-name{ font-size:21px; letter-spacing:.2px; }
-  .recharge-banner.sub-banner .rb-sub{
-    display:inline-flex; align-items:center; gap:6px; margin-top:8px;
-    background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.22);
-    padding:4px 10px 4px 8px; border-radius:999px; font-weight:600; letter-spacing:.2px;
-  }
-  .recharge-banner.sub-banner .rb-sub::before{ content:"✦"; font-size:11px; color:#fff; }
-  .recharge-banner.sub-banner::after{
-    content:""; position:absolute; right:-18px; top:-24px; width:140px; height:140px;
-    background:radial-gradient(circle, rgba(255,255,255,0.20), transparent 70%);
-    border-radius:50%; pointer-events:none;
-  }
-  .recharge-banner.sub-banner::before{
-    content:"✦"; position:absolute; right:20px; bottom:8px; font-size:52px; line-height:1;
-    color:rgba(255,255,255,0.14); pointer-events:none; font-family:'Poppins',sans-serif;
-  }
-
   .step-label{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .step-num{
     width:26px; height:26px; border-radius:50%; flex-shrink:0;
@@ -3139,7 +3118,9 @@
     DIAMOND: '<svg viewBox="0 0 24 24"><path d="M4.5 9L12 3l7.5 6-7.5 12z" fill="#af9bf1"/><path d="M8 9l4-6 4 6-4 12z" fill="#e3dbfa"/><path d="M4.5 9h15" stroke="#5b43a7" stroke-width="0.6"/></svg>',
     UC: '<img src="UC.PNG" alt="UC">',
     ROBUX: '<img src="Robux.PNG" alt="ROBUX">',
-    GOLD: '<img src="GOLD.png" alt="GOLD">'
+    GOLD: '<img src="GOLD.png" alt="GOLD">',
+    SUBSCRIPTION: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-300)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 1.9"/></svg>',
+    NETFLIX_PLAN: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-300)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12.5" rx="2.2"/><path d="M8.3 21h7.4M12 17.5V21"/></svg>'
   };
 
   var CURRENCY_LABELS = {
@@ -3249,9 +3230,11 @@
       if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
       var mainLine = t.special ? t.label : (t.duration ? t.duration : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : '')));
       var itemText = t.special ? t.label : (t.duration ? t.duration : (t.amount + (t.bonus ? ' +' + t.bonus : '') + ' ' + (CURRENCY_LABELS[currency] || '')));
-      var iconHtml = t.img
-        ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
-        : CURRENCY_ICONS[currency];
+      var iconHtml = (currency === 'SUBSCRIPTION' || currency === 'NETFLIX_PLAN')
+        ? CURRENCY_ICONS[currency]
+        : (t.img
+          ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
+          : CURRENCY_ICONS[currency]);
       return '<div class="' + cardClass + '" data-item="' + itemText + '" data-price="' + t.price + '">' + badgeHtml +
         '<div class="amt"><span class="cur-icon">' + iconHtml + '</span>' + mainLine + '</div>' +
         '<div class="price">' + t.price + '</div></div>';
@@ -3281,15 +3264,6 @@
     'Standoff 2': 'Standoff2banner.PNG',
     'Roblox': 'https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/4/3/7/43736e1e26e5a6bc010d68dee32e4a300f529866.png'
   };
-  var SUBSCRIPTION_BANNER_BG = {
-    'Netflix': 'linear-gradient(135deg,#1a0000,#5c0a0a 55%,#e50914)',
-    'Apple TV+': 'linear-gradient(135deg,#050505,#232326 55%,#4a4a4f)',
-    'Prime Video': 'linear-gradient(135deg,#00121f,#003a5c 55%,#00a8e1)',
-    'CapCut Pro': 'linear-gradient(135deg,#0a0a0a,#1e1e1e 55%,#00d9c0)',
-    'Photoshop': 'linear-gradient(135deg,#00121f,#00305a 55%,#31a8ff)',
-    'Premiere Pro': 'linear-gradient(135deg,#160a2e,#3d1a6b 55%,#9d8cff)',
-    'Canva Pro': 'linear-gradient(135deg,#0a1f26,#0f4a5c 55%,#00c4cc)'
-  };
 
   document.querySelectorAll('.offer-card').forEach(function(card){
     card.addEventListener('click', function(){
@@ -3301,32 +3275,19 @@
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       var rechargeHeadTitle = document.getElementById('rechargeHeadTitle');
       if(rechargeHeadTitle) rechargeHeadTitle.textContent = card.getAttribute('data-display-name') || game;
-      var isSubscriptionApp = SUBSCRIPTION_APPS.indexOf(game) !== -1;
-      rechargeSub.textContent = isSubscriptionApp ? 'Захиалгын сунгалт' : 'Шууд цэнэглэлт';
+      rechargeSub.textContent = (SUBSCRIPTION_APPS.indexOf(game) !== -1) ? 'Захиалгын сунгалт' : 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
+      rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
 
-      if(isSubscriptionApp){
-        // Аппуудын багц сонголтод лого харуулахгүй, зөвхөн тухайн аппад
-        // тохирсон өнгөт gradient + чимэглэлээр банерыг гоё харуулна.
-        rechargeBannerEl.classList.add('sub-banner');
-        rechargeBannerIcon.innerHTML = '';
-        rechargeBannerEl.style.backgroundImage = SUBSCRIPTION_BANNER_BG[game] || DEFAULT_BANNER_BG;
+      if(RECHARGE_BANNER_BG[game]){
+        rechargeBannerEl.style.backgroundImage =
+          'linear-gradient(135deg, rgba(21,11,46,0.62), rgba(58,30,107,0.48) 55%, rgba(124,77,255,0.35)), url(\'' + RECHARGE_BANNER_BG[game] + '\')';
+        rechargeBannerEl.style.backgroundSize = 'cover';
+        rechargeBannerEl.style.backgroundPosition = 'center';
+      } else {
+        rechargeBannerEl.style.backgroundImage = DEFAULT_BANNER_BG;
         rechargeBannerEl.style.backgroundSize = '';
         rechargeBannerEl.style.backgroundPosition = '';
-      } else {
-        rechargeBannerEl.classList.remove('sub-banner');
-        rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
-
-        if(RECHARGE_BANNER_BG[game]){
-          rechargeBannerEl.style.backgroundImage =
-            'linear-gradient(135deg, rgba(21,11,46,0.62), rgba(58,30,107,0.48) 55%, rgba(124,77,255,0.35)), url(\'' + RECHARGE_BANNER_BG[game] + '\')';
-          rechargeBannerEl.style.backgroundSize = 'cover';
-          rechargeBannerEl.style.backgroundPosition = 'center';
-        } else {
-          rechargeBannerEl.style.backgroundImage = DEFAULT_BANNER_BG;
-          rechargeBannerEl.style.backgroundSize = '';
-          rechargeBannerEl.style.backgroundPosition = '';
-        }
       }
 
       renderIdFields(game);
