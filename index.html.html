@@ -529,6 +529,27 @@
   .rb-name{ font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:#fff; }
   .rb-sub{ font-size:12px; color:rgba(255,255,255,0.85); margin-top:2px; }
 
+  /* Аппуудын багц сонголтын банер: лого харуулахгүй, оронд нь тухайн
+     аппын өнгөтэй gradient дэвсгэр + чимэглэлийн зурагт тэмдэг ашиглана */
+  .recharge-banner.sub-banner .recharge-banner-icon{ display:none; }
+  .recharge-banner.sub-banner{ padding-left:22px; }
+  .recharge-banner.sub-banner .rb-name{ font-size:21px; letter-spacing:.2px; }
+  .recharge-banner.sub-banner .rb-sub{
+    display:inline-flex; align-items:center; gap:6px; margin-top:8px;
+    background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.22);
+    padding:4px 10px 4px 8px; border-radius:999px; font-weight:600; letter-spacing:.2px;
+  }
+  .recharge-banner.sub-banner .rb-sub::before{ content:"✦"; font-size:11px; color:#fff; }
+  .recharge-banner.sub-banner::after{
+    content:""; position:absolute; right:-18px; top:-24px; width:140px; height:140px;
+    background:radial-gradient(circle, rgba(255,255,255,0.20), transparent 70%);
+    border-radius:50%; pointer-events:none;
+  }
+  .recharge-banner.sub-banner::before{
+    content:"✦"; position:absolute; right:20px; bottom:8px; font-size:52px; line-height:1;
+    color:rgba(255,255,255,0.14); pointer-events:none; font-family:'Poppins',sans-serif;
+  }
+
   .step-label{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .step-num{
     width:26px; height:26px; border-radius:50%; flex-shrink:0;
@@ -1404,7 +1425,7 @@
 </div>
     <div class="offer-card" data-game="CapCut Pro">
       <div class="offer-cover a">
-        <img class="full-img" src="https://play-lh.googleusercontent.com/M78HyakHaxKrjoeqYx41E9DXfVYYtx67nvc7Ks4G4zFQeaAJdGCi8gzzGSrHIwlrmnJS6zD9S4fAXqdEwfuHQAQ=s256" alt="CapCut Pro">
+        <img class="full-img" src="https://images-eds-ssl.xboxlive.com/image?url=4rt9.lXDC4H_93laV1_eHHFT949fUipzkiFOBH3fAiZZUCdYojwUyX2aTonS1aIwMrx6NUIsHfUHSLzjGJFxxtHdRB6xk71KqOPxE23.XPhUUfqODBkb6wwbiIDScxqwRgjcHk45aaP8aRCJx1.JZ8R1.3DPmriej0nk1ag0_Ow-&format=source" alt="CapCut Pro">
       </div>
       <div class="offer-body">
         <div class="title">CapCut Pro</div>
@@ -1413,7 +1434,7 @@
 </div>
     <div class="offer-card" data-game="Photoshop">
       <div class="offer-cover c">
-        <img class="full-img" src="https://main--cc--adobecom.aem.page/cc-shared/assets/img/product-icons/svg/photoshop-64.svg" alt="Photoshop">
+        <img class="full-img" src="https://images-eds-ssl.xboxlive.com/image?url=4rt9.lXDC4H_93laV1_eHM0OYfiFeMI2p9MWie0CvL99U4GA1gf6_kayTt_kBblFwHwo8BW8JXlqfnYxKPmmBVqgFyIt4fje4zPBjaoJSzNa9eqCz1nwbzx3pTswhSwVn11rs3eoCW5cuHS2Q2BwR_w9vP5bWbS.YST_UUcoZmU-&format=source" alt="Photoshop">
       </div>
       <div class="offer-body">
         <div class="title">Photoshop</div>
@@ -3260,6 +3281,15 @@
     'Standoff 2': 'Standoff2banner.PNG',
     'Roblox': 'https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/4/3/7/43736e1e26e5a6bc010d68dee32e4a300f529866.png'
   };
+  var SUBSCRIPTION_BANNER_BG = {
+    'Netflix': 'linear-gradient(135deg,#1a0000,#5c0a0a 55%,#e50914)',
+    'Apple TV+': 'linear-gradient(135deg,#050505,#232326 55%,#4a4a4f)',
+    'Prime Video': 'linear-gradient(135deg,#00121f,#003a5c 55%,#00a8e1)',
+    'CapCut Pro': 'linear-gradient(135deg,#0a0a0a,#1e1e1e 55%,#00d9c0)',
+    'Photoshop': 'linear-gradient(135deg,#00121f,#00305a 55%,#31a8ff)',
+    'Premiere Pro': 'linear-gradient(135deg,#160a2e,#3d1a6b 55%,#9d8cff)',
+    'Canva Pro': 'linear-gradient(135deg,#0a1f26,#0f4a5c 55%,#00c4cc)'
+  };
 
   document.querySelectorAll('.offer-card').forEach(function(card){
     card.addEventListener('click', function(){
@@ -3271,19 +3301,32 @@
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       var rechargeHeadTitle = document.getElementById('rechargeHeadTitle');
       if(rechargeHeadTitle) rechargeHeadTitle.textContent = card.getAttribute('data-display-name') || game;
-      rechargeSub.textContent = (SUBSCRIPTION_APPS.indexOf(game) !== -1) ? 'Захиалгын сунгалт' : 'Шууд цэнэглэлт';
+      var isSubscriptionApp = SUBSCRIPTION_APPS.indexOf(game) !== -1;
+      rechargeSub.textContent = isSubscriptionApp ? 'Захиалгын сунгалт' : 'Шууд цэнэглэлт';
       var cover = card.querySelector('.offer-cover');
-      rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
 
-      if(RECHARGE_BANNER_BG[game]){
-        rechargeBannerEl.style.backgroundImage =
-          'linear-gradient(135deg, rgba(21,11,46,0.62), rgba(58,30,107,0.48) 55%, rgba(124,77,255,0.35)), url(\'' + RECHARGE_BANNER_BG[game] + '\')';
-        rechargeBannerEl.style.backgroundSize = 'cover';
-        rechargeBannerEl.style.backgroundPosition = 'center';
-      } else {
-        rechargeBannerEl.style.backgroundImage = DEFAULT_BANNER_BG;
+      if(isSubscriptionApp){
+        // Аппуудын багц сонголтод лого харуулахгүй, зөвхөн тухайн аппад
+        // тохирсон өнгөт gradient + чимэглэлээр банерыг гоё харуулна.
+        rechargeBannerEl.classList.add('sub-banner');
+        rechargeBannerIcon.innerHTML = '';
+        rechargeBannerEl.style.backgroundImage = SUBSCRIPTION_BANNER_BG[game] || DEFAULT_BANNER_BG;
         rechargeBannerEl.style.backgroundSize = '';
         rechargeBannerEl.style.backgroundPosition = '';
+      } else {
+        rechargeBannerEl.classList.remove('sub-banner');
+        rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
+
+        if(RECHARGE_BANNER_BG[game]){
+          rechargeBannerEl.style.backgroundImage =
+            'linear-gradient(135deg, rgba(21,11,46,0.62), rgba(58,30,107,0.48) 55%, rgba(124,77,255,0.35)), url(\'' + RECHARGE_BANNER_BG[game] + '\')';
+          rechargeBannerEl.style.backgroundSize = 'cover';
+          rechargeBannerEl.style.backgroundPosition = 'center';
+        } else {
+          rechargeBannerEl.style.backgroundImage = DEFAULT_BANNER_BG;
+          rechargeBannerEl.style.backgroundSize = '';
+          rechargeBannerEl.style.backgroundPosition = '';
+        }
       }
 
       renderIdFields(game);
