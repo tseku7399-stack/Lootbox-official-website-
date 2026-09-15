@@ -1483,7 +1483,7 @@
       </div>
     </div>
 
-    <div class="step-label"><div class="step-num">2</div><span id="step2CurrencyLabel">Diamond сонгох</span></div>
+    <div class="step-label"><div class="step-num">2</div><span>Diamond багц сонгох</span></div>
     <div class="package-grid" id="packageGrid"></div>
 
     <div class="recharge-warning">
@@ -1492,7 +1492,7 @@
       </div>
       <div>
         <div class="rw-title">Заавал анхаарах зүйлс</div>
-        <div class="rw-text">Худалдан авалт амжилттай хийгдсэн тохиолдолд төлбөр буцаах ямар ч боломжгүй тул худалдан авалт хийхээсээ өмнө сонголтоо зөв хийж, оруулсан мэдээллээ сайтар нягтална уу.</div>
+        <div class="rw-text">Та нэгэнт худалдан авалт амжилттай хийсэн тохиолдолд манайхаас буцаалт хийх ямар ч боломжгүй учраас сонголтоо зөв хийгээрэй.</div>
       </div>
     </div>
 
@@ -3088,8 +3088,6 @@
   function renderPackages(game){
     var currency = GAME_CURRENCY[game] || 'DIAMOND';
     var tiers = GAME_PACKAGE_TIERS[game] || DEFAULT_PACKAGE_TIERS;
-    var step2Label = document.getElementById('step2CurrencyLabel');
-    if(step2Label) step2Label.textContent = (CURRENCY_LABELS[currency] || 'Diamond') + ' сонгох';
     var grid = document.getElementById('packageGrid');
     if(!grid) return;
     grid.innerHTML = tiers.map(function(t){
@@ -3810,4 +3808,3 @@
 
 </body>
 </html>
-
