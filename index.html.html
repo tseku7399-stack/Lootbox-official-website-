@@ -1030,6 +1030,13 @@
   .profile-field input:disabled{ opacity:0.5; cursor:not-allowed; }
   .avatar-edit-btn.disabled{ opacity:0.4; cursor:not-allowed; pointer-events:none; }
   .profile-history{ margin-top:24px; }
+  .profile-history-tabs{ display:flex; gap:8px; margin:10px 0 12px; }
+  .ph-tab{
+    flex:1; padding:8px 10px; border-radius:10px; border:1px solid var(--line);
+    background:var(--bg-elevated); color:var(--text-lo); font-size:12px; font-weight:600;
+    cursor:pointer; transition:all .15s ease; font-family:inherit;
+  }
+  .ph-tab.active{ background:var(--gold-300); border-color:var(--gold-300); color:#1a1200; }
   .profile-history-title{
     font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
     color:var(--text-hi); margin-bottom:10px;
@@ -1550,6 +1557,10 @@
 
     <div class="profile-history" id="profileHistorySection">
       <h3 class="profile-history-title">Худалдан авалтын түүх</h3>
+      <div class="profile-history-tabs" id="profileHistoryTabs">
+        <button type="button" class="ph-tab active" data-status="success">Амжилттай</button>
+        <button type="button" class="ph-tab" data-status="pending">Хүлээгдэж буй</button>
+      </div>
       <div class="profile-history-total" id="profileHistoryTotal"></div>
       <div class="profile-history-list" id="profileHistoryList"></div>
     </div>
@@ -2492,8 +2503,10 @@
   var profileEmailInput = document.getElementById('profileEmailInput');
   var profileEmailField = document.getElementById('profileEmailField');
   var profileHistorySection = document.getElementById('profileHistorySection');
+  var profileHistoryTabs = document.getElementById('profileHistoryTabs');
   var profileHistoryTotal = document.getElementById('profileHistoryTotal');
   var profileHistoryList = document.getElementById('profileHistoryList');
+  var currentHistoryTab = 'success';
   var profileAvatarPreview = document.getElementById('profileAvatarPreview');
   var avatarEditBtn = document.getElementById('avatarEditBtn');
   var avatarFileInput = document.getElementById('avatarFileInput');
@@ -2540,7 +2553,11 @@
 
   function renderPurchaseHistory(){
     var record = getCurrentRecord();
-    var purchases = (record && record.purchases) ? record.purchases : [];
+    var allPurchases = (record && record.purchases) ? record.purchases : [];
+    var purchases = allPurchases.filter(function(p){
+      var status = p.status === 'success' ? 'success' : 'pending';
+      return status === currentHistoryTab;
+    });
 
     var total = purchases.reduce(function(sum, p){
       var num = parseInt(String(p.price || '').replace(/[^0-9]/g, ''), 10);
@@ -2551,7 +2568,8 @@
     }
 
     if(purchases.length === 0){
-      profileHistoryList.innerHTML = '<div class="profile-history-empty">Одоогоор худалдан авалт алга байна</div>';
+      var emptyLabel = currentHistoryTab === 'success' ? 'Амжилттай' : 'Хүлээгдэж буй';
+      profileHistoryList.innerHTML = '<div class="profile-history-empty">' + emptyLabel + ' худалдан авалт алга байна</div>';
       return;
     }
     profileHistoryList.innerHTML = purchases.map(function(p){
@@ -2564,6 +2582,18 @@
         '<div class="ph-price">' + p.price + '</div>' +
       '</div>';
     }).join('');
+  }
+
+  if(profileHistoryTabs){
+    profileHistoryTabs.querySelectorAll('.ph-tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        if(tab.classList.contains('active')) return;
+        profileHistoryTabs.querySelectorAll('.ph-tab').forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        currentHistoryTab = tab.getAttribute('data-status');
+        renderPurchaseHistory();
+      });
+    });
   }
 
   function openProfile(){
