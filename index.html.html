@@ -1738,17 +1738,22 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics-compat.js"></script>
 <script>
   var firebaseConfig = {
-    apiKey: "AIzaSyBN2xYL6aceKAah55GwnaPTa96YH7ikKSc",
-    authDomain: "lootbox-490a6.firebaseapp.com",
-    projectId: "lootbox-490a6",
-    storageBucket: "lootbox-490a6.firebasestorage.app",
-    messagingSenderId: "354129416005",
-    appId: "1:354129416005:web:4afd095a83d3cc7a5cf82c"
+    apiKey: "AIzaSyAHD_aR3yjy9WiKdqqk651O2SoruXuFKlQ",
+    authDomain: "lootbox-888888.firebaseapp.com",
+    projectId: "lootbox-888888",
+    storageBucket: "lootbox-888888.firebasestorage.app",
+    messagingSenderId: "484417209328",
+    appId: "1:484417209328:web:703967836f332fb0e15335",
+    measurementId: "G-0NDEPTF7GW"
   };
   try{
     firebase.initializeApp(firebaseConfig);
+  }catch(e){}
+  try{
+    if(firebase.analytics) firebase.analytics();
   }catch(e){}
 </script>
 
