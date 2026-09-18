@@ -1604,8 +1604,13 @@
             <span class="tr-label">Шилжүүлэх дүн</span>
             <span class="tr-value tr-amount" id="transferAmount">—</span>
           </div>
+          <div class="transfer-row">
+            <span class="tr-label">Гүйлгээний утга</span>
+            <span class="tr-value" id="transferMemo">—</span>
+            <button type="button" class="transfer-copy-btn" id="transferMemoCopyBtn">Хуулах</button>
+          </div>
         </div>
-        <div class="qpay-hint">Дээрх дансанд шилжүүлгээ хийгээд, доорх товч дээр дарж баталгаажуулна уу</div>
+        <div class="qpay-hint">Гүйлгээний утгад дээрх кодыг <b>яг таг</b> бичиж шилжүүлнэ үү — эс бөгөөс төлбөрийг тань олж баталгаажуулах боломжгүй болно. Шилжүүлсний дараа баримтын зургаа хадгална уу.</div>
       </div>
 
       <button class="payment-confirm-btn" id="paymentConfirmBtn">Төлбөр баталгаажуулах</button>
@@ -3242,7 +3247,10 @@
   var transferAccNumber = document.getElementById('transferAccNumber');
   var transferRecipient = document.getElementById('transferRecipient');
   var transferAmount = document.getElementById('transferAmount');
+  var transferMemo = document.getElementById('transferMemo');
+  var transferMemoCopyBtn = document.getElementById('transferMemoCopyBtn');
   var transferCopyBtn = document.getElementById('transferCopyBtn');
+  var currentTransferMemo = '';
   var paymentConfirmBtn = document.getElementById('paymentConfirmBtn');
   var paymentFormView = document.getElementById('paymentFormView');
   var paymentSuccessView = document.getElementById('paymentSuccessView');
@@ -3313,6 +3321,23 @@
     }
   });
 
+  transferMemoCopyBtn.addEventListener('click', function(){
+    if(!currentTransferMemo) return;
+    var done = function(){
+      transferMemoCopyBtn.textContent = 'Хуулагдлаа ✓';
+      transferMemoCopyBtn.classList.add('copied');
+      setTimeout(function(){
+        transferMemoCopyBtn.textContent = 'Хуулах';
+        transferMemoCopyBtn.classList.remove('copied');
+      }, 1500);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(currentTransferMemo).then(done, done);
+    } else {
+      done();
+    }
+  });
+
   function switchPaymentTab(tab){
     var isQpay = tab === 'qpay';
     pmTabQpay.classList.toggle('active', isQpay);
@@ -3343,6 +3368,13 @@
 
     pmTotalAmount.textContent = priceText;
     transferAmount.textContent = priceText;
+
+    var memoIdPart = (idValue || 'GUEST').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    var memoStamp = Date.now().toString(36).toUpperCase().slice(-5);
+    currentTransferMemo = 'LB-' + memoIdPart + '-' + memoStamp;
+    transferMemo.textContent = currentTransferMemo;
+    transferMemoCopyBtn.classList.remove('copied');
+    transferMemoCopyBtn.textContent = 'Хуулах';
 
     selectTransferBank(BANK_APPS[0], null);
     transferBankChips.querySelectorAll('.transfer-chip')[0].classList.add('selected');
