@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>LootBox — Админ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f0f12; --panel:#17171b; --panel2:#1e1e24; --elev:#25252c;
+    --line:rgba(255,255,255,0.09); --line2:rgba(255,255,255,0.16);
+    --text:#f5f5f7; --lo:#9a9aa2; --faint:#65656b;
+    --accent:#7c5cff; --accent2:#4b2fb8;
+    --green:#4ade80; --red:#ff5d5d;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; }
+  body{ min-height:100vh; min-height:100dvh; -webkit-text-size-adjust:100%; }
+  button{ font-family:inherit; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Login ---------- */
+  .login{ min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px 18px; }
+  .login-card{ width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:28px 22px 24px; }
+  .login-logo{ width:54px; height:54px; border-radius:17px; margin:0 auto 14px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(145deg,var(--accent),var(--accent2)); font:700 20px 'Poppins',sans-serif; color:#fff; }
+  .login h1{ font:700 20px 'Poppins',sans-serif; text-align:center; }
+  .login .sub{ font-size:12.5px; color:var(--lo); text-align:center; margin:4px 0 22px; }
+  label.f{ display:block; font-size:11.5px; color:var(--lo); margin:0 0 6px; }
+  input.in, textarea.in, select.in{
+    width:100%; background:var(--elev); border:1px solid var(--line); border-radius:12px; color:var(--text);
+    padding:12px 13px; font-size:16px; font-family:inherit; outline:0;
+  }
+  textarea.in{ resize:vertical; min-height:88px; line-height:1.45; }
+  input.in:focus, textarea.in:focus, select.in:focus{ border-color:var(--accent); }
+  input.in.bad{ border-color:var(--red); }
+  .field{ margin-bottom:14px; }
+  .btn{
+    border:0; border-radius:13px; padding:13px 18px; font:600 14px 'Poppins',sans-serif; color:#fff; cursor:pointer;
+    background:linear-gradient(145deg,var(--accent),var(--accent2));
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn.block{ width:100%; }
+  .btn:disabled{ background:var(--elev); color:var(--faint); cursor:not-allowed; }
+  .btn.ghost{ background:var(--elev); color:var(--text); border:1px solid var(--line); }
+  .btn.small{ padding:9px 13px; font-size:12.5px; border-radius:11px; }
+  .btn.danger{ background:transparent; color:var(--red); border:1px solid rgba(255,93,93,0.35); }
+  .err{ color:var(--red); font-size:12.5px; margin:0 0 12px; display:none; line-height:1.45; }
+  .err.show{ display:block; }
+  .spin{ width:16px; height:16px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; }
+  @keyframes sp{ to{ transform:rotate(360deg); } }
+
+  /* ---------- Panel ---------- */
+  .top{
+    position:sticky; top:0; z-index:20; background:rgba(15,15,18,0.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line); padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+  }
+  .top-in{ max-width:920px; margin:0 auto; display:flex; align-items:center; gap:10px; }
+  .top h2{ font:700 16px 'Poppins',sans-serif; flex:1; min-width:0; }
+  .top .who{ font-size:11px; color:var(--lo); font-weight:400; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dirty-dot{ width:8px; height:8px; border-radius:50%; background:#fbbf24; display:none; flex-shrink:0; }
+  .dirty-dot.show{ display:block; }
+  .wrap{ max-width:920px; margin:0 auto; padding:16px 16px calc(40px + env(safe-area-inset-bottom)); }
+  .tabs{ display:flex; gap:6px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:4px; margin-bottom:16px; }
+  .tab{ flex:1; text-align:center; padding:10px 8px; border-radius:10px; font:600 13px 'Poppins',sans-serif; color:var(--lo); cursor:pointer; border:0; background:transparent; }
+  .tab.active{ background:linear-gradient(145deg,var(--accent),var(--accent2)); color:#fff; }
+  .notice{ background:rgba(124,92,255,0.12); border:1px solid rgba(124,92,255,0.35); border-radius:14px; padding:11px 14px; font-size:12.5px; color:var(--text); margin-bottom:14px; line-height:1.5; }
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:12px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{ flex:0 0 auto; padding:9px 15px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--lo); font:600 13px 'Poppins',sans-serif; cursor:pointer; }
+  .chip.active{ color:#fff; border-color:var(--accent); background:rgba(124,92,255,0.2); }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:14px; }
+  .card h3{ font:600 14px 'Poppins',sans-serif; margin-bottom:12px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .pkg{ background:var(--panel2); border:1px solid var(--line); border-radius:16px; padding:12px; margin-bottom:10px; }
+  .pkg.bad{ border-color:var(--red); }
+  .pkg-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .pkg-num{ width:24px; height:24px; border-radius:50%; background:var(--elev); font:600 11px 'Poppins',sans-serif; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--lo); }
+  .pkg-pv{ flex:1; min-width:0; font-size:12.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .icon-btn{ width:34px; height:34px; border-radius:10px; border:1px solid var(--line); background:var(--elev); color:var(--text); cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .icon-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .icon-btn.del{ color:var(--red); }
+  .pkg-fields{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; }
+  .pkg-fields label.f{ margin-bottom:4px; }
+  .pkg-fields .in{ padding:10px 11px; font-size:15px; }
+  .check{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--lo); margin-bottom:10px; cursor:pointer; user-select:none; }
+  .check input{ width:17px; height:17px; accent-color:var(--accent); }
+  .row-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+  .text-row{ margin-bottom:16px; }
+  .text-row .lab{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+  .text-row .lab span{ font-size:12.5px; font-weight:600; }
+  .text-row .hint{ font-size:11px; color:var(--faint); margin-top:5px; }
+  .link-btn{ background:none; border:0; color:var(--accent); font-size:11.5px; cursor:pointer; padding:2px 4px; }
+  .foot-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+
+  /* toast */
+  .toast{
+    position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 14px); transform:translate(-50%,-14px); opacity:0; z-index:100;
+    width:calc(100% - 28px); max-width:380px; padding:12px 14px; border-radius:14px; font-size:13px; font-weight:600; line-height:1.4;
+    background:linear-gradient(rgba(74,222,128,0.14),rgba(74,222,128,0.14)),var(--elev); border:1px solid rgba(74,222,128,0.5);
+    transition:opacity .25s ease, transform .25s ease; pointer-events:none;
+  }
+  .toast.err{ background:linear-gradient(rgba(255,93,93,0.14),rgba(255,93,93,0.14)),var(--elev); border-color:rgba(255,93,93,0.5); }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  @media (max-width:520px){ .grid2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ===== Нэвтрэх ===== -->
+<div class="login" id="loginView">
+  <form class="login-card" id="loginForm" autocomplete="on">
+    <div class="login-logo">LB</div>
+    <h1>LootBox Админ</h1>
+    <div class="sub">Зөвхөн админ эрхтэй хэрэглэгч нэвтэрнэ</div>
+    <div class="field">
+      <label class="f" for="loginEmail">Имэйл хаяг</label>
+      <input class="in" id="loginEmail" type="email" autocomplete="username" inputmode="email" placeholder="admin@gmail.com" required>
+    </div>
+    <div class="field">
+      <label class="f" for="loginPass">Нууц үг</label>
+      <input class="in" id="loginPass" type="password" autocomplete="current-password" placeholder="Нууц үгээ оруулах" required>
+    </div>
+    <div class="err" id="loginErr"></div>
+    <button class="btn block" id="loginBtn" type="submit">Нэвтрэх</button>
+  </form>
+</div>
+
+<!-- ===== Самбар ===== -->
+<div id="panelView" class="hidden">
+  <div class="top">
+    <div class="top-in">
+      <h2>Админ самбар<span class="who" id="whoEmail"></span></h2>
+      <span class="dirty-dot" id="dirtyDot" title="Хадгалаагүй өөрчлөлт байна"></span>
+      <button class="btn small" id="saveBtn" type="button" disabled>Хадгалах</button>
+      <button class="btn small ghost" id="logoutBtn" type="button">Гарах</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="notice hidden" id="seedNotice">Сайт дээр одоогоор хадгалсан тохиргоо байхгүй тул анхны утгуудыг ачааллаа. Өөрчлөөд <b>Хадгалах</b> дарснаар сайт дээр шууд идэвхжинэ.</div>
+    <div class="tabs">
+      <button class="tab active" data-tab="games" type="button">Үнэ ба багц</button>
+      <button class="tab" data-tab="texts" type="button">Текст</button>
+    </div>
+    <div id="tabGames"></div>
+    <div id="tabTexts" class="hidden"></div>
+    <div class="foot-actions">
+      <button class="btn danger small" id="resetBtn" type="button">Анхны утга руу буцаах</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  var firebaseConfig = {
+    apiKey: "AIzaSyAHD_aR3yjy9WiKdqqk651O2SoruXuFKlQ",
+    authDomain: "lootbox-888888.firebaseapp.com",
+    projectId: "lootbox-888888",
+    storageBucket: "lootbox-888888.firebasestorage.app",
+    messagingSenderId: "484417209328",
+    appId: "1:484417209328:web:703967836f332fb0e15335",
+    measurementId: "G-0NDEPTF7GW"
+  };
+
+  // ---------------- Сайтын анхны (кодод бичигдсэн) утгууд ----------------
+  var DIAMOND_TIERS = [
+    { amount:78,   bonus:8,    price:5000,   img:'https://www.gameshop.mn/78.webp' },
+    { amount:156,  bonus:16,   price:9600,   img:'https://www.gameshop.mn/156.webp' },
+    { amount:234,  bonus:23,   price:13800,  img:'https://www.gameshop.mn/234.webp' },
+    { amount:625,  bonus:81,   price:37000,  img:'https://www.gameshop.mn/625.webp' },
+    { amount:1860, bonus:335,  price:110800, img:'https://www.gameshop.mn/1860.webp' },
+    { amount:3099, bonus:589,  price:184600, img:'https://www.gameshop.mn/3099.webp' },
+    { amount:4649, bonus:883,  price:276900, img:'https://www.gameshop.mn/4649.webp' },
+    { amount:7740, bonus:1548, price:461500, img:'https://www.gameshop.mn/7740.webp' },
+    { special:true, label:'TWILIGHT PASS', price:30800, img:'https://www.gameshop.mn/twilight.png' },
+    { special:true, label:'WEEKLY PASS',   price:5900,  img:'https://www.gameshop.mn/weekly.png' }
+  ];
+  var DEFAULT_GAMES = [
+    { key:'PUBG Mobile', cardTitle:'PUBG Mobile', pageTitle:'PUBG Mobile', sep:',', unit:'UC', tiers:[
+      { amount:60,    bonus:0, price:5000 },
+      { amount:325,   bonus:0, price:18000 },
+      { amount:660,   bonus:0, price:35500 },
+      { amount:1800,  bonus:0, price:87000 },
+      { amount:3850,  bonus:0, price:170000 },
+      { amount:8100,  bonus:0, price:340000 },
+      { amount:16200, bonus:0, price:670000 }
+    ]},
+    { key:'MLBB', cardTitle:'MLBB', pageTitle:'Mobile Legends', sep:"'", unit:'Diamond', tiers:DIAMOND_TIERS },
+    { key:'Standoff 2', cardTitle:'Standoff 2', pageTitle:'Standoff 2', sep:',', unit:'Gold', tiers:[
+      { amount:100,  bonus:0, price:8000,   img:'Gold1.PNG' },
+      { amount:500,  bonus:0, price:28000,  img:'Gold2.PNG' },
+      { amount:1000, bonus:0, price:48000,  img:'Gold3.PNG' },
+      { amount:3000, bonus:0, price:104000, img:'Gold4.PNG' }
+    ]},
+    { key:'Roblox', cardTitle:'Roblox', pageTitle:'Roblox', sep:"'", unit:'Robux', tiers:DIAMOND_TIERS }
+  ];
+  var TEXT_FIELDS = [
+    { key:'warningTitle',      label:'Анхааруулгын гарчиг (цэнэглэлтийн хуудас)', def:'Заавал анхаарах зүйлс' },
+    { key:'warningText',       label:'Анхааруулгын текст (цэнэглэлтийн хуудас)',  def:'Худалдан авалт амжилттай хийгдсэн тохиолдолд буцаалт хийх ямарч боломжгүй тул худалдан авалт хийхээсээ өмнө багцаа зөв сонгож, оруулсан мэдээллээ сайтар нягтална уу.', multi:true },
+    { key:'rechargeSubtitle',  label:'Цэнэглэлтийн хуудасны дэд гарчиг',          def:'Шууд цэнэглэлт' },
+    { key:'gamesTitle',        label:'Нүүр хуудасны "Тоглоомууд" гарчиг',         def:'Тоглоомууд' },
+    { key:'seeAllText',        label:'"Бүгдийг харах" холбоос',                   def:'Бүгдийг харах' },
+    { key:'allGamesTitle',     label:'"Бүх тоглоомууд" хуудасны гарчиг',          def:'Бүх тоглоомууд' },
+    { key:'searchPlaceholder', label:'Хайлтын талбарын тайлбар',                  def:'Тоглоом хайх' },
+    { key:'contactLabel',      label:'"Холбоо барих" бичиг',                      def:'Холбоо барих' },
+    { key:'copyright',         label:'Хуудасны доод copyright',                   def:'© 2026 LootBox' },
+    { key:'drawerFooter',      label:'Хажуугийн цэсний доод бичиг',               def:'LootBox © 2026' }
+  ];
+  var BADGES = { '': 'Тэмдэггүй', best: 'Хамгийн ашигтай', popular: 'Эрэлттэй' };
+
+  // ---------------- Туслах функцүүд ----------------
+  function $(id){ return document.getElementById(id); }
+  function el(tag, props, kids){
+    var e = document.createElement(tag);
+    if(props){ Object.keys(props).forEach(function(k){
+      var v = props[k];
+      if(k === 'class') e.className = v;
+      else if(k === 'text') e.textContent = v;
+      else if(k.slice(0,2) === 'on') e.addEventListener(k.slice(2), v);
+      else if(v === true) e.setAttribute(k, '');
+      else if(v !== false && v != null) e.setAttribute(k, v);
+    }); }
+    (kids || []).forEach(function(c){ if(c == null) return; e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function fmtPrice(n, sep){
+    var v = Math.round(Number(n) || 0);
+    return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, sep || ',') + '₮';
+  }
+  function digits(v){ return String(v == null ? '' : v).replace(/[^0-9]/g, ''); }
+  var toastTimer = null;
+  function toast(msg, isErr){
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isErr ? ' err' : '');
+    void t.offsetWidth;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, isErr ? 4500 : 2600);
+  }
+
+  // ---------------- Төлөв ----------------
+  var state = { games:{}, texts:{}, order:[], current:null, dirty:false, saving:false, user:null };
+
+  function defaultGameState(d){
+    return {
+      key:d.key, cardTitle:d.cardTitle, pageTitle:d.pageTitle, sep:d.sep, unit:d.unit,
+      packages: d.tiers.map(function(t){
+        return {
+          special: !!t.special, label: t.label || '', amount: t.special ? '' : String(t.amount),
+          bonus: t.special ? '' : String(t.bonus || 0), price: String(t.price), img: t.img || '', badge:''
+        };
+      })
+    };
+  }
+  function loadDefaults(){
+    state.games = {}; state.order = [];
+    DEFAULT_GAMES.forEach(function(d){ state.games[d.key] = defaultGameState(d); state.order.push(d.key); });
+    state.texts = {};
+    TEXT_FIELDS.forEach(function(f){ state.texts[f.key] = f.def; });
+    if(!state.current || !state.games[state.current]) state.current = state.order[0];
+  }
+  function mergeConfig(cfg){
+    loadDefaults();
+    if(cfg && cfg.games){
+      DEFAULT_GAMES.forEach(function(d){
+        var g = cfg.games[d.key];
+        if(!g) return;
+        var gs = state.games[d.key];
+        if(typeof g.cardTitle === 'string' && g.cardTitle.trim()) gs.cardTitle = g.cardTitle;
+        if(typeof g.pageTitle === 'string' && g.pageTitle.trim()) gs.pageTitle = g.pageTitle;
+        if(g.sep === ',' || g.sep === "'") gs.sep = g.sep;
+        if(Array.isArray(g.packages) && g.packages.length){
+          gs.packages = g.packages.map(function(p){
+            return {
+              special: !!p.special, label: p.label || '',
+              amount: p.special ? '' : String(p.amount == null ? '' : p.amount),
+              bonus: p.special ? '' : String(p.bonus || 0),
+              price: digits(p.price), img: p.img || '',
+              badge: (p.badge === 'best' || p.badge === 'popular') ? p.badge : ''
+            };
+          });
+        }
+      });
+    }
+    if(cfg && cfg.texts){
+      TEXT_FIELDS.forEach(function(f){
+        if(typeof cfg.texts[f.key] === 'string' && cfg.texts[f.key].trim()) state.texts[f.key] = cfg.texts[f.key];
+      });
+    }
+  }
+  function setDirty(v){
+    state.dirty = v;
+    $('dirtyDot').classList.toggle('show', v);
+    $('saveBtn').disabled = !v || state.saving;
+  }
+
+  // ---------------- Дүрслэл ----------------
+  function pkgPreview(g, p){
+    var main = p.special ? (p.label || '—')
+      : ((p.amount || '—') + (Number(p.bonus) > 0 ? ' +' + p.bonus : '') + ' ' + g.unit);
+    return main + '  ·  ' + fmtPrice(digits(p.price), g.sep);
+  }
+
+  function renderGames(){
+    var root = $('tabGames');
+    root.textContent = '';
+    var chips = el('div', { class:'chips' });
+    state.order.forEach(function(key){
+      chips.appendChild(el('button', { class:'chip' + (key === state.current ? ' active' : ''), type:'button', text:key,
+        onclick:function(){ state.current = key; renderGames(); } }));
+    });
+    root.appendChild(chips);
+
+    var g = state.games[state.current];
+
+    // Гарчгууд
+    var titleCard = el('div', { class:'card' }, [ el('h3', { text:'Тоглоомын нэр' }) ]);
+    var grid = el('div', { class:'grid2' });
+    [['cardTitle','Жагсаалт дээрх нэр'],['pageTitle','Цэнэглэх хуудасны гарчиг']].forEach(function(pair){
+      var inp = el('input', { class:'in', type:'text' });
+      inp.value = g[pair[0]];
+      inp.addEventListener('input', function(){ g[pair[0]] = inp.value; setDirty(true); });
+      grid.appendChild(el('div', {}, [ el('label', { class:'f', text:pair[1] }), inp ]));
+    });
+    titleCard.appendChild(grid);
+    root.appendChild(titleCard);
+
+    // Багцууд
+    var pkgCard = el('div', { class:'card' }, [ el('h3', { text:'Багц ба үнэ  (' + g.unit + ')' }) ]);
+    g.packages.forEach(function(p, i){ pkgCard.appendChild(renderPackage(g, p, i)); });
+    pkgCard.appendChild(el('div', { class:'row-actions' }, [
+      el('button', { class:'btn small', type:'button', text:'+ Багц нэмэх', onclick:function(){
+        g.packages.push({ special:false, label:'', amount:'', bonus:'0', price:'', img:'', badge:'' });
+        setDirty(true); renderGames();
+      }}),
+      el('button', { class:'btn small ghost', type:'button', text:'+ Pass нэмэх', onclick:function(){
+        g.packages.push({ special:true, label:'', amount:'', bonus:'', price:'', img:'', badge:'' });
+        setDirty(true); renderGames();
+      }})
+    ]));
+    root.appendChild(pkgCard);
+  }
+
+  function renderPackage(g, p, i){
+    var box = el('div', { class:'pkg', 'data-idx':String(i) });
+    var pv = el('div', { class:'pkg-pv', text:pkgPreview(g, p) });
+    var refresh = function(){ pv.textContent = pkgPreview(g, p); box.classList.remove('bad'); setDirty(true); };
+
+    function move(delta){
+      var j = i + delta;
+      if(j < 0 || j >= g.packages.length) return;
+      var t = g.packages[i]; g.packages[i] = g.packages[j]; g.packages[j] = t;
+      setDirty(true); renderGames();
+    }
+    box.appendChild(el('div', { class:'pkg-head' }, [
+      el('div', { class:'pkg-num', text:String(i + 1) }), pv,
+      el('button', { class:'icon-btn', type:'button', text:'↑', title:'Дээш', disabled:i === 0, onclick:function(){ move(-1); } }),
+      el('button', { class:'icon-btn', type:'button', text:'↓', title:'Доош', disabled:i === g.packages.length - 1, onclick:function(){ move(1); } }),
+      el('button', { class:'icon-btn del', type:'button', text:'✕', title:'Устгах', onclick:function(){
+        if(g.packages.length <= 1){ toast('Дор хаяж 1 багц үлдэх ёстой', true); return; }
+        if(!confirm((i + 1) + '-р багцыг устгах уу?')) return;
+        g.packages.splice(i, 1); setDirty(true); renderGames();
+      }})
+    ]));
+
+    var chk = el('input', { type:'checkbox' });
+    chk.checked = p.special;
+    chk.addEventListener('change', function(){ p.special = chk.checked; setDirty(true); renderGames(); });
+    box.appendChild(el('label', { class:'check' }, [ chk, 'Pass / тусгай багц (тоо хэмжээгүй, нэрээр нь харагдана)' ]));
+
+    var fields = el('div', { class:'pkg-fields' });
+    function numField(labelText, key, ph){
+      var inp = el('input', { class:'in', type:'number', inputmode:'numeric', min:'0', step:'1', placeholder:ph || '' });
+      inp.value = p[key];
+      inp.addEventListener('input', function(){ p[key] = inp.value; refresh(); });
+      return el('div', {}, [ el('label', { class:'f', text:labelText }), inp ]);
+    }
+    if(p.special){
+      var lab = el('input', { class:'in', type:'text', placeholder:'жш: WEEKLY PASS' });
+      lab.value = p.label;
+      lab.addEventListener('input', function(){ p.label = lab.value; refresh(); });
+      fields.appendChild(el('div', {}, [ el('label', { class:'f', text:'Нэр' }), lab ]));
+    } else {
+      fields.appendChild(numField('Тоо хэмжээ (' + g.unit + ')', 'amount', 'жш: 325'));
+      fields.appendChild(numField('Бонус', 'bonus', '0'));
+    }
+    fields.appendChild(numField('Үнэ (₮)', 'price', 'жш: 18000'));
+    var sel = el('select', { class:'in' });
+    Object.keys(BADGES).forEach(function(k){ var o = el('option', { value:k, text:BADGES[k] }); if(k === p.badge) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', function(){ p.badge = sel.value; setDirty(true); });
+    fields.appendChild(el('div', {}, [ el('label', { class:'f', text:'Тэмдэг' }), sel ]));
+    box.appendChild(fields);
+    return box;
+  }
+
+  function renderTexts(){
+    var root = $('tabTexts');
+    root.textContent = '';
+    var card = el('div', { class:'card' }, [ el('h3', { text:'Сайтын текстүүд' }),
+      el('div', { class:'notice', text:'Талбарыг хоосон орхивол сайтын анхны текст харагдана.' }) ]);
+    TEXT_FIELDS.forEach(function(f){
+      var inp = f.multi ? el('textarea', { class:'in' }) : el('input', { class:'in', type:'text' });
+      inp.value = state.texts[f.key] || '';
+      inp.addEventListener('input', function(){ state.texts[f.key] = inp.value; setDirty(true); });
+      var reset = el('button', { class:'link-btn', type:'button', text:'Анхны утга', onclick:function(){
+        state.texts[f.key] = f.def; inp.value = f.def; setDirty(true);
+      }});
+      card.appendChild(el('div', { class:'text-row' }, [
+        el('div', { class:'lab' }, [ el('span', { text:f.label }), reset ]), inp
+      ]));
+    });
+    root.appendChild(card);
+  }
+
+  // ---------------- Хадгалах ----------------
+  function buildConfig(){
+    var cfg = { version:1, games:{}, texts:{} };
+    for(var gi = 0; gi < state.order.length; gi++){
+      var key = state.order[gi], g = state.games[key];
+      if(!g.packages.length) return { error:key + ': дор хаяж 1 багц байх ёстой', game:key, idx:0 };
+      var pkgs = [];
+      for(var i = 0; i < g.packages.length; i++){
+        var p = g.packages[i];
+        var price = Number(digits(p.price));
+        if(!(price > 0)) return { error:key + ' — ' + (i + 1) + '-р багцын үнэ буруу байна', game:key, idx:i };
+        var out;
+        if(p.special){
+          var label = p.label.trim();
+          if(!label) return { error:key + ' — ' + (i + 1) + '-р Pass-ийн нэр хоосон байна', game:key, idx:i };
+          out = { special:true, label:label, price:fmtPrice(price, g.sep) };
+        } else {
+          var amount = Number(p.amount), bonus = Number(p.bonus || 0);
+          if(!(amount > 0) || Math.floor(amount) !== amount) return { error:key + ' — ' + (i + 1) + '-р багцын тоо хэмжээ буруу байна', game:key, idx:i };
+          if(!(bonus >= 0) || Math.floor(bonus) !== bonus) return { error:key + ' — ' + (i + 1) + '-р багцын бонус буруу байна', game:key, idx:i };
+          out = { amount:amount, bonus:bonus, price:fmtPrice(price, g.sep) };
+        }
+        if(p.img) out.img = p.img;
+        if(p.badge){ out.badge = p.badge; out.badgeLabel = BADGES[p.badge]; }
+        pkgs.push(out);
+      }
+      cfg.games[key] = { cardTitle:g.cardTitle.trim() || key, pageTitle:g.pageTitle.trim() || key, sep:g.sep, packages:pkgs };
+    }
+    TEXT_FIELDS.forEach(function(f){
+      var v = (state.texts[f.key] || '').trim();
+      if(v) cfg.texts[f.key] = v;
+    });
+    return { cfg:cfg };
+  }
+
+  function save(){
+    if(state.saving || !state.user) return;
+    var res = buildConfig();
+    if(res.error){
+      toast(res.error, true);
+      state.current = res.game; switchTab('games'); renderGames();
+      var box = document.querySelector('.pkg[data-idx="' + res.idx + '"]');
+      if(box){ box.classList.add('bad'); box.scrollIntoView({ behavior:'smooth', block:'center' }); }
+      return;
+    }
+    var cfg = res.cfg;
+    cfg.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    cfg.updatedBy = state.user.uid;
+    state.saving = true;
+    var btn = $('saveBtn');
+    btn.textContent = '';
+    btn.appendChild(el('span', { class:'spin' }));
+    btn.disabled = true;
+    firebase.firestore().collection('siteConfig').doc('main').set(cfg).then(function(){
+      state.saving = false; btn.textContent = 'Хадгалах'; setDirty(false);
+      $('seedNotice').classList.add('hidden');
+      toast('Амжилттай хадгалагдлаа — сайт дээр шинэчлэгдлээ');
+    }).catch(function(err){
+      state.saving = false; btn.textContent = 'Хадгалах'; setDirty(true);
+      var code = err && err.code;
+      toast(code === 'permission-denied'
+        ? 'Хадгалах эрх байхгүй байна. Firestore rules болон admins жагсаалтыг шалгана уу.'
+        : 'Хадгалж чадсангүй: ' + ((err && err.message) || 'алдаа гарлаа'), true);
+    });
+  }
+
+  // ---------------- Tab ----------------
+  function switchTab(name){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t.getAttribute('data-tab') === name); });
+    $('tabGames').classList.toggle('hidden', name !== 'games');
+    $('tabTexts').classList.toggle('hidden', name !== 'texts');
+  }
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){ switchTab(t.getAttribute('data-tab')); });
+  });
+
+  // ---------------- Нэвтрэлт ----------------
+  var AUTH_MSG = {
+    'auth/invalid-email':'Имэйл хаяг буруу байна',
+    'auth/user-not-found':'Имэйл эсвэл нууц үг буруу байна',
+    'auth/wrong-password':'Имэйл эсвэл нууц үг буруу байна',
+    'auth/invalid-credential':'Имэйл эсвэл нууц үг буруу байна',
+    'auth/user-disabled':'Энэ хэрэглэгч түгжигдсэн байна',
+    'auth/too-many-requests':'Хэт олон оролдлого хийлээ. Түр хүлээгээд дахин оролдоно уу',
+    'auth/network-request-failed':'Интернэт холболтоо шалгана уу',
+    'auth/unauthorized-domain':'Энэ домэйнийг Firebase → Authentication → Settings → Authorized domains-д нэмээгүй байна'
+  };
+  function loginError(msg){ var e = $('loginErr'); e.textContent = msg || ''; e.classList.toggle('show', !!msg); }
+  function setLoginBusy(b){
+    var btn = $('loginBtn'); btn.disabled = b; btn.textContent = '';
+    if(b) btn.appendChild(el('span', { class:'spin' })); else btn.textContent = 'Нэвтрэх';
+  }
+  function showLogin(){ $('panelView').classList.add('hidden'); $('loginView').classList.remove('hidden'); }
+  function showPanel(){ $('loginView').classList.add('hidden'); $('panelView').classList.remove('hidden'); }
+
+  $('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = $('loginEmail').value.trim(), pass = $('loginPass').value;
+    loginError('');
+    if(!email || !pass){ loginError('Имэйл болон нууц үгээ оруулна уу'); return; }
+    setLoginBusy(true);
+    firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(err){
+      setLoginBusy(false);
+      loginError(AUTH_MSG[err && err.code] || 'Нэвтэрч чадсангүй. Дахин оролдоно уу');
+    });
+  });
+
+  function onSignedIn(user){
+    // Админ эсэхийг шалгана: Firestore-ийн admins/{uid} баримт байх ёстой
+    firebase.firestore().collection('admins').doc(user.uid).get().then(function(adm){
+      if(!adm.exists){
+        setLoginBusy(false);
+        loginError('Энэ бүртгэлд админ эрх олгоогүй байна.');
+        firebase.auth().signOut();
+        return;
+      }
+      state.user = user;
+      $('whoEmail').textContent = user.email || '';
+      return firebase.firestore().collection('siteConfig').doc('main').get().then(function(snap){
+        var isNew = !snap.exists;
+        mergeConfig(isNew ? null : snap.data());
+        $('seedNotice').classList.toggle('hidden', !isNew);
+        renderGames(); renderTexts(); switchTab('games');
+        setDirty(isNew);
+        setLoginBusy(false);
+        showPanel();
+      });
+    }).catch(function(err){
+      setLoginBusy(false);
+      loginError(err && err.code === 'permission-denied'
+        ? 'Firestore rules тохируулаагүй байна (admins жагсаалт уншигдсангүй).'
+        : 'Ачаалж чадсангүй: ' + ((err && err.message) || 'алдаа гарлаа'));
+      firebase.auth().signOut();
+    });
+  }
+
+  $('logoutBtn').addEventListener('click', function(){
+    if(state.dirty && !confirm('Хадгалаагүй өөрчлөлт байна. Гарах уу?')) return;
+    setDirty(false);
+    firebase.auth().signOut();
+  });
+  $('saveBtn').addEventListener('click', save);
+  $('resetBtn').addEventListener('click', function(){
+    if(!confirm('Бүх үнэ, багц, текстийг сайтын анхны утга руу буцаах уу? (Хадгалах дарах хүртэл сайт дээр өөрчлөгдөхгүй)')) return;
+    loadDefaults(); renderGames(); renderTexts(); setDirty(true);
+    toast('Анхны утгууд ачаалагдлаа. Хадгалах дарснаар идэвхжинэ.');
+  });
+  window.addEventListener('beforeunload', function(e){
+    if(state.dirty){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ---------------- Эхлүүлэх ----------------
+  try{
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user){ onSignedIn(user); }
+      else { state.user = null; showLogin(); setLoginBusy(false); }
+    });
+  }catch(e){
+    loginError('Firebase ачаалагдсангүй. Интернэт холболтоо шалгаад дахин нээнэ үү.');
+  }
+})();
+</script>
+</body>
+</html>
