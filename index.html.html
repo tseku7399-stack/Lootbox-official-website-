@@ -898,7 +898,7 @@
   .password-wrap{ position:relative; }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
   .field-error{ font-size:11.5px; color:var(--red); margin:6px 2px 0; display:none; }
-  .auth-toast{
+  .app-toast{
     position:fixed; left:50%; top:calc(env(safe-area-inset-top, 0px) + 14px); z-index:100;
     width:calc(100% - 28px); max-width:360px;
     display:none; align-items:center; gap:10px;
@@ -907,16 +907,18 @@
     box-shadow:0 14px 32px -10px rgba(0,0,0,0.4);
     opacity:0; transform:translate(-50%,-12px);
     transition:opacity .25s ease, transform .25s ease;
+    touch-action:none; -webkit-user-select:none; user-select:none; cursor:grab;
   }
-  .auth-toast.show{ opacity:1; transform:translate(-50%,0); }
-  .auth-toast .at-icon{
+  .app-toast.show{ opacity:1; transform:translate(-50%,0); }
+  .app-toast.dragging{ transition:none; cursor:grabbing; }
+  .app-toast .at-icon{
     width:24px; height:24px; border-radius:50%; flex-shrink:0;
     background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
     display:flex; align-items:center; justify-content:center;
   }
-  .auth-toast .at-icon svg{ width:13px; height:13px; stroke:#ffffff; }
-  .auth-toast .at-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:var(--text-hi); }
-  .auth-toast .at-text{ font-size:11.5px; line-height:1.45; color:var(--text-lo); margin-top:1px; }
+  .app-toast .at-icon svg{ width:13px; height:13px; stroke:#ffffff; }
+  .app-toast .at-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:var(--text-hi); }
+  .app-toast .at-text{ font-size:11.5px; line-height:1.45; color:var(--text-lo); margin-top:1px; }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#ffffff;
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
@@ -1176,13 +1178,13 @@
   </div>
 </div>
 
-<div class="auth-toast" id="registerSuccessMsg" role="status" aria-live="polite">
+<div class="app-toast" id="appToast" role="status" aria-live="polite">
   <div class="at-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
   </div>
   <div>
-    <div class="at-title">Бүртгэл амжилттай үүслээ</div>
-    <div class="at-text">Имэйл болон нууц үгээрээ нэвтэрнэ үү.</div>
+    <div class="at-title" id="appToastTitle"></div>
+    <div class="at-text" id="appToastText"></div>
   </div>
 </div>
 
@@ -1984,24 +1986,80 @@
   var loginError = document.getElementById('loginError');
   var loginUsernameError = document.getElementById('loginUsernameError');
   var loginPasswordError = document.getElementById('loginPasswordError');
-  var registerSuccessMsg = document.getElementById('registerSuccessMsg');
-  var registerSuccessTimer = null;
-  function hideRegisterSuccess(){
-    clearTimeout(registerSuccessTimer);
-    registerSuccessMsg.classList.remove('show');
-    registerSuccessMsg.style.display = 'none';
+  // ---- Амжилттай мессеж (toast): 3 секундын дараа өөрөө алга болно, гараар зүүн/баруун/дээш гулсуулж арилгаж болно ----
+  var appToast = document.getElementById('appToast');
+  var appToastTitle = document.getElementById('appToastTitle');
+  var appToastText = document.getElementById('appToastText');
+  var appToastTimer = null;
+  var appToastDrag = null;
+  var APP_TOAST_MS = 3000;
+  function resetToastInline(){
+    appToast.style.transform = '';
+    appToast.style.opacity = '';
+    appToast.classList.remove('dragging');
   }
-  // Бүртгэл амжилттай мессежийг дээд талд түр харуулаад өөрөө алга болгоно
-  function showRegisterSuccess(){
-    clearTimeout(registerSuccessTimer);
-    registerSuccessMsg.style.display = 'flex';
-    void registerSuccessMsg.offsetWidth;
-    registerSuccessMsg.classList.add('show');
-    registerSuccessTimer = setTimeout(function(){
-      registerSuccessMsg.classList.remove('show');
-      registerSuccessTimer = setTimeout(function(){ registerSuccessMsg.style.display = 'none'; }, 300);
-    }, 4500);
+  function hideToast(){
+    clearTimeout(appToastTimer);
+    appToastDrag = null;
+    appToast.classList.remove('show');
+    appToast.style.display = 'none';
+    resetToastInline();
   }
+  function startToastTimer(){
+    clearTimeout(appToastTimer);
+    appToastTimer = setTimeout(function(){
+      appToast.classList.remove('show');
+      appToastTimer = setTimeout(hideToast, 300);
+    }, APP_TOAST_MS);
+  }
+  function showToast(title, text){
+    clearTimeout(appToastTimer);
+    appToastDrag = null;
+    resetToastInline();
+    appToastTitle.textContent = title || '';
+    appToastText.textContent = text || '';
+    appToastText.style.display = text ? 'block' : 'none';
+    appToast.style.display = 'flex';
+    void appToast.offsetWidth;
+    appToast.classList.add('show');
+    startToastTimer();
+  }
+  appToast.addEventListener('pointerdown', function(e){
+    if(!appToast.classList.contains('show')) return;
+    clearTimeout(appToastTimer);
+    appToastDrag = { x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
+    appToast.classList.add('dragging');
+    try{ appToast.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  appToast.addEventListener('pointermove', function(e){
+    if(!appToastDrag) return;
+    appToastDrag.dx = e.clientX - appToastDrag.x;
+    appToastDrag.dy = Math.min(0, e.clientY - appToastDrag.y); // зөвхөн дээш татна
+    appToast.style.transform = 'translate(calc(-50% + ' + appToastDrag.dx + 'px), ' + appToastDrag.dy + 'px)';
+    appToast.style.opacity = String(Math.max(0.25, 1 - Math.max(Math.abs(appToastDrag.dx) / 220, Math.abs(appToastDrag.dy) / 90)));
+  });
+  function endToastDrag(){
+    if(!appToastDrag) return;
+    var dx = appToastDrag.dx, dy = appToastDrag.dy;
+    appToastDrag = null;
+    appToast.classList.remove('dragging');
+    if(Math.abs(dx) > 60 || dy < -30){
+      // Хангалттай гулсуулсан: гулсуулсан чиглэл рүүгээ нисээд алга болно
+      var outX = Math.abs(dx) > 60 ? (dx > 0 ? 320 : -320) : dx;
+      var outY = Math.abs(dx) > 60 ? dy : -120;
+      appToast.style.transform = 'translate(calc(-50% + ' + outX + 'px), ' + outY + 'px)';
+      appToast.style.opacity = '0';
+      clearTimeout(appToastTimer);
+      appToastTimer = setTimeout(hideToast, 220);
+    } else {
+      // Хүрэлцэхгүй бол байранд нь буцаж, 3 секундын тоолол дахин эхэлнэ
+      resetToastInline();
+      startToastTimer();
+    }
+  }
+  appToast.addEventListener('pointerup', endToastDrag);
+  appToast.addEventListener('pointercancel', endToastDrag);
+
   var loginBtn = document.getElementById('loginBtn');
   var loginReturnTo = 'main'; // 'main' эсвэл 'profile' - нэвтэрсний дараа хаашаа буцахыг заана
 
@@ -2124,7 +2182,7 @@
     loginError.style.display = 'none';
     clearFieldError(loginUsernameError);
     clearFieldError(loginPasswordError);
-    hideRegisterSuccess();
+    hideToast();
     registerUsername.value = '';
     registerEmail.value = '';
     registerPassword.value = '';
@@ -2219,13 +2277,14 @@
     } else {
       document.getElementById('mainView').style.display = 'block';
     }
+    showToast('Амжилттай нэвтэрлээ', 'Тавтай морил, ' + currentUser.username + '!');
   }
 
   function doLogin(){
     if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
-    hideRegisterSuccess();
+    hideToast();
     loginError.style.display = 'none';
     clearFieldError(loginUsernameError);
     clearFieldError(loginPasswordError);
@@ -2365,7 +2424,7 @@
           loginUsername.value = email;
           loginPassword.value = '';
           loginError.style.display = 'none';
-          showRegisterSuccess();
+          showToast('Бүртгэл амжилттай үүслээ', 'Имэйл болон нууц үгээрээ нэвтэрнэ үү.');
         });
       })
       .catch(function(err){
@@ -2535,7 +2594,7 @@
   });
 
   tabLogin.addEventListener('click', function(){ showAuthPanel('login'); });
-  tabRegister.addEventListener('click', function(){ hideRegisterSuccess(); showAuthPanel('register'); });
+  tabRegister.addEventListener('click', function(){ hideToast(); showAuthPanel('register'); });
   forgotLink.addEventListener('click', function(){ showAuthPanel('forgot'); });
   backToLoginLink.addEventListener('click', function(){ showAuthPanel('login'); });
 
@@ -2898,6 +2957,17 @@
     renderTopbar();
     profileSaveBtn.textContent = 'Хадгалагдлаа ✓';
     profileSaveBtn.classList.add('saved');
+    var nameChanged = newName !== prevUsername;
+    var avatarChanged = pendingAvatarImg !== prevAvatarImg;
+    if(nameChanged && avatarChanged){
+      showToast('Профайл шинэчлэгдлээ', 'Нэр болон зураг амжилттай солигдлоо.');
+    } else if(avatarChanged){
+      showToast('Зураг амжилттай солигдлоо', 'Шинэ профайл зураг хадгалагдлаа.');
+    } else if(nameChanged){
+      showToast('Нэр амжилттай солигдлоо', 'Шинэ хэрэглэгчийн нэр хадгалагдлаа.');
+    } else {
+      showToast('Амжилттай хадгалагдлаа', '');
+    }
 
     profileView.style.display = 'none';
     document.getElementById('mainView').style.display = 'block';
@@ -2909,6 +2979,7 @@
       firebase.auth().signOut().then(function(){
         profileView.style.display = 'none';
         document.getElementById('mainView').style.display = 'block';
+        showToast('Амжилттай гарлаа', 'Та зочны төлөвт шилжлээ.');
       });
     } else {
       // Нэвтрэх: профайл дээрээс нэвтэрсний дараа буцаад профайл руугаа орно
