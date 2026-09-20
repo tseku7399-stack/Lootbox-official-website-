@@ -1821,6 +1821,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script>
   var firebaseConfig = {
     apiKey: "AIzaSyAHD_aR3yjy9WiKdqqk651O2SoruXuFKlQ",
@@ -3413,6 +3414,130 @@
   attachVerifyHandler();
   renderPackages(null);
 
+  // ============================================================
+  // Админ самбараас (admin.html) удирддаг үнэ, багц, текстүүд.
+  // Firestore-ийн siteConfig/main баримтыг бодит цагт сонсож, ирсэн утгуудыг
+  // энэ сайтын өгөгдөл дээр давхарлана. Ачаалагдаагүй / алдаа гарвал сайт
+  // дээрх анхны (кодод бичигдсэн) утгуудаараа хэвийн ажиллана.
+  // ============================================================
+  var siteRechargeSubtitle = 'Шууд цэнэглэлт';
+  var SITE_TEXT_TARGETS = {
+    gamesTitle:        { sel: '#mainView .section-head h2' },
+    seeAllText:        { sel: '#seeAllBtn' },
+    allGamesTitle:     { sel: '#allGamesView .games-page-head h2' },
+    searchPlaceholder: { sel: '#gameSearchInput, #searchPageInput', attr: 'placeholder' },
+    warningTitle:      { sel: '.recharge-warning .rw-title' },
+    warningText:       { sel: '.recharge-warning .rw-text' },
+    contactLabel:      { sel: '.footer-contact .label' },
+    copyright:         { sel: '.site-copyright' },
+    drawerFooter:      { sel: '.side-drawer-foot' }
+  };
+  var lastSiteConfigJson = '';
+
+  function escHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  // Firestore-оос ирсэн багцуудыг шалгаж, renderPackages-д аюулгүй хэлбэрт оруулна
+  function sanitizeTiers(list){
+    if(!Array.isArray(list)) return null;
+    var out = [];
+    list.forEach(function(t){
+      if(!t || typeof t !== 'object') return;
+      var price = String(t.price == null ? '' : t.price).trim();
+      if(!/[0-9]/.test(price)) return;
+      var tier = { price: escHtml(price) };
+      if(t.special){
+        var label = String(t.label == null ? '' : t.label).trim();
+        if(!label) return;
+        tier.special = true;
+        tier.label = escHtml(label);
+      } else {
+        var amount = Number(t.amount);
+        if(!(amount > 0)) return;
+        var bonus = Number(t.bonus);
+        tier.amount = amount;
+        tier.bonus = bonus > 0 ? bonus : 0;
+      }
+      if(typeof t.img === 'string' && /^(https?:\/\/|[\w\-. ]+\.(png|jpe?g|webp|gif|svg)$)/i.test(t.img)){
+        tier.img = escHtml(t.img);
+      }
+      if(t.badge === 'best' || t.badge === 'popular'){
+        tier.badge = t.badge;
+        tier.badgeLabel = escHtml(String(t.badgeLabel || (t.badge === 'best' ? 'Best' : 'Popular')));
+      }
+      out.push(tier);
+    });
+    return out.length ? out : null;
+  }
+
+  function applySiteConfig(cfg){
+    if(!cfg || typeof cfg !== 'object') return;
+    var json = '';
+    try{ json = JSON.stringify({ games: cfg.games || null, texts: cfg.texts || null }); }catch(e){}
+    if(json && json === lastSiteConfigJson) return;
+    lastSiteConfigJson = json;
+
+    // ---- Тоглоомууд: багц/үнэ, картны гарчиг, хуудасны гарчиг ----
+    var packagesChanged = false;
+    if(cfg.games && typeof cfg.games === 'object'){
+      var cards = document.querySelectorAll('.offer-card[data-game]');
+      var known = {};
+      cards.forEach(function(card){ known[card.getAttribute('data-game')] = true; });
+      Object.keys(cfg.games).forEach(function(game){
+        if(!known.hasOwnProperty(game)) return;
+        var g = cfg.games[game];
+        if(!g || typeof g !== 'object') return;
+        var tiers = sanitizeTiers(g.packages);
+        if(tiers){ GAME_PACKAGE_TIERS[game] = tiers; packagesChanged = true; }
+        cards.forEach(function(card){
+          if(card.getAttribute('data-game') !== game) return;
+          var titleEl = card.querySelector('.title');
+          if(titleEl && typeof g.cardTitle === 'string' && g.cardTitle.trim()) titleEl.textContent = g.cardTitle.trim();
+          if(typeof g.pageTitle === 'string' && g.pageTitle.trim()) card.setAttribute('data-display-name', g.pageTitle.trim());
+        });
+      });
+    }
+
+    // ---- Текстүүд ----
+    if(cfg.texts && typeof cfg.texts === 'object'){
+      Object.keys(SITE_TEXT_TARGETS).forEach(function(key){
+        var v = cfg.texts[key];
+        if(typeof v !== 'string' || !v.trim()) return;
+        var target = SITE_TEXT_TARGETS[key];
+        document.querySelectorAll(target.sel).forEach(function(node){
+          if(target.attr) node.setAttribute(target.attr, v); else node.textContent = v;
+        });
+      });
+      if(typeof cfg.texts.rechargeSubtitle === 'string' && cfg.texts.rechargeSubtitle.trim()){
+        siteRechargeSubtitle = cfg.texts.rechargeSubtitle;
+        var subEl = document.getElementById('rechargeSub');
+        if(subEl) subEl.textContent = siteRechargeSubtitle;
+      }
+    }
+
+    // Цэнэглэлтийн хуудас нээлттэй байхад үнэ солигдвол шинэчилж, сонголтыг цэвэрлэнэ
+    var rv = document.getElementById('rechargeView');
+    if(packagesChanged && currentRechargeGame && rv && rv.style.display === 'block'){
+      renderPackages(currentRechargeGame);
+      var totalEl = document.getElementById('rechargeTotal');
+      if(totalEl) totalEl.textContent = '—';
+      var bar = document.getElementById('rechargeCheckoutBar');
+      if(bar) bar.classList.remove('is-sticky');
+    }
+  }
+
+  (function initSiteConfig(){
+    try{
+      if(typeof firebase === 'undefined' || !firebase.firestore) return;
+      firebase.firestore().collection('siteConfig').doc('main').onSnapshot(function(snap){
+        if(snap && snap.exists) applySiteConfig(snap.data());
+      }, function(){ /* эрх/сүлжээний алдаа: анхны утгуудаараа үргэлжлүүлнэ */ });
+    }catch(e){}
+  })();
+
   var rechargeBannerEl = document.getElementById('rechargeBanner');
   var DEFAULT_BANNER_BG = 'linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple))';
   var RECHARGE_BANNER_BG = {
@@ -3432,7 +3557,7 @@
       rechargeTitle.textContent = card.getAttribute('data-display-name') || game;
       var rechargeHeadTitle = document.getElementById('rechargeHeadTitle');
       if(rechargeHeadTitle) rechargeHeadTitle.textContent = card.getAttribute('data-display-name') || game;
-      rechargeSub.textContent = 'Шууд цэнэглэлт';
+      rechargeSub.textContent = siteRechargeSubtitle;
       var cover = card.querySelector('.offer-cover');
       rechargeBannerIcon.innerHTML = cover ? cover.innerHTML : '';
 
