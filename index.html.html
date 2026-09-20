@@ -898,11 +898,25 @@
   .password-wrap{ position:relative; }
   .login-error{ font-size:12px; color:var(--red); margin:-6px 0 12px; display:none; }
   .field-error{ font-size:11.5px; color:var(--red); margin:6px 2px 0; display:none; }
-  .login-success{
-    font-size:12.5px; color:var(--text-hi); font-weight:600;
-    background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35);
-    border-radius:14px; padding:11px 13px; margin-bottom:16px; text-align:center;
+  .auth-toast{
+    position:fixed; left:50%; top:calc(env(safe-area-inset-top, 0px) + 14px); z-index:100;
+    width:calc(100% - 28px); max-width:360px;
+    display:none; align-items:center; gap:10px;
+    background:var(--bg-elevated); border:1px solid rgba(124,92,255,0.4);
+    border-radius:14px; padding:11px 14px;
+    box-shadow:0 14px 32px -10px rgba(0,0,0,0.4);
+    opacity:0; transform:translate(-50%,-12px);
+    transition:opacity .25s ease, transform .25s ease;
   }
+  .auth-toast.show{ opacity:1; transform:translate(-50%,0); }
+  .auth-toast .at-icon{
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .auth-toast .at-icon svg{ width:13px; height:13px; stroke:#ffffff; }
+  .auth-toast .at-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:13px; color:var(--text-hi); }
+  .auth-toast .at-text{ font-size:11.5px; line-height:1.45; color:var(--text-lo); margin-top:1px; }
   .login-btn{
     width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700)); color:#ffffff;
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
@@ -1162,6 +1176,16 @@
   </div>
 </div>
 
+<div class="auth-toast" id="registerSuccessMsg" role="status" aria-live="polite">
+  <div class="at-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  </div>
+  <div>
+    <div class="at-title">Бүртгэл амжилттай үүслээ</div>
+    <div class="at-text">Имэйл болон нууц үгээрээ нэвтэрнэ үү.</div>
+  </div>
+</div>
+
 <div class="app">
   <div id="loginView" style="display:none;">
     <div class="login-wrap">
@@ -1186,7 +1210,6 @@
 
       <!-- Нэвтрэх хэсэг -->
       <div id="loginPanel">
-        <div class="login-success" id="registerSuccessMsg" style="display:none;">Бүртгэл амжилттай үүслээ! Имэйл болон нууц үгээрээ нэвтэрнэ үү.</div>
         <button type="button" class="google-btn" id="googleLoginBtn">
           <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
           Google-ээр нэвтрэх
@@ -1962,6 +1985,23 @@
   var loginUsernameError = document.getElementById('loginUsernameError');
   var loginPasswordError = document.getElementById('loginPasswordError');
   var registerSuccessMsg = document.getElementById('registerSuccessMsg');
+  var registerSuccessTimer = null;
+  function hideRegisterSuccess(){
+    clearTimeout(registerSuccessTimer);
+    registerSuccessMsg.classList.remove('show');
+    registerSuccessMsg.style.display = 'none';
+  }
+  // Бүртгэл амжилттай мессежийг дээд талд түр харуулаад өөрөө алга болгоно
+  function showRegisterSuccess(){
+    clearTimeout(registerSuccessTimer);
+    registerSuccessMsg.style.display = 'flex';
+    void registerSuccessMsg.offsetWidth;
+    registerSuccessMsg.classList.add('show');
+    registerSuccessTimer = setTimeout(function(){
+      registerSuccessMsg.classList.remove('show');
+      registerSuccessTimer = setTimeout(function(){ registerSuccessMsg.style.display = 'none'; }, 300);
+    }, 4500);
+  }
   var loginBtn = document.getElementById('loginBtn');
   var loginReturnTo = 'main'; // 'main' эсвэл 'profile' - нэвтэрсний дараа хаашаа буцахыг заана
 
@@ -2084,7 +2124,7 @@
     loginError.style.display = 'none';
     clearFieldError(loginUsernameError);
     clearFieldError(loginPasswordError);
-    registerSuccessMsg.style.display = 'none';
+    hideRegisterSuccess();
     registerUsername.value = '';
     registerEmail.value = '';
     registerPassword.value = '';
@@ -2185,7 +2225,7 @@
     if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
     var p = loginPassword.value;
-    registerSuccessMsg.style.display = 'none';
+    hideRegisterSuccess();
     loginError.style.display = 'none';
     clearFieldError(loginUsernameError);
     clearFieldError(loginPasswordError);
@@ -2325,7 +2365,7 @@
           loginUsername.value = email;
           loginPassword.value = '';
           loginError.style.display = 'none';
-          registerSuccessMsg.style.display = 'block';
+          showRegisterSuccess();
         });
       })
       .catch(function(err){
@@ -2495,7 +2535,7 @@
   });
 
   tabLogin.addEventListener('click', function(){ showAuthPanel('login'); });
-  tabRegister.addEventListener('click', function(){ registerSuccessMsg.style.display = 'none'; showAuthPanel('register'); });
+  tabRegister.addEventListener('click', function(){ hideRegisterSuccess(); showAuthPanel('register'); });
   forgotLink.addEventListener('click', function(){ showAuthPanel('forgot'); });
   backToLoginLink.addEventListener('click', function(){ showAuthPanel('login'); });
 
