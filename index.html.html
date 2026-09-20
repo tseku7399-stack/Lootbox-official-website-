@@ -925,6 +925,10 @@
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
     padding:14px; border-radius:16px; cursor:pointer; margin-top:6px;
   }
+  #registerBtn:disabled:not(.loading){
+    background:var(--bg-elevated); color:var(--text-faint);
+    box-shadow:inset 0 0 0 1px var(--line-strong); cursor:not-allowed; opacity:1;
+  }
   .login-btn.loading{ display:flex; align-items:center; justify-content:center; cursor:default; opacity:.85; }
   .login-btn .btn-spinner{ width:18px; height:18px; vertical-align:middle; }
   .login-hint{ font-size:11.5px; color:var(--text-faint); text-align:center; margin-top:16px; }
@@ -1118,6 +1122,55 @@
   .entrance-popup-close:hover{ background:rgba(255,255,255,0.2); }
   .entrance-popup-close:active{ transform:scale(0.75); }
   .entrance-popup-close svg{ width:16px; height:16px; stroke:#fff; }
+
+  /* ===== Утас хэвтээ (landscape) болгоход дэлгэцийн хэмжээнд яг тааруулж, бүтэн өргөнөөр харуулна ===== */
+  @media (orientation:landscape) and (max-height:520px){
+    body{ padding:0; align-items:flex-start; }
+    .app{
+      max-width:100%; min-height:100vh; min-height:100dvh; border-radius:0; border:0;
+      padding-top:calc(22px + env(safe-area-inset-top));
+      padding-bottom:calc(30px + env(safe-area-inset-bottom));
+      padding-left:calc(18px + env(safe-area-inset-left));
+      padding-right:calc(18px + env(safe-area-inset-right));
+    }
+    .navbar{
+      border-radius:0;
+      margin-top:calc(-22px - env(safe-area-inset-top));
+      margin-left:calc(-18px - env(safe-area-inset-left));
+      margin-right:calc(-18px - env(safe-area-inset-right));
+      padding-top:calc(12px + env(safe-area-inset-top));
+      padding-left:calc(18px + env(safe-area-inset-left));
+      padding-right:calc(18px + env(safe-area-inset-right));
+    }
+    .navbar::before, .navbar.at-top, .navbar.at-top::before{ border-radius:0; }
+
+    /* Өргөн дэлгэц дээр контентыг илүү олон багана болгож, зургийг хэт томруулахгүй */
+    .balance-card{ height:clamp(150px, 42dvh, 200px); }
+    .package-grid{ grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); }
+    #allGamesView .all-games-grid{ grid-template-columns:repeat(auto-fill, minmax(112px, 1fr)); }
+    .login-wrap{ max-width:480px; margin:0 auto; padding-top:10px; }
+    .login-logo{ width:48px; height:48px; border-radius:16px; margin-bottom:10px; }
+    .login-sub{ margin-bottom:16px; }
+    .auth-tabs{ margin-bottom:14px; }
+    #profileView > *:not(.games-page-head){ max-width:560px; margin-left:auto; margin-right:auto; }
+    #profileView > button{ display:block; width:100%; }
+
+    /* Хэвтээ үед дэлгэцийн өндөр бага тул цэс, dropdown, modal-ууд дэлгэцээс халихгүй */
+    .side-drawer{ overflow-y:auto; gap:14px; padding-top:16px; padding-bottom:16px; padding-left:calc(20px + env(safe-area-inset-left)); }
+    .notif-panel{ max-height:calc(100dvh - 96px); }
+    .search-dropdown{ max-height:min(280px, 50dvh); }
+    .payment-modal-overlay, .settings-modal-overlay, .google-modal-overlay{
+      padding:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    }
+    .payment-modal, .settings-modal{ max-width:min(460px, 100%); max-height:100%; }
+    .google-modal{ max-height:100%; overflow-y:auto; }
+    .entrance-popup-overlay{
+      padding:12px calc(12px + env(safe-area-inset-right)) 12px calc(12px + env(safe-area-inset-left));
+    }
+    .entrance-popup-wrap{ width:auto; max-width:100%; }
+    .entrance-popup{ width:auto; border-radius:28px; }
+    .entrance-popup img{ width:auto; max-width:100%; max-height:calc(100dvh - 84px); margin:0 auto; }
+  }
 </style>
 </head>
 <body>
@@ -1263,7 +1316,7 @@
           <div class="field-error" id="registerPassword2Error"></div>
         </div>
         <div class="login-error" id="registerError"></div>
-        <button class="login-btn" id="registerBtn">Бүртгүүлэх</button>
+        <button class="login-btn" id="registerBtn" disabled>Бүртгүүлэх</button>
       </div>
 
       <!-- Нууц үг мартсан хэсэг -->
@@ -2138,6 +2191,7 @@
       registerEmail.classList.remove('field-invalid');
       registerPassword.classList.remove('field-invalid');
       registerPassword2.classList.remove('field-invalid');
+      updateRegisterBtn();
     }
   }
 
@@ -2448,6 +2502,7 @@
           registerPassword.value = '';
           registerPassword2.value = '';
           registerError.style.display = 'none';
+          updateRegisterBtn();
           showAuthPanel('login');
           loginUsername.value = email;
           loginPassword.value = '';
@@ -2457,6 +2512,7 @@
       })
       .catch(function(err){
         resetBtn(registerBtn, 'Бүртгүүлэх');
+        updateRegisterBtn();
         var code = err && err.code;
         var msg = firebaseErrorMessage(err);
         if(code === 'auth/email-already-in-use' || code === 'auth/invalid-email'){
@@ -2514,6 +2570,48 @@
   registerPassword2.addEventListener('keydown', function(e){
     if(e.key === 'Enter') doRegister();
   });
+
+  // ---- Бүртгүүлэх товч: мэдээлэл бүрэн, зөв оруулагдсан үед л идэвхтэй (өнгө нь хэвийн), эс бөгөөс саарал/дарагдахгүй ----
+  var REGISTER_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function isRegisterFormValid(){
+    var u = registerUsername.value.trim();
+    var email = registerEmail.value.trim();
+    var p = registerPassword.value;
+    var p2 = registerPassword2.value;
+    if(!u || isUsernameTaken(u)) return false;
+    if(!REGISTER_EMAIL_RE.test(email)) return false;
+    if(p.length < 6) return false;
+    if(!p2 || p !== p2) return false;
+    return true;
+  }
+  function updateRegisterBtn(){
+    if(registerBtn.classList.contains('loading')) return; // хүсэлт явж байх үед loading төлөвийг бүү өөрчил
+    registerBtn.disabled = !isRegisterFormValid();
+  }
+
+  // Талбараас гарах үед (blur) буруу бичсэн утгын шалтгааныг тухайн талбарын доор харуулна
+  function showFieldMsg(errorEl, msg){ if(msg){ setFieldError(errorEl, msg); } else { clearFieldError(errorEl); } }
+  function usernameMsg(){ var u = registerUsername.value.trim(); return (u && isUsernameTaken(u)) ? 'Энэ хэрэглэгчийн нэр аль хэдийн ашиглагдсан байна' : ''; }
+  function emailMsg(){ var e = registerEmail.value.trim(); return (e && !REGISTER_EMAIL_RE.test(e)) ? 'Зөв имэйл хаяг оруулна уу' : ''; }
+  function passwordMsg(){ var p = registerPassword.value; return (p && p.length < 6) ? 'Нууц үг дор хаяж 6 тэмдэгт байх ёстой' : ''; }
+  function password2Msg(){ var p2 = registerPassword2.value; return (p2 && p2 !== registerPassword.value) ? 'Нууц үг таарахгүй байна' : ''; }
+
+  [registerUsername, registerEmail, registerPassword, registerPassword2].forEach(function(inp){
+    inp.addEventListener('input', updateRegisterBtn);
+    inp.addEventListener('change', updateRegisterBtn);
+  });
+  registerUsername.addEventListener('input', function(){ clearFieldError(registerUsernameError); });
+  registerEmail.addEventListener('input', function(){ clearFieldError(registerEmailError); });
+  registerPassword.addEventListener('input', function(){ clearFieldError(registerPasswordError); });
+  registerPassword2.addEventListener('input', function(){ clearFieldError(registerPassword2Error); });
+  registerUsername.addEventListener('blur', function(){ showFieldMsg(registerUsernameError, usernameMsg()); });
+  registerEmail.addEventListener('blur', function(){ showFieldMsg(registerEmailError, emailMsg()); });
+  registerPassword.addEventListener('blur', function(){
+    showFieldMsg(registerPasswordError, passwordMsg());
+    if(registerPassword2.value) showFieldMsg(registerPassword2Error, password2Msg());
+  });
+  registerPassword2.addEventListener('blur', function(){ showFieldMsg(registerPassword2Error, password2Msg()); });
+  updateRegisterBtn();
 
   // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод (in-app) browser
   // (webview) илрүүлэх. Google эдгээр webview-үүдээс ирэх OAuth хүсэлтийг
