@@ -2120,6 +2120,25 @@
     tabRegister.classList.toggle('active', which === 'register');
     var tabsRow = tabLogin.parentElement;
     tabsRow.style.display = (which === 'forgot') ? 'none' : 'flex';
+    // Өмнөх оролдлогоос үлдсэн хуучин сануулга (жишээ нь "Имэйл хаягаа оруулна уу") шинэ
+    // хэсэг рүү шилжихэд дагаж харагдахгүй байхаар цэвэрлэнэ
+    if(which === 'login'){
+      loginError.style.display = 'none';
+      clearFieldError(loginUsernameError);
+      clearFieldError(loginPasswordError);
+      loginUsername.classList.remove('field-invalid');
+      loginPassword.classList.remove('field-invalid');
+    } else if(which === 'register'){
+      registerError.style.display = 'none';
+      clearFieldError(registerUsernameError);
+      clearFieldError(registerEmailError);
+      clearFieldError(registerPasswordError);
+      clearFieldError(registerPassword2Error);
+      registerUsername.classList.remove('field-invalid');
+      registerEmail.classList.remove('field-invalid');
+      registerPassword.classList.remove('field-invalid');
+      registerPassword2.classList.remove('field-invalid');
+    }
   }
 
   // ---- Facebook/Messenger/Instagram зэрэг апп-н дотоод browser дотор
