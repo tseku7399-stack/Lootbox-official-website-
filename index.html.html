@@ -924,6 +924,8 @@
     border:0; font-family:'Poppins',sans-serif; font-weight:700; font-size:15px;
     padding:14px; border-radius:16px; cursor:pointer; margin-top:6px;
   }
+  .login-btn.loading{ display:flex; align-items:center; justify-content:center; cursor:default; opacity:.85; }
+  .login-btn .btn-spinner{ width:18px; height:18px; vertical-align:middle; }
   .login-hint{ font-size:11.5px; color:var(--text-faint); text-align:center; margin-top:16px; }
   .auth-tabs{
     display:flex; background:var(--bg-elevated); border:1px solid var(--line);
@@ -2299,6 +2301,20 @@
     showToast('Амжилттай нэвтэрлээ', 'Тавтай морил, ' + currentUser.username + '!');
   }
 
+  // ---- Товч дээрх "Түр хүлээнэ үү..." бичгийн оронд spinner (loading) харуулна ----
+  function setBtnLoading(btn){
+    btn.style.height = btn.offsetHeight + 'px'; // spinner-ээр солигдоход товчийн өндөр өөрчлөгдөхгүй
+    btn.classList.add('loading');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>';
+  }
+  function resetBtn(btn, label){
+    btn.classList.remove('loading');
+    btn.style.height = '';
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+
   function doLogin(){
     if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
@@ -2323,18 +2339,15 @@
       highlightInvalidField(loginPassword, loginPasswordError);
       return;
     }
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Түр хүлээнэ үү...';
+    setBtnLoading(loginBtn);
     firebase.auth().signInWithEmailAndPassword(email, p)
       .then(function(cred){
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Нэвтрэх';
+        resetBtn(loginBtn, 'Нэвтрэх');
         var kr = getOrCreateLocalRecord(cred.user);
         completeAuth(kr.key, kr.record);
       })
       .catch(function(err){
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Нэвтрэх';
+        resetBtn(loginBtn, 'Нэвтрэх');
         var code = err && err.code;
         var msg = firebaseErrorMessage(err);
         if(code === 'auth/user-not-found' || code === 'auth/invalid-email'){
@@ -2417,8 +2430,7 @@
       highlightInvalidField(registerPassword2, registerPassword2Error);
       return;
     }
-    registerBtn.disabled = true;
-    registerBtn.textContent = 'Түр хүлээнэ үү...';
+    setBtnLoading(registerBtn);
     firebase.auth().createUserWithEmailAndPassword(email, p)
       .then(function(cred){
         return cred.user.updateProfile({ displayName: u }).then(function(){ return cred.user; });
@@ -2432,8 +2444,7 @@
         // гарган, хэрэглэгчийг Нэвтрэх хэсэг рүү шилжүүлж, өөрөө имэйл/нууц үгээ
         // дахин оруулж нэвтрэхийг шаардана.
         return firebase.auth().signOut().catch(function(){}).then(function(){
-          registerBtn.disabled = false;
-          registerBtn.textContent = 'Бүртгүүлэх';
+          resetBtn(registerBtn, 'Бүртгүүлэх');
           registerUsername.value = '';
           registerEmail.value = '';
           registerPassword.value = '';
@@ -2447,8 +2458,7 @@
         });
       })
       .catch(function(err){
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Бүртгүүлэх';
+        resetBtn(registerBtn, 'Бүртгүүлэх');
         var code = err && err.code;
         var msg = firebaseErrorMessage(err);
         if(code === 'auth/email-already-in-use' || code === 'auth/invalid-email'){
