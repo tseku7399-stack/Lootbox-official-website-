@@ -642,9 +642,13 @@
   .payment-modal{
     width:100%; max-width:380px; max-height:88vh; overflow-y:auto;
     background:var(--bg-panel); border:1px solid var(--line); border-radius:22px;
-    padding:20px 18px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
+    padding:0 18px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
   }
-  .payment-modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  /* Толгой хэсэг (гарчиг + X товч) доош гүйлгэхэд дээд талдаа тогтож, алга болохгүй */
+  .payment-modal-head{
+    position:sticky; top:0; z-index:5; background:var(--bg-panel);
+    display:flex; align-items:center; justify-content:space-between; padding:20px 0 14px; margin-bottom:2px;
+  }
   .payment-modal-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--text-hi); }
   .payment-modal-close{
     width:30px; height:30px; border-radius:50%; background:var(--bg-elevated);
@@ -661,9 +665,12 @@
   .settings-modal{
     width:100%; max-width:380px; max-height:88vh; overflow-y:auto;
     background:var(--bg-panel); border:1px solid var(--line); border-radius:22px;
-    padding:20px 18px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
+    padding:0 18px 22px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
   }
-  .settings-modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .settings-modal-head{
+    position:sticky; top:0; z-index:5; background:var(--bg-panel);
+    display:flex; align-items:center; justify-content:space-between; padding:20px 0 16px; margin-bottom:2px;
+  }
   .settings-modal-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--text-hi); }
   .settings-modal-close{
     width:30px; height:30px; border-radius:50%; background:var(--bg-elevated);
