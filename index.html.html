@@ -1479,7 +1479,7 @@
 </div>
     <div class="offer-card" data-game="Valorant" data-aliases="valorant,valo,riot,riot games,vp">
       <div class="offer-cover f">
-        <img class="full-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZjViNjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNhODJjMzgiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0idXJsKCNnKSIvPjxwb2x5Z29uIHBvaW50cz0iNTIsNzggOTIsNzggMTI4LDE1MCAxNjQsNzggMjA0LDc4IDE0MCwxOTYgMTE2LDE5NiIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==" alt="Valorant">
+        <img class="full-img" src="Volarant.jpg" alt="Valorant">
       </div>
       <div class="offer-body">
         <div class="title">Valorant</div>
@@ -1556,7 +1556,7 @@
 </div>
       <div class="offer-card" data-game="Valorant" data-aliases="valorant,valo,riot,riot games,vp">
         <div class="offer-cover f">
-          <img class="full-img" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTYgMjU2Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZjViNjgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNhODJjMzgiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0idXJsKCNnKSIvPjxwb2x5Z29uIHBvaW50cz0iNTIsNzggOTIsNzggMTI4LDE1MCAxNjQsNzggMjA0LDc4IDE0MCwxOTYgMTE2LDE5NiIgZmlsbD0iI2ZmZmZmZiIvPjwvc3ZnPg==" alt="Valorant" loading="lazy" decoding="async">
+          <img class="full-img" src="Volarant.jpg" alt="Valorant" loading="lazy" decoding="async">
         </div>
         <div class="offer-body">
           <div class="title">Valorant</div>
@@ -3748,6 +3748,7 @@
   var psAmount = document.getElementById('psAmount');
   var psDate = document.getElementById('psDate');
   var pendingSelectedPackage = null;
+  var paymentProcessing = false; // "Төлбөр баталгаажуулах" дарсны дараах loading явж байгаа эсэх
   var selectedTransferBank = null;
 
   function bankInitials(name){
@@ -3836,6 +3837,12 @@
   pmTabBank.addEventListener('click', function(){ switchPaymentTab('bank'); });
 
   function openPaymentModal(selectedPackageEl){
+    // Төлбөр боловсруулагдаж байхад цонхыг санамсаргүй хаасан бол дахин нээхэд
+    // шинээр эхлүүлэлгүй, явж буй loading-ийг үргэлжлүүлэн харуулна.
+    if(paymentProcessing){
+      paymentModalOverlay.classList.add('open');
+      return;
+    }
     pendingSelectedPackage = selectedPackageEl;
     switchPaymentTab('qpay');
 
@@ -3893,6 +3900,7 @@
     // удаа бичигдэхээс сэргийлнэ.
     var pkg = pendingSelectedPackage;
     pendingSelectedPackage = null;
+    paymentProcessing = true;
 
     // 1) Эхлээд loading (spinner) төлөвийг үзүүлнэ.
     paymentConfirmBtn.classList.remove('success');
@@ -3930,6 +3938,11 @@
 
       paymentFormView.style.display = 'none';
       paymentSuccessView.style.display = 'flex';
+      paymentProcessing = false;
+      // Loading явж байх үед цонхыг санамсаргүй хаасан ч "Худалдан авалт амжилттай" дэлгэц заавал гарч ирнэ
+      var pmBox = paymentModalOverlay.querySelector('.payment-modal');
+      if(pmBox) pmBox.scrollTop = 0;
+      paymentModalOverlay.classList.add('open');
 
       if(currentUser.loggedIn && currentUserKey){
         var users = loadUsers();
