@@ -199,8 +199,7 @@
   .navbar-hamburger.active .burger-line:nth-child(1){ transform:translateY(7px) rotate(45deg); }
   .navbar-hamburger.active .burger-line:nth-child(2){ opacity:0; transform:scaleX(0); }
   .navbar-hamburger.active .burger-line:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
-  .navbar-logo{ display:flex; align-items:center; gap:8px; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:transform .15s ease, opacity .15s ease; }
-  .navbar-logo:active{ transform:scale(0.92); opacity:0.85; }
+  .navbar-logo{ display:flex; align-items:center; gap:8px; }
   .navbar-logo svg{ width:22px; height:22px; stroke:var(--gold-300); flex-shrink:0; }
   .navbar-logo span{ font-family:'Poppins',sans-serif; font-weight:700; font-size:16px; color:var(--text-hi); }
   .navbar-right{ display:flex; align-items:center; gap:10px; }
@@ -4270,48 +4269,6 @@
         if(authBtn) authBtn.click();
       });
     }
-  })();
-
-  // ---- Navbar лого: бусад сайтуудын адилаар дарахад Нүүр хуудас руу
-  // шилжинэ (нээлттэй drawer/dropdown/modal-уудыг хааж, mainView-г
-  // харуулаад дэлгэцийн орой руу буцаана) ----
-  (function initNavbarLogoHome(){
-    var logo = document.querySelector('.navbar-logo');
-    if(!logo) return;
-    logo.setAttribute('role', 'button');
-    logo.setAttribute('tabindex', '0');
-    logo.setAttribute('aria-label', 'Нүүр хуудас');
-
-    function goHome(){
-      var drawerOverlay = document.getElementById('sideDrawerOverlay');
-      if(drawerOverlay && drawerOverlay.classList.contains('open')){
-        drawerOverlay.classList.remove('open');
-        var hamburger = document.getElementById('navbarHamburger');
-        if(hamburger) hamburger.classList.remove('active');
-      }
-      var searchDropdown = document.getElementById('homeSearchDropdown');
-      if(searchDropdown) searchDropdown.classList.remove('open');
-      var searchInput = document.getElementById('gameSearchInput');
-      if(searchInput) searchInput.blur();
-      ['settingsModalOverlay', 'paymentModalOverlay'].forEach(function(id){
-        var el = document.getElementById(id);
-        if(el) el.classList.remove('open');
-      });
-      if(typeof showAllPagesHidden === 'function') showAllPagesHidden();
-      var mainView = document.getElementById('mainView');
-      if(mainView) mainView.style.display = 'block';
-      window.scrollTo({top:0, left:0, behavior:'smooth'});
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }
-
-    logo.addEventListener('click', goHome);
-    logo.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        goHome();
-      }
-    });
   })();
 
   // ---- Тохиргоо (Settings) modal: загвар (theme) болон switch-үүдийг
