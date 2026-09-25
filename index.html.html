@@ -103,6 +103,19 @@
       var(--bg-void);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  /* Хэрэглэгч хуудсыг pinch/browser zoom хийсний дараа mobile browser-үүд
+     double-tap-zoom эсэхийг тодруулах гэж товч дарсан бүрт ~300ms
+     саатал нэмдэг (viewport meta дээр user-scalable=no гэж заасан ч зарим
+     browser энэ хязгаарлалтыг accessibility-н үүднээс үл тоомсорлодог).
+     touch-action:manipulation зарлах нь энэ саатлыг бүрмөсөн арилгаж,
+     zoom хийсэн эсэхээс үл хамааран товч, карт, tab бүр шууд хариу
+     өгдөг болгоно. */
+  html, body{ touch-action:manipulation; }
+  button, a, [role="button"], .navbar-hamburger, .navbar-profile, .navbar-bell,
+  .transfer-copy-btn, .payment-tab, .payment-confirm-btn, .payment-modal-close,
+  .settings-modal-close, .side-drawer-close, .side-drawer-link, .balance-pill,
+  .game-card, .continue-card, .rb-tab, .rb-plan, .theme-option, .switch-row,
+  .transfer-chip, input, select, textarea{ touch-action:manipulation; }
   html{ scroll-behavior:auto; overflow-x:hidden; overscroll-behavior-x:none; }
   html,body{height:100%; max-width:100%;}
   body{
@@ -3803,9 +3816,9 @@
       }, 1500);
     };
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(acc).then(done, done);
+      navigator.clipboard.writeText(acc).then(done, function(){ fallbackCopy(acc, done); });
     } else {
-      done();
+      fallbackCopy(acc, done);
     }
   });
 
@@ -3820,7 +3833,7 @@
       }, 1500);
     };
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(currentTransferMemo).then(done, done);
+      navigator.clipboard.writeText(currentTransferMemo).then(done, function(){ fallbackCopy(currentTransferMemo, done); });
     } else {
       done();
     }
