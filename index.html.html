@@ -1555,7 +1555,7 @@
       </div>
       <div class="offer-continue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
 </div>
-    <div class="offer-card" data-game="MLBB" data-display-name="Mobile Legends" data-aliases="mobile legends,mobile legends bang bang,mlbb">
+    <div class="offer-card" data-game="MLBB" data-display-name="Mobile Legends" data-search-name="Mobile Legends Bang Bang" data-aliases="mobile legends,mobile legends bang bang,mlbb">
       <div class="offer-cover c">
         <img class="full-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_UdJS1TZqq9PfuRJ249-wovvLHLo6IYvTATvqpI8j7g&s" alt="MLBB">
       </div>
@@ -3399,6 +3399,7 @@ document.addEventListener('DOMContentLoaded', function(){
       var cover = card.querySelector('.offer-cover');
       return {
         name: name,
+        searchName: card.getAttribute('data-search-name') || card.getAttribute('data-display-name') || name,
         el: card,
         aliases: (card.getAttribute('data-aliases') || '').toLowerCase(),
         iconHtml: cover ? cover.innerHTML : ''
@@ -3422,7 +3423,7 @@ document.addEventListener('DOMContentLoaded', function(){
       homeSearchDropdown.innerHTML = results.map(function(r){
         return '<div class="search-dropdown-item" data-name="' + r.name + '">' +
                  '<div class="search-dropdown-icon">' + r.iconHtml + '</div>' +
-                 '<div class="search-dropdown-name">' + r.name + '</div>' +
+                 '<div class="search-dropdown-name">' + r.searchName + '</div>' +
                '</div>';
       }).join('');
     }
