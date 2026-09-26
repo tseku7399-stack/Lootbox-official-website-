@@ -2980,14 +2980,44 @@ document.addEventListener('DOMContentLoaded', function(){
     if(NOTIFICATIONS.length === 0){
       list.innerHTML = '<div class="notif-empty">Мэдэгдэл алга байна</div>';
     } else {
-      list.innerHTML = NOTIFICATIONS.map(function(n){
-        return '<div class="notif-item' + (n.unread ? ' unread' : '') + '">' +
+      list.innerHTML = NOTIFICATIONS.map(function(n, i){
+        var clickable = n.purchase ? ' style="cursor:pointer;"' : '';
+        return '<div class="notif-item' + (n.unread ? ' unread' : '') + '" data-notif-index="' + i + '"' + clickable + '>' +
           '<div class="notif-row"><div class="notif-title"><span>' + n.title + '</span></div><div class="notif-time">' + n.time + '</div></div>' +
           '<div class="notif-desc">' + n.body + '</div>' +
         '</div>';
       }).join('');
+      list.querySelectorAll('.notif-item[data-notif-index]').forEach(function(itemEl){
+        itemEl.addEventListener('click', function(){
+          var idx = parseInt(itemEl.getAttribute('data-notif-index'), 10);
+          var n = NOTIFICATIONS[idx];
+          if(n && n.purchase) openPurchaseDetail(n.purchase);
+        });
+      });
     }
     if(dot) dot.style.display = NOTIFICATIONS.some(function(n){ return n.unread; }) ? 'block' : 'none';
+  }
+
+  // Мэдэгдэл дэх худалдан авалтын мэдээллийг "Худалдан авалт амжилттай"
+  // дэлгэц дээр дахин харуулна (шинэ худалдан авалт хийхэд ашигладагтай
+  // яг адилхан modal-ийг дахин ашиглав).
+  function openPurchaseDetail(purchase){
+    document.getElementById('psGameName').textContent = purchase.game || '—';
+    document.getElementById('psAccId').textContent = purchase.accId || '—';
+    document.getElementById('psAccName').textContent = purchase.accName || '—';
+    document.getElementById('psItemName').textContent = purchase.item || '—';
+    document.getElementById('psAmount').textContent = purchase.price || '—';
+    document.getElementById('psDate').textContent = purchase.date || '—';
+    var overlay = document.getElementById('paymentModalOverlay');
+    var formView = document.getElementById('paymentFormView');
+    var successView = document.getElementById('paymentSuccessView');
+    if(formView) formView.style.display = 'none';
+    if(successView) successView.style.display = 'flex';
+    if(overlay){
+      var pmBox = overlay.querySelector('.payment-modal');
+      if(pmBox) pmBox.scrollTop = 0;
+      overlay.classList.add('open');
+    }
   }
 
   var notifOpenedFrom = null;
@@ -4010,12 +4040,32 @@ document.addEventListener('DOMContentLoaded', function(){
             item: itemText,
             price: priceText,
             date: dateStr,
-            status: 'pending'
+            status: 'success'
           });
           users[currentUserKey] = record;
           saveUsers(users);
         }
       }
+
+      // ---- Худалдан авалт амжилттай болсны дараа мэдэгдэл нэмнэ. Тухайн
+      // мэдэгдэл дээр дарахад яг энэ худалдан авалтын дэлгэрэнгүй мэдээллийг
+      // (амжилттай дэлгэц шиг) дахин харуулна. ----
+      NOTIFICATIONS.unshift({
+        icon: 'diamond',
+        title: 'Цэнэглэлт амжилттай',
+        body: gameName + ' — ' + itemText + ' амжилттай орлоо.',
+        time: 'Дөнгөж сая',
+        unread: true,
+        purchase: {
+          game: gameName,
+          accId: idDisplay,
+          accName: accountName,
+          item: itemText,
+          price: priceText,
+          date: dateStr
+        }
+      });
+      renderNotifications();
     }, 1200);
   });
 
