@@ -19,7 +19,18 @@
 <link rel="dns-prefetch" href="https://www.pubgmobile.com">
 <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
 <link rel="dns-prefetch" href="https://img.samsungapps.com">
+<link rel="preconnect" href="https://cloud9.gg">
+<link rel="preconnect" href="https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Тоглоом сонгоход (PUBG Mobile, Standoff 2 гэх мэт) дэлгэрэнгүй хуудасны
+     banner зургийг JS click хийх мөчид л татаж эхэлдэг байсан тул орсны
+     дараа "хоосон байгаад гарч ирэх" (pop-in) харагддаг байв. Эдгээрийг
+     хуудас ачаалагдах эхэнд нь урьдчилж (preload) татуулснаар дарах мөчид
+     аль хэдийн cache-т орсон байж, шууд, саадгүй харагдана. -->
+<link rel="preload" as="image" href="Pubgmbanner.PNG">
+<link rel="preload" as="image" href="Standoff2banner.PNG">
+<link rel="preload" as="image" href="https://cloud9.gg/wp-content/uploads/1540x480_MLBB.png.webp">
+<link rel="preload" as="image" href="https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/4/3/7/43736e1e26e5a6bc010d68dee32e4a300f529866.png">
 <style>
   :root{
     --bg-void:#25262f;
