@@ -29,6 +29,17 @@
      аль хэдийн cache-т орсон байж, шууд, саадгүй харагдана. -->
 <link rel="preload" as="image" href="Pubgmbanner.PNG">
 <link rel="preload" as="image" href="Standoff2banner.PNG">
+<!-- Тоглоом бүрийн валютын icon (UC/Robux/Gold) болон Standoff 2-ийн Gold
+     багцын зургууд — эдгээр нь мөн зөвхөн тухайн тоглоом дээр дарсны дараа
+     л анх удаа хөтчид ирдэг байсан тул урьдчилж preload хийж, шууд, саадгүй
+     харагдахаар болгов. -->
+<link rel="preload" as="image" href="UC.PNG">
+<link rel="preload" as="image" href="Robux.PNG">
+<link rel="preload" as="image" href="GOLD.png">
+<link rel="preload" as="image" href="Gold1.PNG">
+<link rel="preload" as="image" href="Gold2.PNG">
+<link rel="preload" as="image" href="Gold3.PNG">
+<link rel="preload" as="image" href="Gold4.PNG">
 <link rel="preload" as="image" href="https://cloud9.gg/wp-content/uploads/1540x480_MLBB.png.webp">
 <link rel="preload" as="image" href="https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/4X/4/3/7/43736e1e26e5a6bc010d68dee32e4a300f529866.png">
 <style>
@@ -3506,8 +3517,14 @@ document.addEventListener('DOMContentLoaded', function(){
       if(t.badge === 'popular'){ cardClass += ' popular'; badgeHtml = '<span class="badge popular-badge">' + t.badgeLabel + '</span>'; }
       var mainLine = t.special ? t.label : (t.amount + (t.bonus ? ' <em>+' + t.bonus + '</em>' : ''));
       var itemText = t.special ? t.label : (t.amount + (t.bonus ? ' +' + t.bonus : '') + ' ' + (CURRENCY_LABELS[currency] || ''));
+      // Анхаар: энэ icon нь rechargeView харагдахаас ("display:block" болохоос)
+      // ЭРТ innerHTML-ээр DOM-д орж ирдэг тул loading="lazy" ашиглавал зарим
+      // browser хараахан харагдаагүй (display:none) элементийг "алс хол" гэж
+      // үзэж, зургийг харагдах хүртэл огт татаж эхэлдэггүй — яг тэр үед
+      // "орсны дараа гарч ирэх" эффект үүсгэдэг байсан. Тиймээс энд lazy
+      // ашиглахгүй, шууд (eager) татуулна.
       var iconHtml = ((currency === 'DIAMOND' || currency === 'GOLD') && t.img)
-        ? '<img class="cur-photo" src="' + t.img + '" alt="" loading="lazy">'
+        ? '<img class="cur-photo" src="' + t.img + '" alt="" decoding="async">'
         : CURRENCY_ICONS[currency];
       return '<div class="' + cardClass + '" data-item="' + itemText + '" data-price="' + t.price + '">' + badgeHtml +
         '<div class="amt"><span class="cur-icon">' + iconHtml + '</span>' + mainLine + '</div>' +
