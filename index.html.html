@@ -134,6 +134,40 @@
       radial-gradient(55% 45% at 90% 105%, rgba(6,182,212,0.18), transparent 65%),
       var(--bg-void);
   }
+
+  /* Изумруд (шинэ, 4 дэх) загвар — гүн ногоон дэвсгэр + алт-ногоон өнгийн
+     тодотгол хослуулснаар "loot/эрдэнэ" сэдэвтэй илүү таарч, өмнөх 3
+     загвараас (Саарал/Цагаан/Неон) ялгаатай, өвөрмөц харагдана. */
+  body.theme-emerald{
+    --bg-void:#151f1a;
+    --bg-panel:#0d1512;
+    --bg-panel-2:#122019;
+    --bg-elevated:#17251d;
+    --line:rgba(34,197,94,0.16);
+    --line-strong:rgba(34,197,94,0.28);
+    --gold-100:#e3fbe9;
+    --gold-300:#22c55e;
+    --gold-500:#16a34a;
+    --gold-700:#0f7a3a;
+    --gold-900:#0a4d26;
+    --text-hi:#f2f7f4;
+    --text-lo:#93a89d;
+    --text-faint:#5f7268;
+    --red:#ff5d5d;
+    --dot-idle:rgba(255,255,255,0.35);
+    --hover-tint:rgba(34,197,94,0.07);
+    --hover-tint-strong:rgba(34,197,94,0.15);
+    --navbar-border:rgba(34,197,94,0.35);
+    --navbar-shadow:rgba(0,0,0,0.7);
+    --continue-shadow-1:rgba(0,0,0,0.35);
+    --continue-shadow-2:rgba(0,0,0,0.1);
+  }
+  body.theme-emerald{
+    background:
+      radial-gradient(65% 50% at 12% -5%, rgba(34,197,94,0.20), transparent 60%),
+      radial-gradient(55% 45% at 90% 105%, rgba(15,122,58,0.20), transparent 65%),
+      var(--bg-void);
+  }
   *{box-sizing:border-box; margin:0; padding:0;}
   /* Хэрэглэгч хуудсыг pinch/browser zoom хийсний дараа mobile browser-үүд
      double-tap-zoom эсэхийг тодруулах гэж товч дарсан бүрт ~300ms
@@ -807,6 +841,7 @@
   .theme-swatch.swatch-dark::before{ background:linear-gradient(160deg,#18181b 0%, #202024 55%, #2c1c78 130%); }
   .theme-swatch.swatch-light::before{ background:linear-gradient(160deg,#ffffff 0%, #f0f0f4 55%, #efe8ff 130%); }
   .theme-swatch.swatch-neon::before{ background:linear-gradient(160deg,#0d0d1a 0%, #12121f 55%, #06b6d4 130%); }
+  .theme-swatch.swatch-emerald::before{ background:linear-gradient(160deg,#0d1512 0%, #17251d 55%, #22c55e 130%); }
   .theme-swatch .ts-dot{
     position:absolute; top:8px; right:8px; width:16px; height:16px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
@@ -1301,6 +1336,7 @@
       var saved = JSON.parse(localStorage.getItem('lootbox_settings')) || {};
       if(saved.theme === 'light'){ document.body.classList.add('theme-light'); }
       else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
+      else if(saved.theme === 'emerald'){ document.body.classList.add('theme-emerald'); }
     }catch(e){}
   })();
 
@@ -1959,6 +1995,12 @@
           <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
         </div>
         <div class="theme-option-label">Неон өнгө</div>
+      </div>
+      <div class="theme-option" id="themeOptionEmerald" data-theme="emerald">
+        <div class="theme-swatch swatch-emerald">
+          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        </div>
+        <div class="theme-option-label">Изумруд өнгө</div>
       </div>
     </div>
 
@@ -4521,6 +4563,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
     var optionNeon = document.getElementById('themeOptionNeon');
+    var optionEmerald = document.getElementById('themeOptionEmerald');
     var toggleNotif = document.getElementById('toggleNotif');
     var toggleSound = document.getElementById('toggleSound');
     var toggleAutoplay = document.getElementById('toggleAutoplay');
@@ -4546,21 +4589,25 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
     function applyTheme(theme, skipSave){
-      document.body.classList.remove('theme-light', 'theme-neon');
+      document.body.classList.remove('theme-light', 'theme-neon', 'theme-emerald');
       if(theme === 'light'){
         document.body.classList.add('theme-light');
       } else if(theme === 'neon'){
         document.body.classList.add('theme-neon');
+      } else if(theme === 'emerald'){
+        document.body.classList.add('theme-emerald');
       }
       optionDark.classList.toggle('active', theme === 'dark');
       optionLight.classList.toggle('active', theme === 'light');
       if(optionNeon) optionNeon.classList.toggle('active', theme === 'neon');
+      if(optionEmerald) optionEmerald.classList.toggle('active', theme === 'emerald');
       if(!skipSave) saveSettings({ theme: theme });
     }
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
     if(optionNeon) optionNeon.addEventListener('click', function(){ applyTheme('neon'); });
+    if(optionEmerald) optionEmerald.addEventListener('click', function(){ applyTheme('emerald'); });
 
     if(toggleNotif){
       toggleNotif.addEventListener('change', function(){
