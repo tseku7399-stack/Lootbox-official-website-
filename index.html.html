@@ -354,6 +354,13 @@
   .notif-item.clickable:hover{ background:var(--hover-tint-strong); border-color:var(--gold-300); }
   .notif-item:not(.clickable):hover{ background:var(--hover-tint); }
   .notif-body{ min-width:0; flex:1; }
+  .notif-del{
+    width:24px; height:24px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-faint); cursor:pointer;
+  }
+  .notif-del svg{ width:13px; height:13px; }
+  .notif-del:hover{ background:var(--hover-tint-strong); color:var(--red); }
   .notif-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .notif-title{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--text-hi); min-width:0; }
   .notif-title span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -3048,7 +3055,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
   // Жинхэнэ (амжилттай худалдан авалт хийх бүрд автоматаар нэмэгддэг)
   // мэдэгдлүүд энд орно. Урьд байсан хуурамч жишээ мэдэгдлүүдийг хассан.
-  var NOTIFICATIONS = [];
+  // localStorage-д хадгалж, сайтыг restart/refresh хийсэн ч алдагдахгүй,
+  // зөвхөн хэрэглэгч "Бүгдийг устгах" эсвэл тухайн мэдэгдэл дээрх устгах
+  // товч дарж ЗОРИУДЛАН устгасан үед л алга болно.
+  var NOTIF_STORAGE_KEY = 'lootbox_notifications';
+  function loadStoredNotifications(){
+    try{
+      var raw = JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY));
+      return Array.isArray(raw) ? raw : [];
+    }catch(e){ return []; }
+  }
+  function saveNotifications(){
+    try{ localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(NOTIFICATIONS)); }catch(e){}
+  }
+  var NOTIFICATIONS = loadStoredNotifications();
 
   function renderNotifications(){
     var list = document.getElementById('notifList');
@@ -3064,6 +3084,9 @@ document.addEventListener('DOMContentLoaded', function(){
             '<div class="notif-row"><div class="notif-title"><span>' + n.title + '</span></div><div class="notif-time">' + n.time + '</div></div>' +
             '<div class="notif-desc">' + n.body + '</div>' +
           '</div>' +
+          '<div class="notif-del" data-notif-del="' + i + '" aria-label="Устгах">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
+          '</div>' +
         '</div>';
       }).join('');
       list.querySelectorAll('.notif-item[data-notif-index]').forEach(function(itemEl){
@@ -3071,6 +3094,15 @@ document.addEventListener('DOMContentLoaded', function(){
           var idx = parseInt(itemEl.getAttribute('data-notif-index'), 10);
           var n = NOTIFICATIONS[idx];
           if(n && n.purchase) openPurchaseDetail(n.purchase);
+        });
+      });
+      list.querySelectorAll('.notif-del[data-notif-del]').forEach(function(delEl){
+        delEl.addEventListener('click', function(e){
+          e.stopPropagation();
+          var idx = parseInt(delEl.getAttribute('data-notif-del'), 10);
+          NOTIFICATIONS.splice(idx, 1);
+          saveNotifications();
+          renderNotifications();
         });
       });
     }
@@ -3116,6 +3148,7 @@ document.addEventListener('DOMContentLoaded', function(){
     notifOpenedFrom = getCurrentVisiblePage() || document.getElementById('mainView');
     showAllPagesHidden();
     NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+    saveNotifications();
     renderNotifications();
     document.getElementById('notificationsView').style.display = 'block';
   }
@@ -3127,6 +3160,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('notifClearBtn').addEventListener('click', function(e){
     e.stopPropagation();
     NOTIFICATIONS.length = 0;
+    saveNotifications();
     renderNotifications();
   });
 
@@ -4155,6 +4189,7 @@ document.addEventListener('DOMContentLoaded', function(){
           date: dateStr
         }
       });
+      saveNotifications();
       renderNotifications();
     }, 1200);
   });
