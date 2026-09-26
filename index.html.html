@@ -348,8 +348,10 @@
     display:flex; align-items:flex-start; gap:10px;
     padding:12px; border:1px solid var(--line); border-radius:16px;
     background:var(--bg-elevated); cursor:default;
-    transition:background .15s ease, border-color .15s ease;
+    opacity:.6;
+    transition:background .15s ease, border-color .15s ease, opacity .5s ease;
   }
+  .notif-item.unread{ opacity:1; }
   .notif-item.clickable{ cursor:pointer; }
   .notif-item.clickable:hover{ background:var(--hover-tint-strong); border-color:var(--gold-300); }
   .notif-item:not(.clickable):hover{ background:var(--hover-tint); }
@@ -3072,13 +3074,12 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function renderNotifications(){
     var list = document.getElementById('notifList');
-    var dot = document.getElementById('notifDot');
     if(!list) return;
     if(NOTIFICATIONS.length === 0){
       list.innerHTML = '<div class="notif-empty">Мэдэгдэл алга байна</div>';
     } else {
       list.innerHTML = NOTIFICATIONS.map(function(n, i){
-        var clickableClass = n.purchase ? ' clickable' : '';
+        var clickableClass = ' clickable';
         return '<div class="notif-item' + (n.unread ? ' unread' : '') + clickableClass + '" data-notif-index="' + i + '">' +
           '<div class="notif-body">' +
             '<div class="notif-row"><div class="notif-title"><span>' + n.title + '</span></div><div class="notif-time">' + n.time + '</div></div>' +
@@ -3093,6 +3094,12 @@ document.addEventListener('DOMContentLoaded', function(){
         itemEl.addEventListener('click', function(){
           var idx = parseInt(itemEl.getAttribute('data-notif-index'), 10);
           var n = NOTIFICATIONS[idx];
+          if(n && n.unread){
+            n.unread = false;
+            itemEl.classList.remove('unread');
+            saveNotifications();
+            updateNotifDot();
+          }
           if(n && n.purchase) openPurchaseDetail(n.purchase);
         });
       });
@@ -3106,15 +3113,19 @@ document.addEventListener('DOMContentLoaded', function(){
         });
       });
     }
-    if(dot){
-      var unreadCount = NOTIFICATIONS.filter(function(n){ return n.unread; }).length;
-      if(unreadCount > 0){
-        dot.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
-        dot.style.display = 'flex';
-      } else {
-        dot.textContent = '';
-        dot.style.display = 'none';
-      }
+    updateNotifDot();
+  }
+
+  function updateNotifDot(){
+    var dot = document.getElementById('notifDot');
+    if(!dot) return;
+    var unreadCount = NOTIFICATIONS.filter(function(n){ return n.unread; }).length;
+    if(unreadCount > 0){
+      dot.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+      dot.style.display = 'flex';
+    } else {
+      dot.textContent = '';
+      dot.style.display = 'none';
     }
   }
 
@@ -3147,8 +3158,6 @@ document.addEventListener('DOMContentLoaded', function(){
   function openNotifications(){
     notifOpenedFrom = getCurrentVisiblePage() || document.getElementById('mainView');
     showAllPagesHidden();
-    NOTIFICATIONS.forEach(function(n){ n.unread = false; });
-    saveNotifications();
     renderNotifications();
     document.getElementById('notificationsView').style.display = 'block';
   }
