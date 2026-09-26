@@ -701,6 +701,41 @@
   }
   .payment-modal-close svg{ width:15px; height:15px; stroke:var(--text-hi); }
 
+  /* Мэдэгдэл доторх худалдан авалтын дэлгэрэнгүй — "Худалдан авалт амжилттай"
+     (checkmark) загвараас ЗОРИУДЛАН ялгаатай, баримт/receipt маягийн
+     харагдацтай болгосон. */
+  .notif-detail-overlay{
+    display:none; position:fixed; inset:0; z-index:96;
+    background:rgba(0,0,0,0.65); align-items:center; justify-content:center; padding:18px;
+  }
+  .notif-detail-overlay.open{ display:flex; }
+  .notif-detail-card{
+    width:100%; max-width:340px; max-height:88vh; overflow-y:auto;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:16px;
+    padding:18px 18px 20px; box-shadow:0 30px 70px -20px rgba(0,0,0,0.7);
+  }
+  .notif-detail-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .notif-detail-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:var(--text-hi); }
+  .notif-detail-close{
+    width:26px; height:26px; border-radius:50%; background:var(--bg-elevated);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .notif-detail-close svg{ width:13px; height:13px; stroke:var(--text-hi); }
+  .notif-detail-status{
+    display:flex; align-items:center; gap:8px; background:rgba(46,204,113,0.12);
+    border:1px solid rgba(46,204,113,0.35); color:#3ddc84; border-radius:10px;
+    padding:9px 12px; font-size:12.5px; font-weight:600; margin-bottom:16px;
+  }
+  .notif-detail-status svg{ width:16px; height:16px; stroke:#3ddc84; flex-shrink:0; }
+  .notif-detail-body{ display:flex; flex-direction:column; gap:10px; }
+  .nd-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12.5px; }
+  .nd-label{ color:var(--text-lo); }
+  .nd-value{ color:var(--text-hi); font-weight:600; text-align:right; }
+  .notif-detail-divider{ border-top:1px dashed var(--line); margin:16px 0 12px; }
+  .notif-detail-total{ display:flex; align-items:center; justify-content:space-between; }
+  .notif-detail-total span:first-child{ font-size:12.5px; color:var(--text-lo); }
+  .nd-total-amount{ font-family:'Poppins',sans-serif; font-weight:800; font-size:18px; color:var(--gold-300); }
+
   /* Тохиргоо modal (Settings) */
   .settings-modal-overlay{
     display:none; position:fixed; inset:0; z-index:96;
@@ -1838,6 +1873,33 @@
           <span class="ps-value" id="psDate">—</span>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="notif-detail-overlay" id="notifDetailOverlay">
+  <div class="notif-detail-card">
+    <div class="notif-detail-head">
+      <div class="notif-detail-title">Гүйлгээний баримт</div>
+      <div class="notif-detail-close" id="notifDetailClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+    </div>
+    <div class="notif-detail-status">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+      <span>Амжилттай цэнэглэгдсэн</span>
+    </div>
+    <div class="notif-detail-body">
+      <div class="nd-row"><span class="nd-label">Тоглоом</span><span class="nd-value" id="ndGameName">—</span></div>
+      <div class="nd-row"><span class="nd-label">Акаунт ID</span><span class="nd-value" id="ndAccId">—</span></div>
+      <div class="nd-row"><span class="nd-label">Нэр</span><span class="nd-value" id="ndAccName">—</span></div>
+      <div class="nd-row"><span class="nd-label">Багц</span><span class="nd-value" id="ndItemName">—</span></div>
+      <div class="nd-row"><span class="nd-label">Огноо, цаг</span><span class="nd-value" id="ndDate">—</span></div>
+    </div>
+    <div class="notif-detail-divider"></div>
+    <div class="notif-detail-total">
+      <span>Нийт төлсөн дүн</span>
+      <span class="nd-total-amount" id="ndAmount">—</span>
     </div>
   </div>
 </div>
@@ -2998,27 +3060,29 @@ document.addEventListener('DOMContentLoaded', function(){
     if(dot) dot.style.display = NOTIFICATIONS.some(function(n){ return n.unread; }) ? 'block' : 'none';
   }
 
-  // Мэдэгдэл дэх худалдан авалтын мэдээллийг "Худалдан авалт амжилттай"
-  // дэлгэц дээр дахин харуулна (шинэ худалдан авалт хийхэд ашигладагтай
-  // яг адилхан modal-ийг дахин ашиглав).
+  // Мэдэгдэл дэх худалдан авалтын мэдээллийг ЗОРИУДЛАН "Худалдан авалт
+  // амжилттай" (checkmark) дэлгэцээс өөр, баримт (receipt) маягийн тусдаа
+  // modal-аар харуулна.
   function openPurchaseDetail(purchase){
-    document.getElementById('psGameName').textContent = purchase.game || '—';
-    document.getElementById('psAccId').textContent = purchase.accId || '—';
-    document.getElementById('psAccName').textContent = purchase.accName || '—';
-    document.getElementById('psItemName').textContent = purchase.item || '—';
-    document.getElementById('psAmount').textContent = purchase.price || '—';
-    document.getElementById('psDate').textContent = purchase.date || '—';
-    var overlay = document.getElementById('paymentModalOverlay');
-    var formView = document.getElementById('paymentFormView');
-    var successView = document.getElementById('paymentSuccessView');
-    if(formView) formView.style.display = 'none';
-    if(successView) successView.style.display = 'flex';
-    if(overlay){
-      var pmBox = overlay.querySelector('.payment-modal');
-      if(pmBox) pmBox.scrollTop = 0;
-      overlay.classList.add('open');
-    }
+    document.getElementById('ndGameName').textContent = purchase.game || '—';
+    document.getElementById('ndAccId').textContent = purchase.accId || '—';
+    document.getElementById('ndAccName').textContent = purchase.accName || '—';
+    document.getElementById('ndItemName').textContent = purchase.item || '—';
+    document.getElementById('ndDate').textContent = purchase.date || '—';
+    document.getElementById('ndAmount').textContent = purchase.price || '—';
+    var overlay = document.getElementById('notifDetailOverlay');
+    if(overlay) overlay.classList.add('open');
   }
+  (function initNotifDetailModal(){
+    var overlay = document.getElementById('notifDetailOverlay');
+    var closeBtn = document.getElementById('notifDetailClose');
+    if(!overlay || !closeBtn) return;
+    function close(){ overlay.classList.remove('open'); }
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function(e){
+      if(e.target === overlay) close();
+    });
+  })();
 
   var notifOpenedFrom = null;
 
