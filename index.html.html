@@ -524,6 +524,14 @@
     z-index:-1;
   }
   .games-page-head.at-top::before{ border-radius:36px 36px 0 0; }
+  /* Мэдэгдлийн жагсаалт ихэвчлэн богино тул header-ийг sticky байлгах шаардлагагүй.
+     Sticky (position:sticky) байх үед урт/бүтэн хуудасны screenshot (scrolling
+     screenshot) авах багажууд header-ийг скроллын хэсэг бүрийн дээд талд
+     дахин "барьж" авдгаас болж дэлгэцний зурган дээр 2 удаа гарч ирсэн мэт
+     харагддаг байсан тул зөвхөн энэ (Мэдэгдэл) хуудсанд stick-ийг унтраав.
+     position:relative-ийг хэвээр үлдээснээр дээрх ::before-ийн absolute
+     background/хүрээ хэвээрээ зөв байрлалдаа үлдэнэ. */
+  #notificationsView .games-page-head{ position:relative; top:auto; }
   .back-btn{
     width:38px; height:38px; border-radius:12px; background:var(--bg-elevated);
     border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
