@@ -9,6 +9,16 @@
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://apis.google.com">
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://cdn-www.bluestacks.com">
+<link rel="preconnect" href="https://encrypted-tbn0.gstatic.com">
+<link rel="preconnect" href="https://www.pubgmobile.com">
+<link rel="preconnect" href="https://play-lh.googleusercontent.com">
+<link rel="preconnect" href="https://img.samsungapps.com">
+<link rel="dns-prefetch" href="https://cdn-www.bluestacks.com">
+<link rel="dns-prefetch" href="https://encrypted-tbn0.gstatic.com">
+<link rel="dns-prefetch" href="https://www.pubgmobile.com">
+<link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
+<link rel="dns-prefetch" href="https://img.samsungapps.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -1876,11 +1886,12 @@
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-analytics-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js" defer></script>
 <script>
+document.addEventListener('DOMContentLoaded', function(){
   var firebaseConfig = {
     apiKey: "AIzaSyAHD_aR3yjy9WiKdqqk651O2SoruXuFKlQ",
     authDomain: "lootbox-888888.firebaseapp.com",
@@ -1896,9 +1907,11 @@
   try{
     if(firebase.analytics) firebase.analytics();
   }catch(e){}
+});
 </script>
 
 <script>
+document.addEventListener('DOMContentLoaded', function(){
   // ---- Хэрэглэгчийн бүртгэлийн сан (localStorage-д жинхэнэ хадгалагдана) ----
   var USERS_KEY = 'rewardhub_users';
 
@@ -4358,6 +4371,7 @@
     if(toggleSound) toggleSound.checked = (saved.sound !== undefined) ? saved.sound : true;
     if(toggleAutoplay) toggleAutoplay.checked = (saved.autoplay !== undefined) ? saved.autoplay : true;
   })();
+});
 </script>
 
 </body>
