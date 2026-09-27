@@ -100,74 +100,6 @@
   }
   body.theme-light .blinds{ opacity:0.35; }
 
-  /* Неон (тоглоомын) загвар — Тохиргоо цэснээс сонгогдоход body дээр нэмэгдэнэ.
-     :root-тэй яг ижил хувьсагчийн жагсаалтыг бүрэн бүрхэж, --text-hi/--text-lo зэрэг
-     текстийн өнгийг хэвээр (цайвар) үлдээснээр дэвсгэр хэдий чинээ бараан ч
-     текст/дүрс огт харагдахгүй болох эрсдэлгүй. */
-  body.theme-neon{
-    --bg-void:#0a0a14;
-    --bg-panel:#0d0d1a;
-    --bg-panel-2:#12121f;
-    --bg-elevated:#181828;
-    --line:rgba(124,58,237,0.18);
-    --line-strong:rgba(124,58,237,0.30);
-    --gold-100:#e3f6fb;
-    --gold-300:#7c3aed;
-    --gold-500:#4178e0;
-    --gold-700:#06b6d4;
-    --gold-900:#0a4a57;
-    --text-hi:#f5f5f7;
-    --text-lo:#9a9aa2;
-    --text-faint:#65656b;
-    --red:#ff5d5d;
-    --dot-idle:rgba(255,255,255,0.35);
-    --hover-tint:rgba(124,58,237,0.08);
-    --hover-tint-strong:rgba(124,58,237,0.16);
-    --navbar-border:rgba(6,182,212,0.35);
-    --navbar-shadow:rgba(0,0,0,0.7);
-    --continue-shadow-1:rgba(0,0,0,0.35);
-    --continue-shadow-2:rgba(0,0,0,0.1);
-  }
-  body.theme-neon{
-    background:
-      radial-gradient(65% 50% at 12% -5%, rgba(124,58,237,0.22), transparent 60%),
-      radial-gradient(55% 45% at 90% 105%, rgba(6,182,212,0.18), transparent 65%),
-      var(--bg-void);
-  }
-
-  /* Изумруд (шинэ, 4 дэх) загвар — гүн ногоон дэвсгэр + алт-ногоон өнгийн
-     тодотгол хослуулснаар "loot/эрдэнэ" сэдэвтэй илүү таарч, өмнөх 3
-     загвараас (Саарал/Цагаан/Неон) ялгаатай, өвөрмөц харагдана. */
-  body.theme-emerald{
-    --bg-void:#151f1a;
-    --bg-panel:#0d1512;
-    --bg-panel-2:#122019;
-    --bg-elevated:#17251d;
-    --line:rgba(34,197,94,0.16);
-    --line-strong:rgba(34,197,94,0.28);
-    --gold-100:#e3fbe9;
-    --gold-300:#22c55e;
-    --gold-500:#16a34a;
-    --gold-700:#0f7a3a;
-    --gold-900:#0a4d26;
-    --text-hi:#f2f7f4;
-    --text-lo:#93a89d;
-    --text-faint:#5f7268;
-    --red:#ff5d5d;
-    --dot-idle:rgba(255,255,255,0.35);
-    --hover-tint:rgba(34,197,94,0.07);
-    --hover-tint-strong:rgba(34,197,94,0.15);
-    --navbar-border:rgba(34,197,94,0.35);
-    --navbar-shadow:rgba(0,0,0,0.7);
-    --continue-shadow-1:rgba(0,0,0,0.35);
-    --continue-shadow-2:rgba(0,0,0,0.1);
-  }
-  body.theme-emerald{
-    background:
-      radial-gradient(65% 50% at 12% -5%, rgba(34,197,94,0.20), transparent 60%),
-      radial-gradient(55% 45% at 90% 105%, rgba(15,122,58,0.20), transparent 65%),
-      var(--bg-void);
-  }
   *{box-sizing:border-box; margin:0; padding:0;}
   /* Хэрэглэгч хуудсыг pinch/browser zoom хийсний дараа mobile browser-үүд
      double-tap-zoom эсэхийг тодруулах гэж товч дарсан бүрт ~300ms
@@ -840,8 +772,7 @@
   }
   .theme-swatch.swatch-dark::before{ background:linear-gradient(160deg,#18181b 0%, #202024 55%, #2c1c78 130%); }
   .theme-swatch.swatch-light::before{ background:linear-gradient(160deg,#ffffff 0%, #f0f0f4 55%, #efe8ff 130%); }
-  .theme-swatch.swatch-neon::before{ background:linear-gradient(160deg,#0d0d1a 0%, #12121f 55%, #06b6d4 130%); }
-  .theme-swatch.swatch-emerald::before{ background:linear-gradient(160deg,#0d1512 0%, #17251d 55%, #22c55e 130%); }
+
   .theme-swatch .ts-dot{
     position:absolute; top:8px; right:8px; width:16px; height:16px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
@@ -1212,7 +1143,7 @@
     background:var(--bg-elevated); color:var(--text-lo); font-size:12px; font-weight:600;
     cursor:pointer; transition:all .15s ease; font-family:inherit;
   }
-  .ph-tab.active{ background:var(--gold-300); border-color:var(--gold-300); color:#1a1200; }
+  .ph-tab.active{ background:var(--gold-300); border-color:var(--gold-300); color:#fff; }
   .profile-history-title{
     font-family:'Poppins',sans-serif; font-weight:700; font-size:14px;
     color:var(--text-hi); margin-bottom:10px;
@@ -1335,8 +1266,6 @@
     try{
       var saved = JSON.parse(localStorage.getItem('lootbox_settings')) || {};
       if(saved.theme === 'light'){ document.body.classList.add('theme-light'); }
-      else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
-      else if(saved.theme === 'emerald'){ document.body.classList.add('theme-emerald'); }
     }catch(e){}
   })();
 
@@ -1990,18 +1919,6 @@
         </div>
         <div class="theme-option-label">Цагаан өнгө</div>
       </div>
-      <div class="theme-option" id="themeOptionNeon" data-theme="neon">
-        <div class="theme-swatch swatch-neon">
-          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
-        <div class="theme-option-label">Неон өнгө</div>
-      </div>
-      <div class="theme-option" id="themeOptionEmerald" data-theme="emerald">
-        <div class="theme-swatch swatch-emerald">
-          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-        </div>
-        <div class="theme-option-label">Изумруд өнгө</div>
-      </div>
     </div>
 
     <div class="settings-section-label mt">Мэдэгдэл</div>
@@ -2066,6 +1983,42 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+  // ---- Тохиргоо дотор байгаа 3 унтраа/асаах (Push мэдэгдэл / Дууны эффект /
+  // Нүүр хуудасны видео тоглуулах)-г бодит ажиллагаанд оруулахад
+  // ашиглах хуваалцсан функцууд ----
+  var APP_SETTINGS_KEY = 'lootbox_settings';
+  function getAppSettings(){
+    try{ return JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)) || {}; }catch(e){ return {}; }
+  }
+  function isNotifEnabled(){ return getAppSettings().notif !== false; }
+  function isSoundEnabled(){ return getAppSettings().sound !== false; }
+  function isAutoplayEnabled(){ return getAppSettings().autoplay !== false; }
+
+  function playTone(freq, durationMs, type){
+    if(!isSoundEnabled()) return;
+    try{
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      var ctx = new Ctx();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.value = 0.08;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + durationMs / 1000);
+      osc.stop(ctx.currentTime + durationMs / 1000);
+      osc.onended = function(){ try{ ctx.close(); }catch(e){} };
+    }catch(e){}
+  }
+  function playClickSound(){ playTone(520, 90, 'sine'); }
+  function playSuccessSound(){
+    playTone(660, 120, 'sine');
+    setTimeout(function(){ playTone(880, 160, 'sine'); }, 110);
+  }
+
   // ---- Хэрэглэгчийн бүртгэлийн сан (localStorage-д жинхэнэ хадгалагдана) ----
   var USERS_KEY = 'rewardhub_users';
 
@@ -4156,6 +4109,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   paymentConfirmBtn.addEventListener('click', function(){
     if(!pendingSelectedPackage) return;
+    playClickSound();
     // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, loading үзүүлж
     // байх хугацаанд товчийг дахин дарвал (double-tap) худалдан авалт хоёр
     // удаа бичигдэхээс сэргийлнэ.
@@ -4200,6 +4154,7 @@ document.addEventListener('DOMContentLoaded', function(){
       paymentFormView.style.display = 'none';
       paymentSuccessView.style.display = 'flex';
       paymentProcessing = false;
+      playSuccessSound();
       // Loading явж байх үед цонхыг санамсаргүй хаасан ч "Худалдан авалт амжилттай" дэлгэц заавал гарч ирнэ
       var pmBox = paymentModalOverlay.querySelector('.payment-modal');
       if(pmBox) pmBox.scrollTop = 0;
@@ -4224,26 +4179,29 @@ document.addEventListener('DOMContentLoaded', function(){
         }
       }
 
-      // ---- Худалдан авалт амжилттай болсны дараа мэдэгдэл нэмнэ. Тухайн
-      // мэдэгдэл дээр дарахад яг энэ худалдан авалтын дэлгэрэнгүй мэдээллийг
+      // ---- Худалдан авалт амжилттай болсны дараа мэдэгдэл нэмнэ (зөвхөн
+      // Тохиргоо доторх "Push мэдэгдэл" асаалттай үед). Тухайн мэдэгдэл
+      // дээр дарахад яг энэ худалдан авалтын дэлгэрэнгүй мэдээллийг
       // (амжилттай дэлгэц шиг) дахин харуулна. ----
-      NOTIFICATIONS.unshift({
-        icon: 'diamond',
-        title: 'Цэнэглэлт амжилттай',
-        body: gameName + ' — ' + itemText + ' амжилттай орлоо.',
-        time: 'Дөнгөж сая',
-        unread: true,
-        purchase: {
-          game: gameName,
-          accId: idDisplay,
-          accName: accountName,
-          item: itemText,
-          price: priceText,
-          date: dateStr
-        }
-      });
-      saveNotifications();
-      renderNotifications();
+      if(isNotifEnabled()){
+        NOTIFICATIONS.unshift({
+          icon: 'diamond',
+          title: 'Цэнэглэлт амжилттай',
+          body: gameName + ' — ' + itemText + ' амжилттай орлоо.',
+          time: 'Дөнгөж сая',
+          unread: true,
+          purchase: {
+            game: gameName,
+            accId: idDisplay,
+            accName: accountName,
+            item: itemText,
+            price: priceText,
+            date: dateStr
+          }
+        });
+        saveNotifications();
+        renderNotifications();
+      }
     }, 1200);
   });
 
@@ -4330,14 +4288,24 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Автомат солигдол 4 секунд тутам явж байх бөгөөд, гараар хөдөлгөх
     // бүрд энэ таймер шинээр эхэлж, дараагийн автомат солигдол 4 секундын
-    // дараа л болно.
+    // дараа л болно. Тохиргоо доторх "Нүүр хуудасны видео тоглуулах"
+    // унтраалттай үед автоматаар огт эргэлдэхгүй (гараар л шилжинэ).
     function restartAutoTimer(){
       stopAutoTimer();
+      if(!isAutoplayEnabled()) return;
       autoTimer = setInterval(function(){
         normalizeIndex();
         goToIndex(currentIndex + 1);
       }, 4000);
     }
+
+    // Тохиргооны цонхны "Нүүр хуудасны видео тоглуулах" товч энэ баннерыг
+    // тэр даруйд нь асаах/унтраах боломжтой байхаар, удирдлагыг нь
+    // дэлхийн (window) түвшинд гаргаж өгнө.
+    window.__bannerAutoplayControl = {
+      start: restartAutoTimer,
+      stop: stopAutoTimer
+    };
 
     function goToIndex(newIndex){
       currentIndex = newIndex;
@@ -4562,8 +4530,6 @@ document.addEventListener('DOMContentLoaded', function(){
     var closeBtn = document.getElementById('settingsModalClose');
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
-    var optionNeon = document.getElementById('themeOptionNeon');
-    var optionEmerald = document.getElementById('themeOptionEmerald');
     var toggleNotif = document.getElementById('toggleNotif');
     var toggleSound = document.getElementById('toggleSound');
     var toggleAutoplay = document.getElementById('toggleAutoplay');
@@ -4589,25 +4555,17 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
     function applyTheme(theme, skipSave){
-      document.body.classList.remove('theme-light', 'theme-neon', 'theme-emerald');
+      document.body.classList.remove('theme-light');
       if(theme === 'light'){
         document.body.classList.add('theme-light');
-      } else if(theme === 'neon'){
-        document.body.classList.add('theme-neon');
-      } else if(theme === 'emerald'){
-        document.body.classList.add('theme-emerald');
       }
       optionDark.classList.toggle('active', theme === 'dark');
       optionLight.classList.toggle('active', theme === 'light');
-      if(optionNeon) optionNeon.classList.toggle('active', theme === 'neon');
-      if(optionEmerald) optionEmerald.classList.toggle('active', theme === 'emerald');
       if(!skipSave) saveSettings({ theme: theme });
     }
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
-    if(optionNeon) optionNeon.addEventListener('click', function(){ applyTheme('neon'); });
-    if(optionEmerald) optionEmerald.addEventListener('click', function(){ applyTheme('emerald'); });
 
     if(toggleNotif){
       toggleNotif.addEventListener('change', function(){
@@ -4622,6 +4580,10 @@ document.addEventListener('DOMContentLoaded', function(){
     if(toggleAutoplay){
       toggleAutoplay.addEventListener('change', function(){
         saveSettings({ autoplay: toggleAutoplay.checked });
+        if(window.__bannerAutoplayControl){
+          if(toggleAutoplay.checked) window.__bannerAutoplayControl.start();
+          else window.__bannerAutoplayControl.stop();
+        }
       });
     }
 
