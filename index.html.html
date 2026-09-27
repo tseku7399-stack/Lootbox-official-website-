@@ -805,6 +805,51 @@
   .toggle-switch input:checked ~ .track::before{ transform:translateX(17px); background:#fff; }
 
   .settings-modal-foot{ margin-top:20px; font-size:11px; color:var(--text-faint); text-align:center; }
+
+  /* Шинэ, бодитоор ашигтай тохиргооны мөрүүд: товч биш, дарахад дэлгэрэнгүй
+     хэсэг нээгддэг (эсвэл шууд үйлдэл хийдэг) жагсаалтын мөр (chevron-тэй) */
+  .settings-link-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:11px 2px; border-top:1px solid var(--line); cursor:pointer;
+    transition:background .15s ease;
+  }
+  .settings-link-row:first-of-type{ border-top:0; }
+  .settings-link-row:hover{ background:var(--hover-tint); }
+  .settings-link-row.danger .t{ color:var(--red); }
+  .settings-link-chevron{
+    width:16px; height:16px; stroke:var(--text-faint); flex-shrink:0;
+    transition:transform .2s ease;
+  }
+  .settings-link-row.open .settings-link-chevron{ transform:rotate(90deg); }
+  .settings-inline-panel{
+    overflow:hidden; max-height:0; transition:max-height .25s ease;
+  }
+  .settings-inline-panel.open{ max-height:420px; }
+  .settings-inline-panel-inner{ padding:4px 2px 14px; }
+  .settings-inline-panel .login-field{ margin-bottom:10px; }
+  .settings-inline-panel .login-field label{
+    display:block; font-size:11px; color:var(--text-lo); margin-bottom:5px;
+  }
+  .settings-inline-panel .login-field input{
+    width:100%; background:var(--bg-elevated); border:1px solid var(--line-strong);
+    border-radius:10px; padding:10px 12px; font-size:13px; color:var(--text-hi);
+    outline:0; box-sizing:border-box; font-family:inherit;
+  }
+  .settings-inline-panel .login-field input:focus{ border-color:var(--gold-300); }
+  .settings-save-btn{
+    width:100%; background:linear-gradient(145deg, var(--gold-300), var(--gold-700));
+    color:#fff; border:0; border-radius:12px; padding:11px 0; font-size:13px; font-weight:700;
+    cursor:pointer; font-family:inherit; margin-top:2px;
+  }
+  .settings-save-btn:disabled{ opacity:0.6; cursor:default; }
+  .settings-help-text{ font-size:12px; color:var(--text-lo); line-height:1.6; }
+  .settings-help-text b{ color:var(--text-hi); }
+  .settings-logout-btn{
+    width:100%; background:var(--bg-elevated); border:1px solid rgba(255,93,93,0.35);
+    color:var(--red); border-radius:12px; padding:12px 0; font-size:13.5px; font-weight:700;
+    cursor:pointer; font-family:inherit; margin-top:18px;
+  }
+  .settings-logout-btn:hover{ background:rgba(255,93,93,0.08); }
   .payment-modal-summary{
     background:linear-gradient(135deg,#150b2e,#3a1e6b 60%,var(--ml-purple));
     border-radius:16px; padding:14px 16px; margin-bottom:16px;
@@ -1921,37 +1966,62 @@
       </div>
     </div>
 
-    <div class="settings-section-label mt">Мэдэгдэл</div>
-    <div class="settings-switch-row">
+    <div class="settings-section-label mt">Бүртгэл</div>
+    <div class="settings-link-row" id="settingsPasswordRow">
       <div class="settings-switch-text">
-        <div class="t">Push мэдэгдэл</div>
-        <div class="s">Урамшуулал, цэнэглэлтийн шинэ мэдээлэл</div>
+        <div class="t">Нууц үг солих</div>
+        <div class="s">Бүртгэлийнхээ нууц үгийг шинэчлэх</div>
       </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggleNotif" checked>
-        <span class="track"></span>
-      </label>
+      <svg class="settings-link-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
     </div>
-    <div class="settings-switch-row">
+    <div class="settings-inline-panel" id="settingsPasswordPanel">
+      <div class="settings-inline-panel-inner">
+        <div class="login-field">
+          <label>Хуучин нууц үг</label>
+          <input type="password" id="settingsOldPassword" placeholder="Одоогийн нууц үгээ оруулах">
+        </div>
+        <div class="login-field">
+          <label>Шинэ нууц үг</label>
+          <input type="password" id="settingsNewPassword" placeholder="Шинэ нууц үг үүсгэх">
+        </div>
+        <div class="login-field">
+          <label>Шинэ нууц үг давтах</label>
+          <input type="password" id="settingsNewPassword2" placeholder="Шинэ нууц үгээ давтан оруулах">
+        </div>
+        <div class="field-error" id="settingsPasswordError"></div>
+        <button class="settings-save-btn" id="settingsPasswordSaveBtn">Хадгалах</button>
+      </div>
+    </div>
+
+    <div class="settings-section-label mt">Тусламж</div>
+    <div class="settings-link-row" id="settingsHelpRow">
       <div class="settings-switch-text">
-        <div class="t">Дууны эффект</div>
-        <div class="s">Товч дарах, шагнал авах үеийн дуу</div>
+        <div class="t">Тусламж &amp; Холбоо барих</div>
+        <div class="s">Асуулт, санал хүсэлтээ илгээх</div>
       </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggleSound" checked>
-        <span class="track"></span>
-      </label>
+      <svg class="settings-link-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
     </div>
-    <div class="settings-switch-row">
+    <div class="settings-inline-panel" id="settingsHelpPanel">
+      <div class="settings-inline-panel-inner">
+        <div class="settings-help-text">
+          Тусламж хэрэгтэй бол бидэнтэй холбогдоно уу:<br>
+          <b>Имэйл:</b> support@lootbox.mn<br>
+          <b>Утас:</b> 7000-0000 (09:00–21:00)<br>
+          <b>Facebook:</b> facebook.com/lootbox.mn
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section-label mt">Апп</div>
+    <div class="settings-link-row danger" id="settingsClearDataRow">
       <div class="settings-switch-text">
-        <div class="t">Нүүр хуудасны видео тоглуулах</div>
-        <div class="s">Баннер, урамшууллын видеог автоматаар эхлүүлэх</div>
+        <div class="t">Аппын өгөгдлийг цэвэрлэх</div>
+        <div class="s">Хадгалсан тохиргоо, мэдэгдэл зэргийг устгаж, шинээр эхлүүлнэ</div>
       </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggleAutoplay" checked>
-        <span class="track"></span>
-      </label>
+      <svg class="settings-link-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
     </div>
+
+    <button class="settings-logout-btn" id="settingsLogoutBtn">Гарах</button>
 
     <div class="settings-modal-foot">LootBox • Хувилбар 1.2.0</div>
   </div>
@@ -4184,6 +4254,7 @@ document.addEventListener('DOMContentLoaded', function(){
       // дээр дарахад яг энэ худалдан авалтын дэлгэрэнгүй мэдээллийг
       // (амжилттай дэлгэц шиг) дахин харуулна. ----
       if(isNotifEnabled()){
+        showToast('Цэнэглэлт амжилттай', gameName + ' — ' + itemText + ' амжилттай орлоо.');
         NOTIFICATIONS.unshift({
           icon: 'diamond',
           title: 'Цэнэглэлт амжилттай',
@@ -4530,9 +4601,6 @@ document.addEventListener('DOMContentLoaded', function(){
     var closeBtn = document.getElementById('settingsModalClose');
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
-    var toggleNotif = document.getElementById('toggleNotif');
-    var toggleSound = document.getElementById('toggleSound');
-    var toggleAutoplay = document.getElementById('toggleAutoplay');
     var SETTINGS_KEY = 'lootbox_settings';
     if(!overlay) return;
 
@@ -4567,32 +4635,109 @@ document.addEventListener('DOMContentLoaded', function(){
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
 
-    if(toggleNotif){
-      toggleNotif.addEventListener('change', function(){
-        saveSettings({ notif: toggleNotif.checked });
+    // ---- Дарахад доор нь дэлгэрэнгүй хэсэг нээгддэг/хаагддаг мөрүүд
+    // (Нууц үг солих, Тусламж) ----
+    function wireExpandableRow(rowId, panelId){
+      var row = document.getElementById(rowId);
+      var panel = document.getElementById(panelId);
+      if(!row || !panel) return;
+      row.addEventListener('click', function(){
+        var isOpen = panel.classList.contains('open');
+        row.classList.toggle('open', !isOpen);
+        panel.classList.toggle('open', !isOpen);
       });
     }
-    if(toggleSound){
-      toggleSound.addEventListener('change', function(){
-        saveSettings({ sound: toggleSound.checked });
-      });
-    }
-    if(toggleAutoplay){
-      toggleAutoplay.addEventListener('change', function(){
-        saveSettings({ autoplay: toggleAutoplay.checked });
-        if(window.__bannerAutoplayControl){
-          if(toggleAutoplay.checked) window.__bannerAutoplayControl.start();
-          else window.__bannerAutoplayControl.stop();
+    wireExpandableRow('settingsPasswordRow', 'settingsPasswordPanel');
+    wireExpandableRow('settingsHelpRow', 'settingsHelpPanel');
+
+    // ---- Нууц үг солих: Firebase дээрх бодит бүртгэлийг эхлээд
+    // (reauthenticate) баталгаажуулаад, дараа нь шинэ нууц үгээр
+    // солино (Google-ээр нэвтэрсэн бол нууц үг байхгүй тул боломжгүй) ----
+    var pwOld = document.getElementById('settingsOldPassword');
+    var pwNew = document.getElementById('settingsNewPassword');
+    var pwNew2 = document.getElementById('settingsNewPassword2');
+    var pwError = document.getElementById('settingsPasswordError');
+    var pwSaveBtn = document.getElementById('settingsPasswordSaveBtn');
+    if(pwSaveBtn){
+      pwSaveBtn.addEventListener('click', function(){
+        clearFieldError(pwError);
+        var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+        if(!user){
+          setFieldError(pwError, 'Эхлээд бүртгэлээрээ нэвтэрнэ үү.');
+          return;
         }
+        var hasPasswordProvider = false;
+        (user.providerData || []).forEach(function(p){
+          if(p.providerId === 'password') hasPasswordProvider = true;
+        });
+        if(!hasPasswordProvider){
+          setFieldError(pwError, 'Та Google-ээр нэвтэрсэн тул нууц үг өөрчлөх боломжгүй.');
+          return;
+        }
+        if(!pwOld.value){
+          setFieldError(pwError, 'Хуучин нууц үгээ оруулна уу');
+          return;
+        }
+        if(!pwNew.value || pwNew.value.length < 6){
+          setFieldError(pwError, 'Шинэ нууц үг дор хаяж 6 тэмдэгт байх ёстой');
+          return;
+        }
+        if(pwNew.value !== pwNew2.value){
+          setFieldError(pwError, 'Шинэ нууц үг таарахгүй байна');
+          return;
+        }
+        pwSaveBtn.disabled = true;
+        pwSaveBtn.textContent = 'Хадгалж байна...';
+        var cred = firebase.auth.EmailAuthProvider.credential(user.email, pwOld.value);
+        user.reauthenticateWithCredential(cred).then(function(){
+          return user.updatePassword(pwNew.value);
+        }).then(function(){
+          pwSaveBtn.disabled = false;
+          pwSaveBtn.textContent = 'Хадгалах';
+          pwOld.value = '';
+          pwNew.value = '';
+          pwNew2.value = '';
+          document.getElementById('settingsPasswordRow').classList.remove('open');
+          document.getElementById('settingsPasswordPanel').classList.remove('open');
+          showToast('Нууц үг солигдлоо', '');
+        }).catch(function(err){
+          pwSaveBtn.disabled = false;
+          pwSaveBtn.textContent = 'Хадгалах';
+          var msg = 'Алдаа гарлаа, дахин оролдоно уу';
+          if(err && err.code === 'auth/wrong-password') msg = 'Хуучин нууц үг буруу байна';
+          else if(err && err.code === 'auth/weak-password') msg = 'Шинэ нууц үг дор хаяж 6 тэмдэгт байх ёстой';
+          setFieldError(pwError, msg);
+        });
+      });
+    }
+
+    // ---- Аппын өгөгдлийг цэвэрлэх: localStorage-д хадгалагдсан бүх
+    // тохиргоо/мэдэгдэл/нэвтрэлтийг устгаад шинээр ачаална (Android-ийн
+    // "App info > Clear data" функцтэй адилхан) ----
+    var clearDataRow = document.getElementById('settingsClearDataRow');
+    if(clearDataRow){
+      clearDataRow.addEventListener('click', function(){
+        var ok = window.confirm('Энэ үйлдэл таны хадгалсан тохиргоо, мэдэгдэл, нэвтрэлтийн мэдээллийг устгаж, аппыг шинээр эхлүүлнэ. Үргэлжлүүлэх үү?');
+        if(!ok) return;
+        try{ localStorage.clear(); }catch(e){}
+        location.reload();
+      });
+    }
+
+    // ---- Гарах: profileAuthBtn дээрх одоо байгаа гарах логикийг ашиглана ----
+    var settingsLogoutBtn = document.getElementById('settingsLogoutBtn');
+    if(settingsLogoutBtn){
+      settingsLogoutBtn.addEventListener('click', function(){
+        closeSettings();
+        var authBtn = document.getElementById('profileAuthBtn');
+        if(authBtn && currentUser.loggedIn) authBtn.click();
+        else if(!currentUser.loggedIn) showToast('Та аль хэдийн зочны төлөвт байна', '');
       });
     }
 
     // ---- Хуудас ачаалагдмагц хадгалагдсан тохиргоог сэргээнэ ----
     var saved = loadSettings();
     applyTheme(saved.theme || 'dark', true);
-    if(toggleNotif) toggleNotif.checked = (saved.notif !== undefined) ? saved.notif : true;
-    if(toggleSound) toggleSound.checked = (saved.sound !== undefined) ? saved.sound : true;
-    if(toggleAutoplay) toggleAutoplay.checked = (saved.autoplay !== undefined) ? saved.autoplay : true;
   })();
 });
 </script>
