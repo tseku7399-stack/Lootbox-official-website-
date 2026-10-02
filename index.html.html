@@ -116,6 +116,32 @@
   .transfer-chip, input, select, textarea{ touch-action:manipulation; }
   html{ scroll-behavior:auto; overflow-x:clip; overscroll-behavior-x:none; }
   html,body{min-height:100%; max-width:100%;}
+  /* Дарахад ЗӨВХӨН өнгө нь бага зэрэг бүдгэрч/харлах ёстой (агшиж хөдлөхгүй)
+     тул бүх товч, карт, мөр дээр адилхан ажиллах ёстой тул нэг дор бүгдэд
+     нь зарлав. iOS-ийн Safari дээр :active pseudo-class нь touch listener
+     холбогдоогүй бол огт ажилладаггүй тул доор түгээмэл (empty) touchstart
+     listener нэмсэн. */
+  button, a, [role="button"], .navbar-hamburger, .navbar-profile, .navbar-bell,
+  .transfer-copy-btn, .payment-tab, .payment-confirm-btn, .payment-modal-close,
+  .settings-modal-close, .side-drawer-close, .side-drawer-link, .balance-pill,
+  .game-card, .continue-card, .rb-tab, .rb-plan, .theme-option, .switch-row,
+  .transfer-chip, .offer-card, .package-card, .settings-link-row,
+  .notif-item.clickable, .notif-clear, .notif-del, .search-dropdown-item,
+  .back-btn, .auth-tab, .toggle-switch, .google-btn, .google-modal-cancel,
+  .who, .forgot-link{
+    transition:opacity .12s ease, filter .12s ease;
+  }
+  button:active, a:active, [role="button"]:active, .navbar-hamburger:active, .navbar-profile:active, .navbar-bell:active,
+  .transfer-copy-btn:active, .payment-tab:active, .payment-confirm-btn:active, .payment-modal-close:active,
+  .settings-modal-close:active, .side-drawer-close:active, .side-drawer-link:active, .balance-pill:active,
+  .game-card:active, .continue-card:active, .rb-tab:active, .rb-plan:active, .theme-option:active, .switch-row:active,
+  .transfer-chip:active, .offer-card:active, .package-card:active, .settings-link-row:active,
+  .notif-item.clickable:active, .notif-clear:active, .notif-del:active, .search-dropdown-item:active,
+  .back-btn:active, .auth-tab:active, .toggle-switch:active, .google-btn:active, .google-modal-cancel:active,
+  .who:active, .forgot-link:active{
+    opacity:0.82;
+    filter:brightness(0.94);
+  }
   body{
     font-family:'Inter',sans-serif;
     color:var(--text-hi);
@@ -166,6 +192,9 @@
     margin:-22px -18px 16px; padding:12px 18px 10px;
     position:sticky; top:0; z-index:40;
     isolation:isolate;
+    transform:translateZ(0); -webkit-transform:translateZ(0);
+    will-change:transform;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
   }
   .navbar::before{
     content:"";
@@ -178,6 +207,7 @@
     box-shadow:0 10px 26px -14px var(--navbar-shadow), inset 0 -1px 0 rgba(255,255,255,0.03);
     overflow:hidden;
     z-index:-1;
+    transform:translateZ(0); -webkit-transform:translateZ(0);
   }
   /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
      арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
@@ -501,6 +531,9 @@
     position:sticky; top:0; z-index:40;
     margin:-22px -18px 18px; padding:16px 18px 14px;
     isolation:isolate;
+    transform:translateZ(0); -webkit-transform:translateZ(0);
+    will-change:transform;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
   }
   .games-page-head::before{
     content:"";
@@ -508,6 +541,7 @@
     background:var(--bg-panel);
     border-bottom:1px solid var(--line);
     z-index:-1;
+    transform:translateZ(0); -webkit-transform:translateZ(0);
   }
   .games-page-head.at-top::before{ border-radius:36px 36px 0 0; }
   /* Мэдэгдлийн жагсаалт ихэвчлэн богино тул header-ийг sticky байлгах шаардлагагүй.
@@ -766,7 +800,6 @@
     padding:12px 10px 12px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px;
     transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
   }
-  .theme-option:active{ transform:scale(0.97); }
   .theme-option.active{ border-color:var(--gold-300); box-shadow:0 0 0 3px rgba(124,92,255,0.18); }
   .theme-swatch{
     width:100%; height:52px; border-radius:11px; border:1px solid var(--line-strong);
@@ -1253,7 +1286,7 @@
     transition:background .15s ease, transform .12s ease;
   }
   .entrance-popup-close:hover{ background:rgba(255,255,255,0.2); }
-  .entrance-popup-close:active{ transform:scale(0.75); }
+  .entrance-popup-close:active{ opacity:0.82; }
   .entrance-popup-close svg{ width:16px; height:16px; stroke:#fff; }
 
   /* ===== Утас хэвтээ (landscape) болгоход дэлгэцийн хэмжээнд яг тааруулж, бүтэн өргөнөөр харуулна ===== */
@@ -1307,6 +1340,15 @@
 </style>
 </head>
 <body>
+
+<script>
+  // iOS-ийн Safari-д :active pseudo-class эсвэл ямар нэг touch listener
+  // холбогдоогүй л бол зарим товч дээр дарахад тэр даруйдаа "хариу үйлдэл"
+  // (агших/өнгө өөрчлөгдөх) огт харагдахгүй байдаг алдартай асуудал.
+  // Хамгийн эрт нь document дээр хоосон touchstart listener нэмснээр энэ
+  // алдааг арилгаж, БҮХ товч, карт дээрх :active эффектийг тогтмол болгоно.
+  document.addEventListener('touchstart', function(){}, {passive:true});
+</script>
 
 <script>
   // Хадгалсан тохиргоог (theme) хуудас бүрэн ачаалахаас өмнө аль болох эрт
@@ -1778,6 +1820,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </div>
       <h2>Профайл</h2>
+      <div class="back-btn" id="profileSettingsBtn" style="margin-left:auto;">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
     </div>
 
     <div class="avatar-lg-wrap">
@@ -1971,7 +2016,7 @@
       </div>
     </div>
 
-    <div class="settings-section-label mt">Бүртгэл</div>
+    <div class="settings-section-label mt" id="settingsAccountSectionLabel">Бүртгэл</div>
     <div class="settings-link-row" id="settingsPasswordRow">
       <div class="settings-switch-text">
         <div class="t">Нууц үг солих</div>
@@ -2012,7 +2057,7 @@
           Тусламж хэрэгтэй бол бидэнтэй холбогдоно уу:<br>
           <b>Имэйл:</b> support@lootbox.mn<br>
           <b>Утас:</b> 7000-0000 (09:00–21:00)<br>
-          <b>Facebook:</b> facebook.com/lootbox.mn
+          <b>Facebook:</b> <a href="https://www.facebook.com/share/14qzaBgHTMf/?mibextid=wwXIfr" target="_blank" rel="noopener" style="color:var(--gold-300); text-decoration:underline;">facebook.com/lootbox.mn</a>
         </div>
       </div>
     </div>
@@ -4587,6 +4632,13 @@ document.addEventListener('DOMContentLoaded', function(){
         if(settingsOverlay) settingsOverlay.classList.add('open');
       });
     }
+    var profileSettingsBtn = document.getElementById('profileSettingsBtn');
+    if(profileSettingsBtn){
+      profileSettingsBtn.addEventListener('click', function(){
+        var settingsOverlay = document.getElementById('settingsModalOverlay');
+        if(settingsOverlay) settingsOverlay.classList.add('open');
+      });
+    }
     var logoutLink = document.getElementById('drawerLogoutLink');
     if(logoutLink){
       logoutLink.addEventListener('click', function(){
@@ -4642,7 +4694,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // ---- Дарахад доор нь дэлгэрэнгүй хэсэг нээгддэг/хаагддаг мөрүүд
     // (Нууц үг солих, Тусламж) ----
-    function wireExpandableRow(rowId, panelId){
+    function wireExpandableRow(rowId, panelId, onOpen){
       var row = document.getElementById(rowId);
       var panel = document.getElementById(panelId);
       if(!row || !panel) return;
@@ -4650,10 +4702,31 @@ document.addEventListener('DOMContentLoaded', function(){
         var isOpen = panel.classList.contains('open');
         row.classList.toggle('open', !isOpen);
         panel.classList.toggle('open', !isOpen);
+        if(!isOpen && typeof onOpen === 'function') onOpen();
       });
     }
     wireExpandableRow('settingsPasswordRow', 'settingsPasswordPanel');
     wireExpandableRow('settingsHelpRow', 'settingsHelpPanel');
+
+    // ---- Нэвтрээгүй (зочин) үед "Нууц үг солих" гэх мэт зөвхөн бүртгэлтэй
+    // хэрэглэгчид зориулагдсан зүйлс Тохиргоонд огт харагдах ёсгүй тул
+    // гарчиг/мөр/панелийг бүхэлд нь нуудаг болгов ----
+    function renderSettingsAccountVisibility(){
+      var loggedIn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.loggedIn);
+      var label = document.getElementById('settingsAccountSectionLabel');
+      var row = document.getElementById('settingsPasswordRow');
+      var panel = document.getElementById('settingsPasswordPanel');
+      if(!loggedIn && panel) panel.classList.remove('open');
+      if(!loggedIn && row) row.classList.remove('open');
+      if(label) label.style.display = loggedIn ? 'block' : 'none';
+      if(row) row.style.display = loggedIn ? 'flex' : 'none';
+      if(panel) panel.style.display = loggedIn ? '' : 'none';
+    }
+    var drawerSettingsLinkEl = document.getElementById('drawerSettingsLink');
+    if(drawerSettingsLinkEl) drawerSettingsLinkEl.addEventListener('click', renderSettingsAccountVisibility);
+    var profileSettingsBtnEl = document.getElementById('profileSettingsBtn');
+    if(profileSettingsBtnEl) profileSettingsBtnEl.addEventListener('click', renderSettingsAccountVisibility);
+    renderSettingsAccountVisibility();
 
     // ---- Нууц үг солих: Firebase дээрх бодит бүртгэлийг эхлээд
     // (reauthenticate) баталгаажуулаад, дараа нь шинэ нууц үгээр
