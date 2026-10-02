@@ -3816,6 +3816,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function attachPackageHandlers(){
     var checkoutBar = document.getElementById('rechargeCheckoutBar');
+    var rechargeWarning = document.querySelector('.recharge-warning');
     document.querySelectorAll('.package-card').forEach(function(pkg){
       pkg.addEventListener('click', function(){
         document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
@@ -3823,6 +3824,9 @@ document.addEventListener('DOMContentLoaded', function(){
         var priceEl = pkg.querySelector('.price');
         rechargeTotal.textContent = priceEl ? priceEl.textContent : '—';
         if(checkoutBar) checkoutBar.classList.add('is-sticky');
+        // Багц сонгосны дараа "Заавал анхаарах зүйлс" сануулга цаашид
+        // шаардлагагүй тул шууд алгасна
+        if(rechargeWarning) rechargeWarning.style.display = 'none';
       });
     });
   }
@@ -3994,6 +3998,8 @@ document.addEventListener('DOMContentLoaded', function(){
       rechargeTotal.textContent = '—';
       var checkoutBarReset = document.getElementById('rechargeCheckoutBar');
       if(checkoutBarReset) checkoutBarReset.classList.remove('is-sticky');
+      var rechargeWarningReset = document.querySelector('.recharge-warning');
+      if(rechargeWarningReset) rechargeWarningReset.style.display = '';
 
       rechargeView.style.display = 'block';
     });
