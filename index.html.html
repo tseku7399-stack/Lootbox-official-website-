@@ -1034,15 +1034,20 @@
       padding-left:calc(18px + env(safe-area-inset-left));
       padding-right:calc(18px + env(safe-area-inset-right));
     }
+    /* Утсан дээр navbar-ыг position:fixed болгосон: sticky нь тасралтгүй
+       гүйлгэх (хуруугаа авахгүй) үед mobile browser дээр алга болдог байсан.
+       Өндөр нь тогтмол (64px + safe-area) тул #mainView::before зайг яг тааруулна. */
     .navbar{
+      position:fixed; top:0; left:0; right:0; z-index:40;
       border-radius:0;
-      margin-top:calc(-22px - env(safe-area-inset-top));
-      margin-left:calc(-18px - env(safe-area-inset-left));
-      margin-right:calc(-18px - env(safe-area-inset-right));
+      margin:0;
+      height:calc(64px + env(safe-area-inset-top));
       padding-top:calc(12px + env(safe-area-inset-top));
+      padding-bottom:10px;
       padding-left:calc(18px + env(safe-area-inset-left));
       padding-right:calc(18px + env(safe-area-inset-right));
     }
+    #mainView::before{ content:""; display:block; height:58px; }
     .navbar::before{ border-radius:0; }
     /* app энд бүтэн дэлгэц дүүргэж радиусгүй болдог тул at-top үед ч
        .navbar.at-top-ийн илүү давуу specificity дугуй булан сэргээж
@@ -1341,15 +1346,20 @@
       padding-left:calc(18px + env(safe-area-inset-left));
       padding-right:calc(18px + env(safe-area-inset-right));
     }
+    /* Утсан дээр navbar-ыг position:fixed болгосон: sticky нь тасралтгүй
+       гүйлгэх (хуруугаа авахгүй) үед mobile browser дээр алга болдог байсан.
+       Өндөр нь тогтмол (64px + safe-area) тул #mainView::before зайг яг тааруулна. */
     .navbar{
+      position:fixed; top:0; left:0; right:0; z-index:40;
       border-radius:0;
-      margin-top:calc(-22px - env(safe-area-inset-top));
-      margin-left:calc(-18px - env(safe-area-inset-left));
-      margin-right:calc(-18px - env(safe-area-inset-right));
+      margin:0;
+      height:calc(64px + env(safe-area-inset-top));
       padding-top:calc(12px + env(safe-area-inset-top));
+      padding-bottom:10px;
       padding-left:calc(18px + env(safe-area-inset-left));
       padding-right:calc(18px + env(safe-area-inset-right));
     }
+    #mainView::before{ content:""; display:block; height:58px; }
     .navbar::before, .navbar.at-top, .navbar.at-top::before{ border-radius:0; }
 
     /* Өргөн дэлгэц дээр контентыг илүү олон багана болгож, зургийг хэт томруулахгүй */
