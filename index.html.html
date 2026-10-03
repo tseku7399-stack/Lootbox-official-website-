@@ -223,11 +223,8 @@
   .navbar{
     display:flex; align-items:center; justify-content:space-between;
     margin:-22px -18px 16px; padding:12px 18px 10px;
-    position:sticky; top:0; z-index:40;
+    position:-webkit-sticky; position:sticky; top:0; z-index:40;
     isolation:isolate;
-    transform:translateZ(0); -webkit-transform:translateZ(0);
-    will-change:transform;
-    backface-visibility:hidden; -webkit-backface-visibility:hidden;
   }
   .navbar::before{
     content:"";
@@ -239,7 +236,6 @@
     box-shadow:0 10px 26px -14px var(--navbar-shadow), inset 0 -1px 0 rgba(255,255,255,0.03);
     overflow:hidden;
     z-index:-1;
-    transform:translateZ(0); -webkit-transform:translateZ(0);
   }
   /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
      арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
@@ -561,12 +557,9 @@
 
   .games-page-head{
     display:flex; align-items:center; gap:12px;
-    position:sticky; top:0; z-index:40;
+    position:-webkit-sticky; position:sticky; top:0; z-index:40;
     margin:-22px -18px 18px; padding:16px 18px 14px;
     isolation:isolate;
-    transform:translateZ(0); -webkit-transform:translateZ(0);
-    will-change:transform;
-    backface-visibility:hidden; -webkit-backface-visibility:hidden;
   }
   .games-page-head::before{
     content:"";
@@ -574,7 +567,6 @@
     background:var(--bg-panel);
     border-bottom:1px solid var(--line);
     z-index:-1;
-    transform:translateZ(0); -webkit-transform:translateZ(0);
   }
   .games-page-head.at-top::before{ border-radius:36px 36px 0 0; }
   /* Мэдэгдлийн жагсаалт ихэвчлэн богино тул header-ийг sticky байлгах шаардлагагүй.
