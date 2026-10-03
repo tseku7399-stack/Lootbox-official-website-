@@ -99,6 +99,49 @@
       var(--bg-void);
   }
   body.theme-light .blinds{ opacity:0.35; }
+  /* Неон ягаан (neon) загвар — өөр кодоос авсан хүрэн/ягаан-хөх neon
+     өнгийг Тохиргооны 3 дахь сонголт болгов */
+  body.theme-neon{
+    --bg-void:#1b1b36;
+    --bg-panel:#0a0a14;
+    --bg-panel-2:#0e0e1c;
+    --bg-elevated:#15152a;
+    --line:rgba(140,110,255,0.16);
+    --line-strong:rgba(140,110,255,0.26);
+    --gold-100:#e8defd;
+    --gold-300:#7c3aed;
+    --gold-500:#6d28d9;
+    --gold-700:#5b21b6;
+    --gold-900:#3b0f78;
+    --text-hi:#f5f3ff;
+    --text-lo:#a8a3c9;
+    --text-faint:#6f6a8f;
+    --red:#ff5569;
+    --dot-idle:rgba(255,255,255,0.3);
+    --hover-tint:rgba(140,110,255,0.07);
+    --hover-tint-strong:rgba(140,110,255,0.15);
+    --navbar-border:rgba(140,110,255,0.4);
+    --navbar-shadow:rgba(0,0,0,0.6);
+    --continue-shadow-1:rgba(124,58,237,0.35);
+    --continue-shadow-2:rgba(0,0,0,0.25);
+  }
+  body.theme-neon{
+    background:
+      radial-gradient(65% 40% at 50% -10%, rgba(124,58,237,0.22), transparent 65%),
+      radial-gradient(50% 30% at 92% 85%, rgba(6,182,212,0.12), transparent 55%),
+      radial-gradient(40% 25% at 5% 60%, rgba(249,115,22,0.08), transparent 50%),
+      var(--bg-void);
+  }
+  /* Оруулсан кодын "нарийн тор" (grid) арын загвар — зөвхөн Неон ягаан
+     загварт л харагдана, .blinds-ийн ар талд (түүнээс доогуур) байрлана */
+  body.theme-neon::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(140,110,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(140,110,255,0.05) 1px, transparent 1px);
+    background-size:40px 40px;
+  }
 
   *{box-sizing:border-box; margin:0; padding:0;}
   /* Хэрэглэгч хуудсыг pinch/browser zoom хийсний дараа mobile browser-үүд
@@ -208,6 +251,14 @@
     overflow:hidden;
     z-index:-1;
     transform:translateZ(0); -webkit-transform:translateZ(0);
+  }
+  /* Оруулсан кодын navbar доод талын ягаан→цэнхэр gradient мөр,
+     зөвхөн Неон ягаан загварт */
+  body.theme-neon .navbar::after{
+    content:"";
+    position:absolute; left:10%; right:10%; bottom:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(6,182,212,0.4), transparent);
+    pointer-events:none;
   }
   /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
      арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
@@ -810,6 +861,12 @@
   }
   .theme-swatch.swatch-dark::before{ background:linear-gradient(160deg,#18181b 0%, #202024 55%, #2c1c78 130%); }
   .theme-swatch.swatch-light::before{ background:linear-gradient(160deg,#ffffff 0%, #f0f0f4 55%, #efe8ff 130%); }
+  .theme-swatch.swatch-neon::before{
+    background:
+      radial-gradient(70% 70% at 15% 15%, rgba(124,58,237,0.65), transparent 60%),
+      radial-gradient(70% 70% at 85% 85%, rgba(6,182,212,0.45), transparent 60%),
+      linear-gradient(160deg,#0a0a14 0%, #0e0e1c 55%, #12121f 130%);
+  }
 
   .theme-swatch .ts-dot{
     position:absolute; top:8px; right:8px; width:16px; height:16px; border-radius:50%;
@@ -1369,6 +1426,7 @@
     try{
       var saved = JSON.parse(localStorage.getItem('lootbox_settings')) || {};
       if(saved.theme === 'light'){ document.body.classList.add('theme-light'); }
+      else if(saved.theme === 'neon'){ document.body.classList.add('theme-neon'); }
     }catch(e){}
   })();
 
@@ -2024,6 +2082,12 @@
           <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
         </div>
         <div class="theme-option-label">Цагаан өнгө</div>
+      </div>
+      <div class="theme-option" id="themeOptionNeon" data-theme="neon">
+        <div class="theme-swatch swatch-neon">
+          <div class="ts-dot"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        </div>
+        <div class="theme-option-label">Неон ягаан</div>
       </div>
     </div>
 
@@ -4686,6 +4750,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var closeBtn = document.getElementById('settingsModalClose');
     var optionDark = document.getElementById('themeOptionDark');
     var optionLight = document.getElementById('themeOptionLight');
+    var optionNeon = document.getElementById('themeOptionNeon');
     var SETTINGS_KEY = 'lootbox_settings';
     if(!overlay) return;
 
@@ -4708,17 +4773,21 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
     function applyTheme(theme, skipSave){
-      document.body.classList.remove('theme-light');
+      document.body.classList.remove('theme-light', 'theme-neon');
       if(theme === 'light'){
         document.body.classList.add('theme-light');
+      } else if(theme === 'neon'){
+        document.body.classList.add('theme-neon');
       }
       optionDark.classList.toggle('active', theme === 'dark');
       optionLight.classList.toggle('active', theme === 'light');
+      optionNeon.classList.toggle('active', theme === 'neon');
       if(!skipSave) saveSettings({ theme: theme });
     }
 
     optionDark.addEventListener('click', function(){ applyTheme('dark'); });
     optionLight.addEventListener('click', function(){ applyTheme('light'); });
+    optionNeon.addEventListener('click', function(){ applyTheme('neon'); });
 
     // ---- Дарахад доор нь дэлгэрэнгүй хэсэг нээгддэг/хаагддаг мөрүүд
     // (Нууц үг солих, Тусламж) ----
