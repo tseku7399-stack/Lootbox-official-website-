@@ -3617,9 +3617,11 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 
   // ---- Тоглоом хайх: талбарт шууд бичихэд, доор нь dropdown жагсаалт нээгдэнэ ----
-  // Хайлт нь Кирилл/латин хоёуланг, зай/зураас/цэг таслалыг үл тооно (magicchess =
-  // Magic Chess), 1-2 үсгийн алдааг (valarant, роблох) зөвшөөрч, илүү тохирохыг дээр нь
-  // эрэмбэлнэ. Жагсаалтыг хайлт болгонд DOM-оос шинээр уншдаг тул админ самбараас
+  // Латин болон Кирилл үсэг НЭГ НЭГЭЭРЭЭ тусдаа: латин бичсэн хайлт зөвхөн латин нэрээс,
+  // Кирилл бичсэн хайлт зөвхөн Кирилл нэрээс хайна (латин p ≠ Кирилл р, a ≠ а гэх мэт
+  // харагдахдаа адилхан үсгүүд хэзээ ч андуурагдахгүй). Зай/зураас/цэг таслалыг үл тооно
+  // (magicchess = Magic Chess), 1-2 үсгийн алдааг (valarant, robolx) зөвшөөрч, илүү
+  // тохирохыг дээр нь эрэмбэлнэ. Жагсаалтыг хайлт болгонд DOM-оос шинээр уншдаг тул админ самбараас
   // тоглоомын нэр солигдсон ч шууд тусна.
   var gameSearchInput = document.getElementById('gameSearchInput');
   var gameSearchClear = document.getElementById('gameSearchClear');
@@ -3627,35 +3629,26 @@ document.addEventListener('DOMContentLoaded', function(){
   var homeSearchDropdown = document.getElementById('homeSearchDropdown');
 
   // <pure>
-  var SEARCH_CYR = {
-    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'j','з':'z','и':'i','й':'i',
-    'к':'k','л':'l','м':'m','н':'n','о':'o','ө':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
-    'ү':'u','ф':'f','х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sh','ъ':'','ы':'i','ь':'','э':'e',
-    'ю':'yu','я':'ya'
-  };
-  // Кирилл бичлэгээр хайдаг хэрэглэгчдэд зориулсан нэмэлт нэрс (data-game-ээр)
+  // Кирилл бичлэгээр хайдаг хэрэглэгчдэд зориулсан Кирилл нэрс (data-game-ээр)
   var SEARCH_BUILTIN_ALIASES = {
-    'PUBG Mobile': ['pubg','pubgm','pubg mobile','battlegrounds','пубг','пабг','пубг мобайл','пабг мобайл','пубжи'],
-    'MLBB': ['mlbb','ml','mobile legends','mobile legends bang bang','млбб','мл','мобайл легенд','мобайл легендс','мобайл легендз','легенд'],
-    'Standoff 2': ['standoff','standoff 2','standoff2','so2','стандофф','стэндофф','стендофф','стандоф'],
+    'PUBG Mobile': ['pubg','pubgm','pubg mobile','battlegrounds','пубг','пабг','пубжи','пубг мобайл','пабг мобайл'],
+    'MLBB': ['mlbb','ml','mobile legends','mobile legends bang bang','млбб','мл','мобайл легенд','мобайл легендс','мобайл легендз','мобайл легенд бэнг бэнг','легенд'],
+    'Standoff 2': ['standoff','standoff 2','standoff2','so2','стандофф','стэндофф','стендофф','стандоф','стандофф 2','стэндофф 2'],
     'Roblox': ['roblox','роблокс','роблох','роблакс'],
-    'Valorant': ['valorant','valo','riot','vp','валорант','вало','валарант'],
-    'Magic Chess': ['magic chess','magic chess go go','mcgg','go go','мажик чесс','мэжик чесс','меджик чесс','мэжик чэс','чесс','чэс']
+    'Valorant': ['valorant','valo','riot','vp','валорант','валарант','вало','райот'],
+    'Magic Chess': ['magic chess','magic chess go go','mcgg','go go','мажик чесс','мэжик чесс','меджик чесс','мажик чэс','мэжик чэс','мэжик чесс гоу гоу','чесс','чэс','гоу гоу','го го']
   };
 
   function searchHasCyr(s){ return /[\u0400-\u04ff]/.test(s); }
   function searchNorm(str){
     var s = String(str == null ? '' : str).toLowerCase();
-    if(s.normalize){ try{ s = s.normalize('NFKD').replace(/[\u0300-\u036f]/g, ''); }catch(e){} }
-    return s.replace(/[^a-z0-9\u0400-\u04ff]+/g, ' ').replace(/\s+/g, ' ').trim();
-  }
-  function searchTranslit(s){
-    var out = '';
-    for(var i = 0; i < s.length; i++){
-      var ch = s.charAt(i);
-      out += Object.prototype.hasOwnProperty.call(SEARCH_CYR, ch) ? SEARCH_CYR[ch] : ch;
+    if(s.normalize){
+      // зөвхөн латин үсгийн диакритик (é -> e) арилгана; Кирилл й, ө, ү, ё хэвээр үлдэнэ
+      s = s.replace(/[\u00c0-\u024f]+/g, function(chunk){
+        try{ return chunk.normalize('NFKD').replace(/[\u0300-\u036f]/g, ''); }catch(e){ return chunk; }
+      });
     }
-    return out;
+    return s.replace(/[^a-z0-9\u0400-\u04ff]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
   // Levenshtein зай (хоёр зэргэлдээ үсгийн байр солигдохыг 1 алдаа гэж тооцно: pugb -> pubg)
   function searchLev(a, b){
@@ -3678,7 +3671,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return prev[b.length];
   }
   // q: хайх үг (normalize хийсэн), t: нэг нэр/alias (normalize хийсэн). Оноо 0 = таарахгүй
-  function searchScoreTerm(q, t){
+  function searchScoreTerm(q, t, noSub){
     if(!q || !t) return 0;
     var qc = q.replace(/ /g, ''), tc = t.replace(/ /g, '');
     if(t === q) return 100;
@@ -3698,8 +3691,11 @@ document.addEventListener('DOMContentLoaded', function(){
       }
       if(all) return 70;
     }
-    if(t.indexOf(q) !== -1) return 60;
-    if(qc.length >= 3 && tc.indexOf(qc) !== -1) return 55;
+    // noSub: товчилсон/өөр нэр (alias) нь тоглоомын жинхэнэ нэр биш тул дундаас нь таарахгүй
+    if(!noSub){
+      if(t.indexOf(q) !== -1) return 60;
+      if(qc.length >= 3 && tc.indexOf(qc) !== -1) return 55;
+    }
     // үсгийн алдаа (typo): нийт нэр болон үг тус бүртэй харьцуулна
     if(qc.length >= 4){
       var maxD = qc.length >= 8 ? 2 : 1, best = 99, d;
@@ -3716,23 +3712,22 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     return 0;
   }
-  // terms: normalize хийсэн нэрсийн массив. Кирилл/латин хоёр хувилбараар үнэлнэ
-  function searchScoreEntry(rawQuery, terms){
+  // terms: тоглоомын нэрүүд (нэрний аль ч хэсгээс таарна). aliasTerms: товчилсон/өөр нэрс
+  // (эхлэлээр л таарна: "riot" гэх мэт нэр нь биш үсгээр Valorant гарахгүй).
+  // Хайлт болон нэр ХОЁР ИЖИЛ үсгийн төрөлтэй (латин-латин, Кирилл-Кирилл) байхад л
+  // харьцуулагдана; харагдахдаа адил үсэг ч (p/р, a/а, o/о, c/с, e/е, x/х) өөр үсэг.
+  function searchScoreEntry(rawQuery, terms, aliasTerms){
     var q = searchNorm(rawQuery);
     if(!q) return 0;
-    var qVariants = [q];
-    if(searchHasCyr(q)){ var ql = searchNorm(searchTranslit(q)); if(ql && ql !== q) qVariants.push(ql); }
-    var best = 0;
-    for(var i = 0; i < terms.length; i++){
-      var t = terms[i];
-      if(!t) continue;
-      var tVariants = [t];
-      if(searchHasCyr(t)){ var tl = searchNorm(searchTranslit(t)); if(tl && tl !== t) tVariants.push(tl); }
-      for(var a = 0; a < qVariants.length; a++){
-        for(var b = 0; b < tVariants.length; b++){
-          var s = searchScoreTerm(qVariants[a], tVariants[b]);
-          if(s > best) best = s;
-        }
+    var best = 0, i, sc;
+    for(i = 0; i < terms.length; i++){
+      sc = searchScoreTerm(q, terms[i], false);
+      if(sc > best) best = sc;
+    }
+    if(aliasTerms){
+      for(i = 0; i < aliasTerms.length; i++){
+        sc = searchScoreTerm(q, aliasTerms[i], true);
+        if(sc > best) best = sc;
       }
     }
     return best;
@@ -3757,20 +3752,30 @@ document.addEventListener('DOMContentLoaded', function(){
       var cover = card.querySelector('.offer-cover');
       var titleEl = card.querySelector('.title');
       var titleText = titleEl ? titleEl.textContent : '';
-      var rawTerms = [name, card.getAttribute('data-display-name'), card.getAttribute('data-search-name'), titleText];
+      var nameRaw = [name, card.getAttribute('data-display-name'), card.getAttribute('data-search-name'), titleText];
+      var aliasRaw = [];
       var aliasAttr = card.getAttribute('data-aliases');
-      if(aliasAttr) rawTerms = rawTerms.concat(aliasAttr.split(','));
-      if(SEARCH_BUILTIN_ALIASES[name]) rawTerms = rawTerms.concat(SEARCH_BUILTIN_ALIASES[name]);
-      var terms = [], dedupe = {};
-      for(var k = 0; k < rawTerms.length; k++){
-        var nt = searchNorm(rawTerms[k]);
+      if(aliasAttr) aliasRaw = aliasRaw.concat(aliasAttr.split(','));
+      if(SEARCH_BUILTIN_ALIASES[name]) aliasRaw = aliasRaw.concat(SEARCH_BUILTIN_ALIASES[name]);
+      var terms = [], aliasTerms = [], dedupe = {}, k, nt;
+      for(k = 0; k < nameRaw.length; k++){
+        nt = searchNorm(nameRaw[k]);
         if(nt && !dedupe[nt]){ dedupe[nt] = true; terms.push(nt); }
+      }
+      // Кирилл бичлэг нь тоглоомын нэрийн Кирилл хувилбар тул нэрээр нь (бүх хэсгээс) хайна;
+      // латин товчлол/өөр нэр нь зөвхөн эхлэлээр таарна
+      for(k = 0; k < aliasRaw.length; k++){
+        nt = searchNorm(aliasRaw[k]);
+        if(!nt || dedupe[nt]) continue;
+        dedupe[nt] = true;
+        if(searchHasCyr(nt)) terms.push(nt); else aliasTerms.push(nt);
       }
       list.push({
         name: name,
         label: card.getAttribute('data-search-name') || card.getAttribute('data-display-name') || (titleText && titleText.trim()) || name,
         el: card,
         terms: terms,
+        aliasTerms: aliasTerms,
         order: i,
         iconHtml: cover ? cover.innerHTML : ''
       });
@@ -3804,7 +3809,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     var scored = [];
     getSearchEntries().forEach(function(entry){
-      var s = searchScoreEntry(q, entry.terms);
+      var s = searchScoreEntry(q, entry.terms, entry.aliasTerms);
       if(s > 0){ entry.score = s; scored.push(entry); }
     });
     scored.sort(function(a, b){ return (b.score - a.score) || (a.order - b.order); });
