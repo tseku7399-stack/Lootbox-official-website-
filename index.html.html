@@ -132,16 +132,6 @@
       radial-gradient(40% 25% at 5% 60%, rgba(249,115,22,0.08), transparent 50%),
       var(--bg-void);
   }
-  /* Оруулсан кодын "нарийн тор" (grid) арын загвар — зөвхөн Неон ягаан
-     загварт л харагдана, .blinds-ийн ар талд (түүнээс доогуур) байрлана */
-  body.theme-neon::before{
-    content:"";
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background-image:
-      linear-gradient(rgba(140,110,255,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(140,110,255,0.05) 1px, transparent 1px);
-    background-size:40px 40px;
-  }
 
   *{box-sizing:border-box; margin:0; padding:0;}
   /* Хэрэглэгч хуудсыг pinch/browser zoom хийсний дараа mobile browser-үүд
@@ -252,14 +242,6 @@
     z-index:-1;
     transform:translateZ(0); -webkit-transform:translateZ(0);
   }
-  /* Оруулсан кодын navbar доод талын ягаан→цэнхэр gradient мөр,
-     зөвхөн Неон ягаан загварт */
-  body.theme-neon .navbar::after{
-    content:"";
-    position:absolute; left:10%; right:10%; bottom:0; height:1px;
-    background:linear-gradient(90deg, transparent, rgba(124,58,237,0.6), rgba(6,182,212,0.4), transparent);
-    pointer-events:none;
-  }
   /* Цагаан загварт navbar-ийн зүүн талын ягаан/цэнхэр бүрсэлзсэн тонг
      арилгаж, цэвэр цагаан дэвсгэр үлдээнэ. */
   body.theme-light .navbar::before{
@@ -366,10 +348,12 @@
   }
   .bell svg{ width:18px; height:18px; stroke:var(--text-hi); }
   .bell .dot{
-    position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 4px;
-    border-radius:9px; background:var(--red); border:1.5px solid var(--bg-elevated);
+    position:absolute; top:-4px; right:-4px; min-width:17px; height:17px; padding:0 4px;
+    border-radius:9px; background:linear-gradient(145deg, #ff6b7a, #e11d48);
+    border:2px solid var(--bg-elevated);
     display:none; align-items:center; justify-content:center;
-    font-size:9.5px; font-weight:700; color:#fff; line-height:1; font-family:'Poppins',sans-serif;
+    font-size:9.5px; font-weight:800; color:#fff; line-height:1; font-family:'Poppins',sans-serif;
+    box-shadow:0 3px 9px -1px rgba(225,29,72,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
   }
   .notif-panel{
     position:absolute; top:48px; right:0; width:270px; max-height:340px; overflow-y:auto;
