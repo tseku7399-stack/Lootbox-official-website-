@@ -3646,6 +3646,16 @@ document.addEventListener('DOMContentLoaded', function(){
     var input = document.getElementById('playerIdInput');
     var zoneInput = document.getElementById('zoneIdInput');
     var result = document.getElementById('verifyResult');
+    // ID эсвэл Zone ID талбарт ямар нэг зүйл бичиж эхлэнгүүт "...оруулна уу"
+    // гэсэн өмнөх сануулга (мөн амжилттай шалгасан хуучин үр дүн) шууд
+    // арилна — дахин "ID шалгах" дарахыг хүлээхгүй.
+    function clearVerifyResult(){
+      if(!result.textContent && !result.innerHTML) return;
+      result.className = 'verify-result';
+      result.innerHTML = '';
+    }
+    if(input) input.addEventListener('input', clearVerifyResult);
+    if(zoneInput) zoneInput.addEventListener('input', clearVerifyResult);
     btn.addEventListener('click', function(){
       var val = input.value.trim();
       var zoneVal = zoneInput ? zoneInput.value.trim() : '';
