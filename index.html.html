@@ -416,12 +416,19 @@
     display:none;
     position:absolute; left:-1px; right:-1px; top:calc(100% + 8px);
     background:var(--bg-panel-2); border:1px solid var(--line-strong);
-    border-radius:16px; overflow:hidden; z-index:60;
+    border-radius:16px; overflow:hidden; z-index:39;
     box-shadow:0 24px 48px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
     max-height:280px; overflow-y:auto;
     -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
   }
   .search-dropdown.open{ display:block; }
+  .search-dropdown-item.active{ background:var(--bg-elevated); }
+  .search-clear{
+    display:none; align-items:center; justify-content:center; flex-shrink:0;
+    width:24px; height:24px; padding:0; border:0; border-radius:50%;
+    background:var(--bg-panel-2); cursor:pointer;
+  }
+  .search-clear svg{ width:12px; height:12px; stroke:var(--text-lo); }
   .search-dropdown-item{
     display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer;
   }
@@ -1674,7 +1681,8 @@
   <div class="search-row">
     <div class="search-box" id="homeSearchBox">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх">
+      <input type="text" id="gameSearchInput" placeholder="Тоглоом хайх" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" inputmode="search" aria-label="Тоглоом хайх">
+      <button type="button" class="search-clear" id="gameSearchClear" aria-label="Цэвэрлэх"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
       <div class="search-dropdown" id="homeSearchDropdown"></div>
     </div>
   </div>
@@ -3608,59 +3616,210 @@ document.addEventListener('DOMContentLoaded', function(){
     mainView.style.display = 'block';
   });
 
-  // ---- Тоглоом хайх: талбарт шууд бичихэд, доор нь dropdown жагсаалт нээгдэнэ (дотогшоо шилждэггүй) ----
+  // ---- Тоглоом хайх: талбарт шууд бичихэд, доор нь dropdown жагсаалт нээгдэнэ ----
+  // Хайлт нь Кирилл/латин хоёуланг, зай/зураас/цэг таслалыг үл тооно (magicchess =
+  // Magic Chess), 1-2 үсгийн алдааг (valarant, роблох) зөвшөөрч, илүү тохирохыг дээр нь
+  // эрэмбэлнэ. Жагсаалтыг хайлт болгонд DOM-оос шинээр уншдаг тул админ самбараас
+  // тоглоомын нэр солигдсон ч шууд тусна.
   var gameSearchInput = document.getElementById('gameSearchInput');
+  var gameSearchClear = document.getElementById('gameSearchClear');
   var homeSearchBox = document.getElementById('homeSearchBox');
   var homeSearchDropdown = document.getElementById('homeSearchDropdown');
 
-  var searchableCards = (function(){
-    var map = {};
-    document.querySelectorAll('.offer-card[data-game]').forEach(function(card){
+  // <pure>
+  var SEARCH_CYR = {
+    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'j','з':'z','и':'i','й':'i',
+    'к':'k','л':'l','м':'m','н':'n','о':'o','ө':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+    'ү':'u','ф':'f','х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sh','ъ':'','ы':'i','ь':'','э':'e',
+    'ю':'yu','я':'ya'
+  };
+  // Кирилл бичлэгээр хайдаг хэрэглэгчдэд зориулсан нэмэлт нэрс (data-game-ээр)
+  var SEARCH_BUILTIN_ALIASES = {
+    'PUBG Mobile': ['pubg','pubgm','pubg mobile','battlegrounds','пубг','пабг','пубг мобайл','пабг мобайл','пубжи'],
+    'MLBB': ['mlbb','ml','mobile legends','mobile legends bang bang','млбб','мл','мобайл легенд','мобайл легендс','мобайл легендз','легенд'],
+    'Standoff 2': ['standoff','standoff 2','standoff2','so2','стандофф','стэндофф','стендофф','стандоф'],
+    'Roblox': ['roblox','роблокс','роблох','роблакс'],
+    'Valorant': ['valorant','valo','riot','vp','валорант','вало','валарант'],
+    'Magic Chess': ['magic chess','magic chess go go','mcgg','go go','мажик чесс','мэжик чесс','меджик чесс','мэжик чэс','чесс','чэс']
+  };
+
+  function searchHasCyr(s){ return /[\u0400-\u04ff]/.test(s); }
+  function searchNorm(str){
+    var s = String(str == null ? '' : str).toLowerCase();
+    if(s.normalize){ try{ s = s.normalize('NFKD').replace(/[\u0300-\u036f]/g, ''); }catch(e){} }
+    return s.replace(/[^a-z0-9\u0400-\u04ff]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function searchTranslit(s){
+    var out = '';
+    for(var i = 0; i < s.length; i++){
+      var ch = s.charAt(i);
+      out += Object.prototype.hasOwnProperty.call(SEARCH_CYR, ch) ? SEARCH_CYR[ch] : ch;
+    }
+    return out;
+  }
+  // Levenshtein зай (хоёр зэргэлдээ үсгийн байр солигдохыг 1 алдаа гэж тооцно: pugb -> pubg)
+  function searchLev(a, b){
+    if(a === b) return 0;
+    if(!a.length) return b.length;
+    if(!b.length) return a.length;
+    var prev2 = null, prev = [], cur = [], i, j;
+    for(j = 0; j <= b.length; j++) prev[j] = j;
+    for(i = 1; i <= a.length; i++){
+      cur = [i];
+      for(j = 1; j <= b.length; j++){
+        cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a.charAt(i-1) === b.charAt(j-1) ? 0 : 1));
+        if(i > 1 && j > 1 && a.charAt(i-1) === b.charAt(j-2) && a.charAt(i-2) === b.charAt(j-1)){
+          cur[j] = Math.min(cur[j], prev2[j-2] + 1);
+        }
+      }
+      prev2 = prev;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  // q: хайх үг (normalize хийсэн), t: нэг нэр/alias (normalize хийсэн). Оноо 0 = таарахгүй
+  function searchScoreTerm(q, t){
+    if(!q || !t) return 0;
+    var qc = q.replace(/ /g, ''), tc = t.replace(/ /g, '');
+    if(t === q) return 100;
+    if(tc === qc) return 98;
+    if(t.indexOf(q) === 0) return 90;
+    if(qc.length >= 2 && tc.indexOf(qc) === 0) return 85;
+    var words = t.split(' '), i, j;
+    for(i = 0; i < words.length; i++){ if(words[i].indexOf(q) === 0) return 75; }
+    // олон үгтэй хайлт: үг бүр нэрийн аль нэг үгийн эхлэлтэй таарвал
+    var qw = q.split(' ');
+    if(qw.length > 1){
+      var all = true;
+      for(j = 0; j < qw.length && all; j++){
+        var hit = false;
+        for(i = 0; i < words.length; i++){ if(words[i].indexOf(qw[j]) === 0){ hit = true; break; } }
+        if(!hit) all = false;
+      }
+      if(all) return 70;
+    }
+    if(t.indexOf(q) !== -1) return 60;
+    if(qc.length >= 3 && tc.indexOf(qc) !== -1) return 55;
+    // үсгийн алдаа (typo): нийт нэр болон үг тус бүртэй харьцуулна
+    if(qc.length >= 4){
+      var maxD = qc.length >= 8 ? 2 : 1, best = 99, d;
+      d = searchLev(qc, tc); if(d < best) best = d;
+      for(i = 0; i < words.length; i++){
+        if(words[i].length >= 3){
+          d = searchLev(qc, words[i]); if(d < best) best = d;
+          if(words[i].length > qc.length){
+            d = searchLev(qc, words[i].substring(0, qc.length)); if(d < best) best = d;
+          }
+        }
+      }
+      if(best <= maxD) return 40 - best * 5;
+    }
+    return 0;
+  }
+  // terms: normalize хийсэн нэрсийн массив. Кирилл/латин хоёр хувилбараар үнэлнэ
+  function searchScoreEntry(rawQuery, terms){
+    var q = searchNorm(rawQuery);
+    if(!q) return 0;
+    var qVariants = [q];
+    if(searchHasCyr(q)){ var ql = searchNorm(searchTranslit(q)); if(ql && ql !== q) qVariants.push(ql); }
+    var best = 0;
+    for(var i = 0; i < terms.length; i++){
+      var t = terms[i];
+      if(!t) continue;
+      var tVariants = [t];
+      if(searchHasCyr(t)){ var tl = searchNorm(searchTranslit(t)); if(tl && tl !== t) tVariants.push(tl); }
+      for(var a = 0; a < qVariants.length; a++){
+        for(var b = 0; b < tVariants.length; b++){
+          var s = searchScoreTerm(qVariants[a], tVariants[b]);
+          if(s > best) best = s;
+        }
+      }
+    }
+    return best;
+  }
+  // </pure>
+
+  function searchEscHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  // DOM-оос тоглоомын жагсаалтыг (data-game тус бүрээр нэгээр) шинээр уншина
+  function getSearchEntries(){
+    var seen = {}, list = [];
+    var cards = document.querySelectorAll('.offer-card[data-game]');
+    for(var i = 0; i < cards.length; i++){
+      var card = cards[i];
       var name = card.getAttribute('data-game');
-      if(!map[name]) map[name] = card;
-    });
-    return Object.keys(map).map(function(name){
-      var card = map[name];
+      if(!name || seen[name]) continue;
+      seen[name] = true;
       var cover = card.querySelector('.offer-cover');
-      return {
+      var titleEl = card.querySelector('.title');
+      var titleText = titleEl ? titleEl.textContent : '';
+      var rawTerms = [name, card.getAttribute('data-display-name'), card.getAttribute('data-search-name'), titleText];
+      var aliasAttr = card.getAttribute('data-aliases');
+      if(aliasAttr) rawTerms = rawTerms.concat(aliasAttr.split(','));
+      if(SEARCH_BUILTIN_ALIASES[name]) rawTerms = rawTerms.concat(SEARCH_BUILTIN_ALIASES[name]);
+      var terms = [], dedupe = {};
+      for(var k = 0; k < rawTerms.length; k++){
+        var nt = searchNorm(rawTerms[k]);
+        if(nt && !dedupe[nt]){ dedupe[nt] = true; terms.push(nt); }
+      }
+      list.push({
         name: name,
-        searchName: card.getAttribute('data-search-name') || card.getAttribute('data-display-name') || name,
+        label: card.getAttribute('data-search-name') || card.getAttribute('data-display-name') || (titleText && titleText.trim()) || name,
         el: card,
-        aliases: (card.getAttribute('data-aliases') || '').toLowerCase(),
+        terms: terms,
+        order: i,
         iconHtml: cover ? cover.innerHTML : ''
-      };
-    });
-  })();
+      });
+    }
+    return list;
+  }
+
+  var searchResults = [];
+  var searchActive = -1;
+
+  function setSearchActive(idx){
+    var items = homeSearchDropdown.querySelectorAll('.search-dropdown-item');
+    searchActive = idx;
+    for(var i = 0; i < items.length; i++){
+      var on = (i === idx);
+      items[i].classList.toggle('active', on);
+      items[i].setAttribute('aria-selected', on ? 'true' : 'false');
+      if(on && items[i].scrollIntoView){ try{ items[i].scrollIntoView({ block:'nearest' }); }catch(e){} }
+    }
+  }
 
   function renderHomeSearchDropdown(query){
-    var q = query.trim().toLowerCase();
-    if(q === ''){
+    var q = String(query || '');
+    if(gameSearchClear) gameSearchClear.style.display = q.length ? 'flex' : 'none';
+    if(searchNorm(q) === ''){
+      searchResults = [];
+      searchActive = -1;
       homeSearchDropdown.innerHTML = '';
       closeHomeSearchDropdown();
       return;
     }
-    var results = searchableCards.filter(function(r){
-      return r.name.toLowerCase().indexOf(q) !== -1 || r.aliases.indexOf(q) !== -1;
+    var scored = [];
+    getSearchEntries().forEach(function(entry){
+      var s = searchScoreEntry(q, entry.terms);
+      if(s > 0){ entry.score = s; scored.push(entry); }
     });
-    if(results.length === 0){
+    scored.sort(function(a, b){ return (b.score - a.score) || (a.order - b.order); });
+    searchResults = scored;
+    searchActive = -1;
+    if(scored.length === 0){
       homeSearchDropdown.innerHTML = '<div class="search-dropdown-empty">Тоглоом олдсонгүй</div>';
     } else {
-      homeSearchDropdown.innerHTML = results.map(function(r){
-        return '<div class="search-dropdown-item" data-name="' + r.name + '">' +
+      homeSearchDropdown.innerHTML = scored.map(function(r, i){
+        return '<div class="search-dropdown-item" role="option" aria-selected="false" data-idx="' + i + '">' +
                  '<div class="search-dropdown-icon">' + r.iconHtml + '</div>' +
-                 '<div class="search-dropdown-name">' + r.searchName + '</div>' +
+                 '<div class="search-dropdown-name">' + searchEscHtml(r.label) + '</div>' +
                '</div>';
       }).join('');
     }
-    homeSearchDropdown.querySelectorAll('.search-dropdown-item').forEach(function(item){
-      item.addEventListener('click', function(){
-        var name = item.getAttribute('data-name');
-        var match = searchableCards.filter(function(r){ return r.name === name; })[0];
-        closeHomeSearchDropdown();
-        gameSearchInput.value = '';
-        if(match){ match.el.click(); }
-      });
-    });
     homeSearchDropdown.classList.add('open');
   }
 
@@ -3670,12 +3829,70 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function closeHomeSearchDropdown(){
     homeSearchDropdown.classList.remove('open');
+    searchActive = -1;
   }
 
+  function chooseSearchResult(entry){
+    if(!entry) return;
+    closeHomeSearchDropdown();
+    gameSearchInput.value = '';
+    if(gameSearchClear) gameSearchClear.style.display = 'none';
+    searchResults = [];
+    try{ gameSearchInput.blur(); }catch(e){}
+    entry.el.click();
+  }
+
+  homeSearchDropdown.setAttribute('role', 'listbox');
+  // Жагсаалтыг дарахад input-ийн focus алдагдаж dropdown хаагдахаас сэргийлнэ
+  homeSearchDropdown.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  homeSearchDropdown.addEventListener('click', function(e){
+    var node = e.target;
+    while(node && node !== homeSearchDropdown && !(node.classList && node.classList.contains('search-dropdown-item'))){
+      node = node.parentNode;
+    }
+    if(!node || node === homeSearchDropdown) return;
+    var idx = parseInt(node.getAttribute('data-idx'), 10);
+    if(!isNaN(idx)) chooseSearchResult(searchResults[idx]);
+  });
+
+  var searchComposing = false;
   gameSearchInput.addEventListener('focus', openHomeSearchDropdown);
-  gameSearchInput.addEventListener('input', function(){
+  gameSearchInput.addEventListener('compositionstart', function(){ searchComposing = true; });
+  gameSearchInput.addEventListener('compositionend', function(){
+    searchComposing = false;
     renderHomeSearchDropdown(gameSearchInput.value);
   });
+  gameSearchInput.addEventListener('input', function(){
+    if(searchComposing) return;
+    renderHomeSearchDropdown(gameSearchInput.value);
+  });
+  gameSearchInput.addEventListener('keydown', function(e){
+    var key = e.key;
+    var isOpen = homeSearchDropdown.classList.contains('open');
+    if(key === 'ArrowDown' || key === 'ArrowUp'){
+      if(!isOpen){ renderHomeSearchDropdown(gameSearchInput.value); return; }
+      if(!searchResults.length) return;
+      e.preventDefault();
+      var n = searchResults.length;
+      var next = key === 'ArrowDown' ? (searchActive + 1) % n : (searchActive <= 0 ? n - 1 : searchActive - 1);
+      setSearchActive(next);
+    } else if(key === 'Enter'){
+      if(searchComposing) return;
+      e.preventDefault();
+      if(!isOpen) renderHomeSearchDropdown(gameSearchInput.value);
+      if(searchResults.length) chooseSearchResult(searchResults[searchActive >= 0 ? searchActive : 0]);
+    } else if(key === 'Escape'){
+      closeHomeSearchDropdown();
+    }
+  });
+  if(gameSearchClear){
+    gameSearchClear.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    gameSearchClear.addEventListener('click', function(){
+      gameSearchInput.value = '';
+      renderHomeSearchDropdown('');
+      try{ gameSearchInput.focus(); }catch(e){}
+    });
+  }
 
   document.addEventListener('click', function(e){
     if(!homeSearchBox.contains(e.target)) closeHomeSearchDropdown();
