@@ -4267,7 +4267,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var g = cfg.games[game];
         if(!g || typeof g !== 'object') return;
         var tiers = sanitizeTiers(g.packages);
-        if(tiers){ GAME_PACKAGE_TIERS[game] = tiers; packagesChanged = true; }
+        if(tiers && game !== 'Roblox'){ GAME_PACKAGE_TIERS[game] = tiers; packagesChanged = true; }
         cards.forEach(function(card){
           if(card.getAttribute('data-game') !== game) return;
           var titleEl = card.querySelector('.title');
