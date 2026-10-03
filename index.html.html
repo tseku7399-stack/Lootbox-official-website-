@@ -4712,8 +4712,15 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
+    // Автомат солигдол: удаан, зөөлөн эхэлж зөөлөн зогсох (ease-in-out) 1.1 секунд.
+    // Гараар swipe хийсний дараах шилжилт: хурууны хөдөлгөөнийг үргэлжлүүлсэн
+    // мэт зөөлөн саарах 0.7 секунд. (Автомат солигдох 4 секундын давтамж хэвээр.)
+    var AUTO_TRANSITION = 'transform 1.1s cubic-bezier(0.65, 0, 0.35, 1)';
+    var SWIPE_TRANSITION = 'transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1)';
+    var nextTransition = AUTO_TRANSITION;
+
     function setPosition(withTransition){
-      trackEl.style.transition = withTransition ? 'transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none';
+      trackEl.style.transition = withTransition ? nextTransition : 'none';
       var offset = -(currentIndex * containerWidth) + dragDeltaX;
       trackEl.style.transform = 'translateX(' + offset + 'px)';
     }
@@ -4754,6 +4761,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!isAutoplayEnabled()) return;
       autoTimer = setInterval(function(){
         normalizeIndex();
+        nextTransition = AUTO_TRANSITION;
         goToIndex(currentIndex + 1);
       }, 4000);
     }
@@ -4786,21 +4794,45 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     });
 
+    // Slide шилжиж байх үед хуруугаараа барьвал байрлал нь "үсрэхгүй", яг одоо
+    // харагдаж буй цэгээсээ зогсоод хуруунд нь дагана.
+    function getVisualX(){
+      var tr = window.getComputedStyle(trackEl).transform;
+      if(!tr || tr === 'none') return null;
+      var m = tr.match(/matrix\(([^)]+)\)/);
+      if(!m) return null;
+      var v = parseFloat(m[1].split(',')[4]);
+      return isNaN(v) ? null : v;
+    }
+
+    var dragBase = 0;
+
     function onPointerDown(e){
+      containerWidth = getContainerWidth();
+      var vx = getVisualX();
+      var oldIndex = currentIndex;
       normalizeIndex();
+      dragBase = 0;
+      if(vx !== null){
+        // normalizeIndex clone -> жинхэнэ слайд руу N слайдаар шилжүүлсэн бол харагдах
+        // байрлалыг мөн адил шилжүүлж, зураг үсрэхгүй байлгана
+        var vxNorm = vx - (currentIndex - oldIndex) * containerWidth;
+        dragBase = vxNorm + currentIndex * containerWidth;
+        if(Math.abs(dragBase) > containerWidth) dragBase = 0;
+      }
       isDragging = true;
       pointerId = e.pointerId;
       dragStartX = e.clientX;
-      dragDeltaX = 0;
-      containerWidth = getContainerWidth();
+      dragDeltaX = dragBase;
       trackEl.classList.add('dragging');
       stopAutoTimer();
+      setPosition(false);
       try{ trackEl.setPointerCapture(pointerId); }catch(err){}
     }
 
     function onPointerMove(e){
       if(!isDragging) return;
-      dragDeltaX = e.clientX - dragStartX;
+      dragDeltaX = dragBase + (e.clientX - dragStartX);
       setPosition(false);
     }
 
@@ -4810,9 +4842,13 @@ document.addEventListener('DOMContentLoaded', function(){
       trackEl.classList.remove('dragging');
       var threshold = containerWidth * 0.08;
       normalizeIndex();
-      if(dragDeltaX <= -threshold){
+      nextTransition = SWIPE_TRANSITION;
+      // Чиглэлийг хурууны бодит хөдөлгөөнөөр (барьсан цэгээсээ хойш) тодорхойлно: чирээгүй
+      // бол явж байсан чиглэлээрээ дараагийн зураг руу зөөлөн үргэлжилнэ
+      var moved = dragDeltaX - dragBase;
+      if(moved <= -threshold){
         goToIndex(currentIndex + 1);
-      } else if(dragDeltaX >= threshold){
+      } else if(moved >= threshold){
         goToIndex(currentIndex - 1);
       } else {
         dragDeltaX = 0;
