@@ -519,6 +519,11 @@
     position:relative;
   }
   .offer-card:hover{ transform:translateY(-2px); }
+  /* Дарахад карт анивчихгүй: бүдгэрэх/харлах/шилжих эффектүүдийг идэвхгүй болгоно */
+  .offer-card, .offer-card:hover, .offer-card:active, .offer-card:focus{
+    opacity:1; filter:none; transform:none; transition:none;
+    -webkit-tap-highlight-color:transparent; outline:none;
+  }
   .offer-cover{
     aspect-ratio:1/1; position:relative; overflow:hidden;
     display:flex; align-items:center; justify-content:center;
