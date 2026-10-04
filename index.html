@@ -3918,10 +3918,13 @@ document.addEventListener('DOMContentLoaded', function(){
     searchComposing = false;
     renderHomeSearchDropdown(gameSearchInput.value);
   });
-  gameSearchInput.addEventListener('input', function(){
-    if(searchComposing) return;
-    renderHomeSearchDropdown(gameSearchInput.value);
-  });
+  // Samsung/Gboard зэрэг утасны гар үгийг бичиж дуустал "composition" горимд байдаг тул
+  // composition үед хайлт хаахгүй: бичих бүрд жагсаалтыг шинэчилнэ.
+  function refreshHomeSearch(){ renderHomeSearchDropdown(gameSearchInput.value); }
+  gameSearchInput.addEventListener('input', refreshHomeSearch);
+  gameSearchInput.addEventListener('compositionupdate', function(){ setTimeout(refreshHomeSearch, 0); });
+  gameSearchInput.addEventListener('keyup', refreshHomeSearch);
+  gameSearchInput.addEventListener('change', refreshHomeSearch);
   gameSearchInput.addEventListener('keydown', function(e){
     var key = e.key;
     var isOpen = homeSearchDropdown.classList.contains('open');
@@ -3933,7 +3936,7 @@ document.addEventListener('DOMContentLoaded', function(){
       var next = key === 'ArrowDown' ? (searchActive + 1) % n : (searchActive <= 0 ? n - 1 : searchActive - 1);
       setSearchActive(next);
     } else if(key === 'Enter'){
-      if(searchComposing) return;
+      if(e.isComposing && !/Android/i.test(navigator.userAgent)) return;
       e.preventDefault();
       if(!isOpen) renderHomeSearchDropdown(gameSearchInput.value);
       if(searchResults.length) chooseSearchResult(searchResults[searchActive >= 0 ? searchActive : 0]);
