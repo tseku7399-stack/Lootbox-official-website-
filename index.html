@@ -743,6 +743,18 @@
   .recharge-warning .rw-title{ font-family:'Poppins',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-hi); margin-bottom:3px; }
   .recharge-warning .rw-text{ font-size:11.5px; line-height:1.5; color:var(--text-lo); }
   .cb-label{ font-size:11px; color:var(--text-lo); }
+  .cb-item, .cb-item.show{ display:none !important; }
+  .cb-item-unused{ display:none; font-size:12px; font-weight:600; color:var(--text-hi); margin-bottom:3px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cb-item.show{ display:block; }
+  .cb-fee{ display:none; font-size:10.5px; color:var(--text-lo); margin-top:2px; }
+  .cb-fee.show{ display:block; }
+  .cb-fee b{ color:var(--text-hi); font-weight:600; }
+  .pm-lines{ margin-top:12px; }
+  .pm-line{ display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:rgba(255,255,255,0.7); }
+  .pm-line + .pm-line{ margin-top:6px; }
+  .pm-line .pm-line-label{ color:rgba(255,255,255,0.6); }
+  .pm-line .pm-item{ margin:0; font-size:13px; font-weight:600; color:#fff; text-align:right; }
+  .pm-line-price{ font-weight:600; color:rgba(255,255,255,0.9); }
   .cb-amount{ font-family:'Poppins',sans-serif; font-weight:700; font-size:17px; color:var(--ml-purple); }
   .recharge-buy-btn{
     background:var(--ml-purple); color:#fff; border:0; font-family:'Poppins',sans-serif;
@@ -1912,8 +1924,10 @@
 
     <div class="recharge-checkout-bar" id="rechargeCheckoutBar">
       <div>
+        <div class="cb-item" id="rechargeSelectedItem"></div>
         <div class="cb-label">Нийт төлөх</div>
         <div class="cb-amount" id="rechargeTotal">—</div>
+        <div class="cb-fee" id="rechargeFeeLine"></div>
       </div>
       <button class="recharge-buy-btn" id="rechargeBuyBtn">Худалдаж авах</button>
     </div>
@@ -1979,10 +1993,14 @@
     <div id="paymentFormView">
       <div class="payment-modal-summary">
         <div class="pm-game" id="pmGameName">—</div>
-        <div class="pm-item" id="pmItemName">—</div>
         <div class="pm-acc" id="pmAccInfo">—</div>
+        <div class="pm-lines">
+          <div class="pm-line" style="display:none;"><span class="pm-line-label">Багц</span><span class="pm-item" id="pmItemName">—</span></div>
+          <div class="pm-line" style="display:none;"><span class="pm-line-label">Үнэ</span><span class="pm-line-price" id="pmItemPrice">—</span></div>
+          <div class="pm-line"><span class="pm-line-label">Шимтгэл (1%)</span><span class="pm-line-price" id="pmFee">—</span></div>
+        </div>
         <div class="pm-total-row">
-          <span>Нийт дүн</span>
+          <span>Нийт үнэ</span>
           <span class="pm-total" id="pmTotalAmount">—</span>
         </div>
       </div>
@@ -4201,6 +4219,16 @@ document.addEventListener('DOMContentLoaded', function(){
     attachPackageHandlers();
   }
 
+  // ---- 1% үйлчилгээний шимтгэл ----
+  var SERVICE_FEE_RATE = 0.01;
+  function parseMnt(str){ return parseInt(String(str || '').replace(/[^0-9]/g, ''), 10) || 0; }
+  function fmtMnt(n){ return n.toLocaleString('en-US') + '₮'; }
+  function calcCharge(priceStr){
+    var base = parseMnt(priceStr);
+    var fee = Math.round(base * SERVICE_FEE_RATE);
+    return { base: base, fee: fee, total: base + fee, baseStr: fmtMnt(base), feeStr: fmtMnt(fee), totalStr: fmtMnt(base + fee) };
+  }
+
   function attachPackageHandlers(){
     var checkoutBar = document.getElementById('rechargeCheckoutBar');
     var rechargeWarning = document.querySelector('.recharge-warning');
@@ -4209,7 +4237,12 @@ document.addEventListener('DOMContentLoaded', function(){
         document.querySelectorAll('.package-card').forEach(function(p){ p.classList.remove('selected'); });
         pkg.classList.add('selected');
         var priceEl = pkg.querySelector('.price');
-        rechargeTotal.textContent = priceEl ? priceEl.textContent : '—';
+        var ch = calcCharge(priceEl ? priceEl.textContent : '');
+        rechargeTotal.textContent = ch.base ? ch.totalStr : '—';
+        var selItemEl = document.getElementById('rechargeSelectedItem');
+        if(selItemEl){ selItemEl.textContent = pkg.getAttribute('data-item') || ''; selItemEl.classList.add('show'); }
+        var feeLineEl = document.getElementById('rechargeFeeLine');
+        if(feeLineEl){ feeLineEl.innerHTML = 'Үүнд 1% шимтгэл <b>' + ch.feeStr + '</b> орсон'; feeLineEl.classList.add('show'); }
         if(checkoutBar) checkoutBar.classList.add('is-sticky');
         // Багц сонгосны дараа "Заавал анхаарах зүйлс" сануулга цаашид
         // шаардлагагүй тул шууд алгасна
@@ -4331,6 +4364,9 @@ document.addEventListener('DOMContentLoaded', function(){
       renderPackages(currentRechargeGame);
       var totalEl = document.getElementById('rechargeTotal');
       if(totalEl) totalEl.textContent = '—';
+      var selItemReset1 = document.getElementById('rechargeSelectedItem');
+      if(selItemReset1){ selItemReset1.textContent = ''; selItemReset1.classList.remove('show'); }
+      var feeReset1 = document.getElementById('rechargeFeeLine'); if(feeReset1) feeReset1.classList.remove('show');
       var bar = document.getElementById('rechargeCheckoutBar');
       if(bar) bar.classList.remove('is-sticky');
     }
@@ -4383,6 +4419,9 @@ document.addEventListener('DOMContentLoaded', function(){
       renderPackages(game);
 
       rechargeTotal.textContent = '—';
+      var selItemReset2 = document.getElementById('rechargeSelectedItem');
+      if(selItemReset2){ selItemReset2.textContent = ''; selItemReset2.classList.remove('show'); }
+      var feeReset2 = document.getElementById('rechargeFeeLine'); if(feeReset2) feeReset2.classList.remove('show');
       var checkoutBarReset = document.getElementById('rechargeCheckoutBar');
       if(checkoutBarReset) checkoutBarReset.classList.remove('is-sticky');
       var rechargeWarningReset = document.querySelector('.recharge-warning');
@@ -4587,7 +4626,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var gameName = rechargeTitle.textContent || '';
     var itemText = selectedPackageEl.getAttribute('data-item') || '';
     var priceText = selectedPackageEl.getAttribute('data-price') || '';
-    pmGameName.textContent = gameName;
+    pmGameName.textContent = gameName + (itemText ? ' · ' + itemText : '');
     pmItemName.textContent = itemText;
 
     var playerIdEl = document.getElementById('playerIdInput');
@@ -4598,8 +4637,14 @@ document.addEventListener('DOMContentLoaded', function(){
     var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '';
     pmAccInfo.textContent = idValue ? ('ID: ' + idDisplay + (accountName ? (' · ' + accountName) : '')) : '—';
 
-    pmTotalAmount.textContent = priceText;
-    transferAmount.textContent = priceText;
+    var chg = calcCharge(priceText);
+    var totalText = chg.base ? chg.totalStr : priceText;
+    pmTotalAmount.textContent = totalText;
+    transferAmount.textContent = totalText;
+    var pmItemPriceEl = document.getElementById('pmItemPrice');
+    if(pmItemPriceEl) pmItemPriceEl.textContent = chg.base ? chg.baseStr : priceText;
+    var pmFeeEl = document.getElementById('pmFee');
+    if(pmFeeEl) pmFeeEl.textContent = chg.base ? ('+' + chg.feeStr) : '—';
 
     var memoIdPart = (idValue || 'GUEST').toUpperCase().replace(/[^A-Z0-9]/g, '');
     var memoStamp = Date.now().toString(36).toUpperCase().slice(-5);
@@ -4611,7 +4656,7 @@ document.addEventListener('DOMContentLoaded', function(){
     selectTransferBank(BANK_APPS[0], null);
     transferBankChips.querySelectorAll('.transfer-chip')[0].classList.add('selected');
 
-    var qrData = encodeURIComponent('QPay|' + gameName + '|' + itemText + '|' + priceText);
+    var qrData = encodeURIComponent('QPay|' + gameName + '|' + itemText + '|' + totalText);
     qpayQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=6&data=' + qrData;
 
     paymentConfirmBtn.classList.remove('success', 'loading');
@@ -4665,7 +4710,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
       var gameName = rechargeTitle.textContent || '';
       var itemText = pkg.getAttribute('data-item') || '';
-      var priceText = pkg.getAttribute('data-price') || '';
+      var basePriceText = pkg.getAttribute('data-price') || '';
+      var chgC = calcCharge(basePriceText);
+      var priceText = chgC.base ? chgC.totalStr : basePriceText;
       var now = new Date();
       var dateStr = now.toLocaleDateString('mn-MN') + ', ' + now.toLocaleTimeString('mn-MN', { hour:'2-digit', minute:'2-digit' });
 
@@ -4695,7 +4742,7 @@ document.addEventListener('DOMContentLoaded', function(){
       try{
         if(typeof firebase !== 'undefined' && firebase.firestore){
           firebase.firestore().collection('orders').add({
-            game: gameName, playerId: idValue, zoneId: zoneValue, item: itemText, price: priceText,
+            game: gameName, playerId: idValue, zoneId: zoneValue, item: itemText, price: priceText, basePrice: basePriceText, fee: chgC.feeStr,
             memo: currentTransferMemo, user: (currentUser && currentUser.email) || String(currentUserKey || ''),
             status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }).catch(function(e){ console.warn('Order save failed', e); });
