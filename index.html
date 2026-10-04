@@ -3972,12 +3972,7 @@ document.addEventListener('DOMContentLoaded', function(){
   };
 
   function generateMockAccount(game, idValue){
-    // Жинхэнэ тоглоомын сервертэй холбогдоогүй тул зохиомол нэр харуулахгүй:
-    // хэрэглэгчийн өөрийн оруулсан нэрийг (Username) буцаана.
-    var nm = '';
-    if(game === 'Valorant'){ nm = (idValue || '').split('#')[0]; }
-    else { var ue = document.getElementById('usernameInput'); nm = ue ? ue.value.trim() : ''; }
-    return { name: nm, level:0 };
+    return generateMockAccountLegacy(game, idValue);
   }
   function generateMockAccountLegacy(game, idValue){
     var special = SPECIAL_ACCOUNTS[game] && SPECIAL_ACCOUNTS[game][idValue];
@@ -4099,17 +4094,6 @@ document.addEventListener('DOMContentLoaded', function(){
           '<div class="verify-result" id="verifyResult"></div>' +
         '</div>';
       attachVerifyHandler();
-    }
-    // Valorant-д Riot ID (Name#1234) өөрөө username тул нэмэлт талбар шаардахгүй
-    if(game !== 'Valorant'){
-      container.insertAdjacentHTML('beforeend',
-        '<div class="id-field id-field-wide" style="margin-top:12px;">' +
-          '<label>Тоглоомын нэр (Username)</label>' +
-          '<input type="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="Тоглоом доторх нэрээ оруулна уу" id="usernameInput">' +
-        '</div>');
-      var uIn = document.getElementById('usernameInput');
-      var vRes = document.getElementById('verifyResult');
-      if(uIn && vRes) uIn.addEventListener('input', function(){ vRes.className = 'verify-result'; vRes.innerHTML = ''; });
     }
   }
 
@@ -4713,7 +4697,7 @@ document.addEventListener('DOMContentLoaded', function(){
       try{
         if(typeof firebase !== 'undefined' && firebase.firestore){
           firebase.firestore().collection('orders').add({
-            game: gameName, playerId: idValue, zoneId: zoneValue, username: accountName, item: itemText, price: priceText,
+            game: gameName, playerId: idValue, zoneId: zoneValue, item: itemText, price: priceText,
             memo: currentTransferMemo, user: (currentUser && currentUser.email) || String(currentUserKey || ''),
             status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }).catch(function(e){ console.warn('Order save failed', e); });
