@@ -1560,7 +1560,7 @@
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
-          <input type="text" id="loginPassword" placeholder="Нууц үгээ оруулах">
+          <input type="password" id="loginPassword" placeholder="Нууц үгээ оруулах" autocomplete="current-password">
           <div class="field-error" id="loginPasswordError"></div>
         </div>
         <a class="forgot-link" id="forgotLink">Нууц үгээ мартсан уу?</a>
@@ -1587,12 +1587,12 @@
         </div>
         <div class="login-field">
           <label>Нууц үг</label>
-          <input type="text" id="registerPassword" placeholder="Нууц үг үүсгэх">
+          <input type="password" id="registerPassword" placeholder="Нууц үг үүсгэх" autocomplete="new-password">
           <div class="field-error" id="registerPasswordError"></div>
         </div>
         <div class="login-field">
           <label>Нууц үг давтах</label>
-          <input type="text" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах">
+          <input type="password" id="registerPassword2" placeholder="Нууц үгээ давтан оруулах" autocomplete="new-password">
           <div class="field-error" id="registerPassword2Error"></div>
         </div>
         <div class="login-error" id="registerError"></div>
@@ -2041,7 +2041,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         </div>
       </div>
-      <div class="ps-title">Худалдан авалт амжилттай</div>
+      <div class="ps-title">Захиалга хүлээн авлаа<div style="font-size:13px;font-weight:500;opacity:.75;margin-top:6px;">Төлбөр шалгагдсаны дараа цэнэглэгдэнэ</div></div>
       <div class="ps-card">
         <div class="ps-row">
           <span class="ps-label">Тоглоом</span>
@@ -2786,6 +2786,12 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.textContent = label;
   }
 
+  // Firebase SDK ачаалагдаагүй (интернэтгүй / блоклогдсон) бол товч гацахгүй, ойлгомжтой мессеж харуулна
+  var FIREBASE_MISSING_MSG = 'Сүлжээний алдаа гарлаа. Интернэт холболтоо шалгаад хуудсаа дахин ачаална уу';
+  function firebaseReady(){
+    return typeof firebase !== 'undefined' && !!firebase.auth;
+  }
+
   function doLogin(){
     if(loginBtn.disabled) return; // хүсэлт аль хэдийн явж байгаа бол (жишээ нь Enter товчийг давхар дарсан) дахин бүү илгээ
     var email = loginUsername.value.trim();
@@ -2810,6 +2816,7 @@ document.addEventListener('DOMContentLoaded', function(){
       highlightInvalidField(loginPassword, loginPasswordError);
       return;
     }
+    if(!firebaseReady()){ setLoginError(FIREBASE_MISSING_MSG); return; }
     setBtnLoading(loginBtn);
     firebase.auth().signInWithEmailAndPassword(email, p)
       .then(function(cred){
@@ -2901,6 +2908,7 @@ document.addEventListener('DOMContentLoaded', function(){
       highlightInvalidField(registerPassword2, registerPassword2Error);
       return;
     }
+    if(!firebaseReady()){ setRegisterError(FIREBASE_MISSING_MSG); return; }
     setBtnLoading(registerBtn);
     firebase.auth().createUserWithEmailAndPassword(email, p)
       .then(function(cred){
@@ -2962,6 +2970,12 @@ document.addEventListener('DOMContentLoaded', function(){
       forgotError.style.display = 'block';
       forgotSent.style.display = 'none';
       highlightInvalidField(forgotInput);
+      return;
+    }
+    if(!firebaseReady()){
+      forgotError.textContent = FIREBASE_MISSING_MSG;
+      forgotError.style.display = 'block';
+      forgotSent.style.display = 'none';
       return;
     }
     forgotError.style.display = 'none';
@@ -3087,6 +3101,10 @@ document.addEventListener('DOMContentLoaded', function(){
     if(inAppName){
       var msg = inAppBrowserMessage(inAppName);
       if(registerPanel.style.display !== 'none'){ setRegisterError(msg); } else { setLoginError(msg); }
+      return;
+    }
+    if(!firebaseReady()){
+      if(registerPanel.style.display !== 'none'){ setRegisterError(FIREBASE_MISSING_MSG); } else { setLoginError(FIREBASE_MISSING_MSG); }
       return;
     }
     googleAuthInProgress = true;
@@ -3222,13 +3240,13 @@ document.addEventListener('DOMContentLoaded', function(){
       return;
     }
     profileHistoryList.innerHTML = purchases.map(function(p){
-      var accLine = p.accId ? ('<div class="ph-acc">ID: ' + p.accId + (p.accName ? (' · ' + p.accName) : '') + '</div>') : '';
+      var accLine = p.accId ? ('<div class="ph-acc">ID: ' + escHtml(p.accId) + (p.accName ? (' · ' + escHtml(p.accName)) : '') + '</div>') : '';
       var status = p.status === 'success' ? 'success' : 'pending';
       var statusLabel = status === 'success' ? 'Амжилттай' : 'Хүлээгдэж буй';
       var statusBadge = '<div class="ph-status ph-status-' + status + '">' + statusLabel + '</div>';
       return '<div class="profile-history-item">' +
-        '<div class="ph-left"><div class="ph-game">' + p.game + '</div>' + accLine + '<div class="ph-item">' + p.item + '</div><div class="ph-date">' + p.date + '</div>' + statusBadge + '</div>' +
-        '<div class="ph-price">' + p.price + '</div>' +
+        '<div class="ph-left"><div class="ph-game">' + escHtml(p.game) + '</div>' + accLine + '<div class="ph-item">' + escHtml(p.item) + '</div><div class="ph-date">' + escHtml(p.date) + '</div>' + statusBadge + '</div>' +
+        '<div class="ph-price">' + escHtml(p.price) + '</div>' +
       '</div>';
     }).join('');
   }
@@ -3318,8 +3336,8 @@ document.addEventListener('DOMContentLoaded', function(){
         var clickableClass = ' clickable';
         return '<div class="notif-item' + (n.unread ? ' unread' : '') + clickableClass + '" data-notif-index="' + i + '">' +
           '<div class="notif-body">' +
-            '<div class="notif-row"><div class="notif-title"><span>' + n.title + '</span></div><div class="notif-time">' + n.time + '</div></div>' +
-            '<div class="notif-desc">' + n.body + '</div>' +
+            '<div class="notif-row"><div class="notif-title"><span>' + escHtml(n.title) + '</span></div><div class="notif-time">' + escHtml(n.time) + '</div></div>' +
+            '<div class="notif-desc">' + escHtml(n.body) + '</div>' +
           '</div>' +
           '<div class="notif-del" data-notif-del="' + i + '" aria-label="Устгах">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
@@ -3594,11 +3612,16 @@ document.addEventListener('DOMContentLoaded', function(){
   profileAuthBtn.addEventListener('click', function(){
     if(currentUser.loggedIn){
       // Гарах: зочны төлөвт буцаж, гол нүүр рүү үлдэнэ (заавал нэвтрэх дэлгэц рүү оруулахгүй)
-      firebase.auth().signOut().then(function(){
+      var afterSignOut = function(){
         profileView.style.display = 'none';
         document.getElementById('mainView').style.display = 'block';
         showToast('Амжилттай гарлаа', 'Та зочны төлөвт шилжлээ.');
-      });
+      };
+      if(firebaseReady()){
+        firebase.auth().signOut().then(afterSignOut, afterSignOut);
+      } else {
+        afterSignOut();
+      }
     } else {
       // Нэвтрэх: профайл дээрээс нэвтэрсний дараа буцаад профайл руугаа орно
       profileOpenedFrom = loginView;
@@ -3949,6 +3972,10 @@ document.addEventListener('DOMContentLoaded', function(){
   };
 
   function generateMockAccount(game, idValue){
+    // Жинхэнэ тоглоомын сервертэй холбогдоогүй тул зохиомол нэр харуулахгүй.
+    return { name:'', level:0 };
+  }
+  function generateMockAccountLegacy(game, idValue){
     var special = SPECIAL_ACCOUNTS[game] && SPECIAL_ACCOUNTS[game][idValue];
     if(special) return special;
     var pool = GAME_NAME_POOLS[game];
@@ -4015,7 +4042,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var account = generateMockAccount(currentRechargeGame, val);
         result.innerHTML =
           '<span class="vr-check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>' +
-          '<span class="vr-name">' + account.name + '</span>';
+          '<span class="vr-name">ID хүлээн авлаа</span>';
       }, 900);
     });
   }
@@ -4368,6 +4395,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
   var rechargeBuyBtn = document.getElementById('rechargeBuyBtn');
   rechargeBuyBtn.addEventListener('click', function(){
+    var tNow = Date.now();
+    if(tNow - (rechargeBuyBtn._lastClick || 0) < 800) return; // хурдан давхар дарахаас сэргийлнэ
+    rechargeBuyBtn._lastClick = tNow;
     if(!currentUser.loggedIn){
       openLogin('recharge');
       return;
@@ -4445,6 +4475,8 @@ document.addEventListener('DOMContentLoaded', function(){
   var psAmount = document.getElementById('psAmount');
   var psDate = document.getElementById('psDate');
   var pendingSelectedPackage = null;
+  var paymentOpenedAt = 0;   // цонх нээгдсэн цаг (давхар дарагдсан "ghost click"-ээс сэргийлнэ)
+  var lastOrderKey = '', lastOrderAt = 0;
   var paymentProcessing = false; // "Төлбөр баталгаажуулах" дарсны дараах loading явж байгаа эсэх
   var selectedTransferBank = null;
 
@@ -4580,6 +4612,7 @@ document.addEventListener('DOMContentLoaded', function(){
     paymentFormView.style.display = '';
     paymentSuccessView.style.display = 'none';
     paymentModalOverlay.classList.add('open');
+    paymentOpenedAt = Date.now();
   }
 
   function closePaymentModal(){
@@ -4591,7 +4624,14 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 
   paymentConfirmBtn.addEventListener('click', function(){
-    if(!pendingSelectedPackage) return;
+    if(paymentProcessing || !pendingSelectedPackage) return;
+    // Цонх дөнгөж нээгдэж байхад хурдан давхар дарсан тохиолдолд төлбөр өөрөөр баталгаажихаас сэргийлнэ
+    if(Date.now() - paymentOpenedAt < 800) return;
+    // Ижил захиалгыг 20 секундэд хоёр удаа бүртгэхгүй
+    var pidEl = document.getElementById('playerIdInput'), zidEl = document.getElementById('zoneIdInput');
+    var orderKey = [currentRechargeGame, pidEl ? pidEl.value.trim() : '', zidEl ? zidEl.value.trim() : '', pendingSelectedPackage.getAttribute('data-item')].join('|');
+    if(orderKey === lastOrderKey && Date.now() - lastOrderAt < 20000) return;
+    lastOrderKey = orderKey; lastOrderAt = Date.now();
     playClickSound();
     // Худалдан авалтыг тэмдэглэсний дараа шууд null болгож, loading үзүүлж
     // байх хугацаанд товчийг дахин дарвал (double-tap) худалдан авалт хоёр
@@ -4625,7 +4665,7 @@ document.addEventListener('DOMContentLoaded', function(){
       var idValue = playerIdEl ? playerIdEl.value.trim() : '';
       var zoneValue = zoneIdEl ? zoneIdEl.value.trim() : '';
       var idDisplay = idValue + (zoneValue ? ' (' + zoneValue + ')' : '');
-      var accountName = idValue ? generateMockAccount(currentRechargeGame, idValue).name : '—';
+      var accountName = '—';
 
       psGameName.textContent = gameName;
       psAccId.textContent = idDisplay || '—';
@@ -4643,6 +4683,15 @@ document.addEventListener('DOMContentLoaded', function(){
       if(pmBox) pmBox.scrollTop = 0;
       paymentModalOverlay.classList.add('open');
 
+      try{
+        if(typeof firebase !== 'undefined' && firebase.firestore){
+          firebase.firestore().collection('orders').add({
+            game: gameName, playerId: idValue, zoneId: zoneValue, item: itemText, price: priceText,
+            memo: currentTransferMemo, user: (currentUser && currentUser.email) || String(currentUserKey || ''),
+            status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(function(e){ console.warn('Order save failed', e); });
+        }
+      }catch(e){ console.warn(e); }
       if(currentUser.loggedIn && currentUserKey){
         var users = loadUsers();
         var record = users[currentUserKey];
@@ -4655,7 +4704,7 @@ document.addEventListener('DOMContentLoaded', function(){
             item: itemText,
             price: priceText,
             date: dateStr,
-            status: 'success'
+            status: 'pending'
           });
           users[currentUserKey] = record;
           saveUsers(users);
@@ -4667,11 +4716,11 @@ document.addEventListener('DOMContentLoaded', function(){
       // дээр дарахад яг энэ худалдан авалтын дэлгэрэнгүй мэдээллийг
       // (амжилттай дэлгэц шиг) дахин харуулна. ----
       if(isNotifEnabled()){
-        showToast('Цэнэглэлт амжилттай', gameName + ' — ' + itemText + ' амжилттай орлоо.');
+        showToast('Захиалга хүлээн авлаа', gameName + ' — ' + itemText + ' төлбөр шалгагдсаны дараа цэнэглэгдэнэ.');
         NOTIFICATIONS.unshift({
           icon: 'diamond',
-          title: 'Цэнэглэлт амжилттай',
-          body: gameName + ' — ' + itemText + ' амжилттай орлоо.',
+          title: 'Захиалга хүлээн авлаа',
+          body: gameName + ' — ' + itemText + ' төлбөр шалгагдсаны дараа цэнэглэгдэнэ.',
           time: 'Дөнгөж сая',
           unread: true,
           purchase: {
